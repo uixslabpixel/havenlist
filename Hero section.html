@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Havenlist — Find your livings</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <style>
+    @font-face {
+      font-family: "Inter Display";
+      src: url("assets/havenlist/InterDisplay-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --ink: #1e1e1e;
+      --ink-70: rgba(30, 30, 30, 0.7);
+      --ink-10: rgba(30, 30, 30, 0.1);
+      --ink-07: rgba(30, 30, 30, 0.07);
+      --paper: #fafaf9;
+      --white: #ffffff;
+      --page-pad: 64px;
+      --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      --font-display: "Inter Display", "Inter", system-ui, sans-serif;
+      --font-ui: "Geist", system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body { overflow-x: hidden; }
+
+    button, a, input { font: inherit; color: inherit; }
+    button { border: none; background: none; cursor: pointer; }
+    a { text-decoration: none; }
+    ul { list-style: none; }
+
+    .page {
+      min-height: 100vh;
+      background: var(--paper);
+    }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      min-height: 900px;
+      padding-bottom: 160px;
+      overflow: visible;
+    }
+
+    .hero-visual {
+      position: relative;
+      width: 100%;
+      height: 714px;
+      overflow: hidden;
+    }
+
+    .hero-layer {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hero-layer img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    /* Soft landscape glow behind the scene */
+    .hero-layer--glow {
+      top: -9px;
+      width: min(1701px, 118%);
+      height: 722px;
+      z-index: 0;
+    }
+
+    /* Base photo under the headline */
+    .hero-layer--base {
+      top: 48px;
+      width: min(1566px, 109%);
+      height: 665px;
+      z-index: 1;
+    }
+
+    /* Soft fade mask near the bottom of the photo */
+    .hero-layer--mask {
+      top: 445px;
+      width: min(1566px, 109%);
+      height: 268px;
+      z-index: 2;
+      -webkit-mask-image: url("assets/havenlist/hero-mask.svg");
+      mask-image: url("assets/havenlist/hero-mask.svg");
+      -webkit-mask-size: 100% 100%;
+      mask-size: 100% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+    }
+
+    /* Building cutout sits above the headline so “livings” tucks behind it */
+    .hero-layer--main {
+      top: 48px;
+      width: min(1566px, 109%);
+      height: 665px;
+      z-index: 4;
+    }
+
+    .hero-layer--main::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 20.37%,
+        rgba(0, 0, 0, 0.15) 99.94%
+      );
+    }
+
+    .hero-fade {
+      position: absolute;
+      left: 50%;
+      top: 496px;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1440px;
+      height: 217px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hero-fade img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-title {
+      position: absolute;
+      left: 50%;
+      top: 101px;
+      transform: translateX(-50%);
+      z-index: 3;
+      width: calc(100% - (var(--page-pad) * 2));
+      text-align: center;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(48px, 8.3vw, 120px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      background: linear-gradient(180deg, #fff 34.5%, rgba(255, 255, 255, 0.5) 118%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      pointer-events: none;
+    }
+
+    /* —— Navbar —— */
+    .navbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 var(--page-pad);
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--white);
+      width: 100px;
+      transition: opacity 0.2s var(--ease);
+    }
+
+    .logo:hover { opacity: 0.85; }
+    .logo:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-links a {
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--white);
+      opacity: 1;
+      transition: opacity 0.2s var(--ease);
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -4px;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s var(--ease);
+    }
+
+    .nav-links a:hover { opacity: 0.8; }
+    .nav-links a:hover::after,
+    .nav-links a[aria-current="page"]::after { transform: scaleX(1); }
+    .nav-links a:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 6px;
+      border-radius: 4px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 56px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .icon-btn:active { transform: scale(0.96); }
+    .icon-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    .icon-btn.is-active {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .icon-btn.is-active svg path {
+      fill: #ff6b6b;
+      stroke: #ff6b6b;
+    }
+
+    .btn-sell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 8px 16px;
+      border-radius: 56px;
+      background: var(--white);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+    }
+
+    .btn-sell:hover {
+      background: #f3f3f3;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .btn-sell:active { transform: scale(0.98); }
+    .btn-sell:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+    .menu-btn {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 8px;
+      transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .menu-btn:hover { opacity: 0.8; }
+    .menu-btn:active { transform: scale(0.96); }
+    .menu-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .menu-btn img { width: 40px; height: 40px; display: block; }
+
+    .menu-btn[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    /* —— Mobile drawer —— */
+    .nav-drawer {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .nav-drawer.is-open {
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    .nav-drawer__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      opacity: 0;
+      transition: opacity 0.3s var(--ease);
+    }
+
+    .nav-drawer.is-open .nav-drawer__backdrop { opacity: 1; }
+
+    .nav-drawer__panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(320px, 88vw);
+      height: 100%;
+      background: var(--white);
+      padding: 28px 24px;
+      transform: translateX(100%);
+      transition: transform 0.3s var(--ease);
+      box-shadow: -12px 0 40px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .nav-drawer.is-open .nav-drawer__panel { transform: translateX(0); }
+
+    .nav-drawer__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-drawer__header span {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-drawer__close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--ink-10);
+      font-size: 20px;
+      line-height: 1;
+      color: var(--ink);
+      transition: background 0.2s var(--ease);
+    }
+
+    .nav-drawer__close:hover { background: #f5f5f5; }
+
+    .nav-drawer__links {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-drawer__links a {
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      padding: 12px 8px;
+      border-radius: 10px;
+      color: var(--ink);
+      transition: background 0.2s var(--ease);
+    }
+
+    .nav-drawer__links a:hover,
+    .nav-drawer__links a[aria-current="page"] { background: #f5f5f5; }
+
+    /* —— Search card —— */
+    .search-card {
+      position: absolute;
+      left: 50%;
+      top: 496px;
+      transform: translateX(-50%);
+      z-index: 10;
+      width: min(822px, calc(100% - (var(--page-pad) * 2)));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 40px 24px;
+      background: var(--white);
+      border-radius: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .tabs {
+      position: absolute;
+      left: 50%;
+      top: -20px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-start;
+      height: 40px;
+      padding: 4px;
+      border: 4px solid var(--white);
+      border-radius: 32px;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 100%),
+        #f9f9f9;
+    }
+
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 0 16px;
+      border-radius: 32px;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--ink-70);
+      white-space: nowrap;
+      transition: color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+
+    .tab:hover { color: var(--ink); }
+
+    .tab[aria-selected="true"] {
+      height: 32px;
+      align-self: center;
+      padding: 0 12px;
+      color: var(--ink);
+      border: 1px solid var(--white);
+      border-radius: 36px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%),
+        var(--white);
+      outline: 1px solid var(--ink-07);
+    }
+
+    .tab:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+
+    .search-form {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 774px;
+      height: 64px;
+      padding: 10px 6px 10px 20px;
+      border: 1px solid var(--ink-10);
+      border-radius: 46px;
+      background: var(--white);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.03);
+      transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+
+    .search-form:focus-within {
+      border-color: rgba(30, 30, 30, 0.28);
+      box-shadow: 0 5px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .search-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font-ui);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .search-input::placeholder { color: var(--ink-70); }
+
+    .btn-search {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 92px;
+      height: 52px;
+      border-radius: 70px;
+      border: 1px solid var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: transparent;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%),
+        #1e1e1e;
+      transition: transform 0.2s var(--ease), filter 0.2s var(--ease);
+      position: relative;
+    }
+
+    .btn-search span {
+      background: linear-gradient(34deg, #fff 30.8%, rgba(255, 255, 255, 0.7) 91.8%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .btn-search:hover { filter: brightness(1.15); }
+    .btn-search:active { transform: scale(0.97); }
+    .btn-search:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 46px;
+      border: 1px solid var(--ink-10);
+      background: var(--white);
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      white-space: nowrap;
+      transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .chip:hover {
+      background: #f7f7f7;
+      border-color: rgba(30, 30, 30, 0.22);
+    }
+
+    .chip:active { transform: scale(0.98); }
+    .chip.is-active {
+      background: #1e1e1e;
+      border-color: #1e1e1e;
+      color: #fff;
+    }
+    .chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 50;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #1e1e1e;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 900px) {
+      :root { --page-pad: 24px; }
+
+      .nav-links { display: none; }
+
+      .hero {
+        min-height: auto;
+        padding-bottom: 48px;
+      }
+
+      .hero-visual {
+        height: 520px;
+      }
+
+      .hero-layer--base,
+      .hero-layer--main {
+        top: 0;
+        height: 520px;
+      }
+
+      .hero-title {
+        top: 88px;
+        white-space: normal;
+        font-size: clamp(40px, 11vw, 72px);
+      }
+
+      .search-card {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        margin: -88px auto 0;
+        width: calc(100% - (var(--page-pad) * 2));
+        padding: 36px 16px 28px;
+        border-radius: 28px;
+      }
+
+      .hero-fade { display: none; }
+
+      .search-form {
+        height: 56px;
+        padding-left: 16px;
+      }
+
+      .btn-search { width: 84px; height: 44px; }
+
+      .tabs { top: -18px; }
+      .tab { font-size: 14px; padding: 0 12px; }
+    }
+
+    @media (max-width: 520px) {
+      .btn-sell span.full { display: none; }
+      .btn-sell::after { content: "Sell"; }
+      .chip { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero" aria-label="Havenlist hero">
+      <header class="navbar">
+        <a class="logo" href="#">Havenlist.</a>
+
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#listings" aria-current="page">Listings</a>
+          <a href="#neighborhoods">Neighborhoods</a>
+          <a href="#insights">Insights</a>
+        </nav>
+
+        <div class="nav-actions">
+          <button class="icon-btn" type="button" id="favBtn" aria-label="Saved homes" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 13.5S2.5 10.2 2.5 6.4A3.15 3.15 0 0 1 8 4.2a3.15 3.15 0 0 1 5.5 2.2C13.5 10.2 8 13.5 8 13.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <button class="btn-sell" type="button" id="sellBtn">
+            <span class="full">Sell with us</span>
+          </button>
+
+          <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+            <img src="assets/havenlist/menu.svg" alt="" width="40" height="40">
+          </button>
+        </div>
+      </header>
+
+      <div class="hero-visual">
+        <div class="hero-layer hero-layer--glow" aria-hidden="true">
+          <img src="assets/havenlist/hero-back-1.png" alt="">
+        </div>
+        <div class="hero-layer hero-layer--base" aria-hidden="true">
+          <img src="assets/havenlist/hero-back.png" alt="">
+        </div>
+        <div class="hero-layer hero-layer--mask" aria-hidden="true">
+          <img src="assets/havenlist/hero-back.png" alt="">
+        </div>
+        <h1 class="hero-title">Find your livings</h1>
+        <div class="hero-layer hero-layer--main" aria-hidden="true">
+          <img src="assets/havenlist/hero-main.png" alt="">
+        </div>
+      </div>
+
+      <div class="hero-fade" aria-hidden="true">
+        <img src="assets/havenlist/hero-fade.png" alt="">
+      </div>
+
+      <div class="search-card">
+        <div class="tabs" role="tablist" aria-label="Listing type">
+          <button class="tab" role="tab" id="tab-rent" type="button" aria-selected="true" aria-controls="panel-search" tabindex="0">Rent</button>
+          <button class="tab" role="tab" id="tab-buy" type="button" aria-selected="false" aria-controls="panel-search" tabindex="-1">Buy</button>
+          <button class="tab" role="tab" id="tab-commercial" type="button" aria-selected="false" aria-controls="panel-search" tabindex="-1">Commercial</button>
+        </div>
+
+        <form class="search-form" id="panel-search" role="search" aria-label="Property search">
+          <span class="search-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input
+            class="search-input"
+            id="searchInput"
+            type="search"
+            name="q"
+            placeholder="Search property or location"
+            autocomplete="off"
+            aria-label="Search property or location"
+          >
+          <button class="btn-search" type="submit"><span>Search</span></button>
+        </form>
+
+        <div class="suggestions" role="group" aria-label="Popular searches">
+          <button class="chip" type="button" data-query="Modern house">Modern house</button>
+          <button class="chip" type="button" data-query="Commercian San Fierro">Commercian San Fierro</button>
+          <button class="chip" type="button" data-query="Elegant house">Elegant house</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="nav-drawer" id="navDrawer" hidden>
+    <div class="nav-drawer__backdrop" data-close-drawer></div>
+    <aside class="nav-drawer__panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="nav-drawer__header">
+        <span>Havenlist.</span>
+        <button class="nav-drawer__close" type="button" data-close-drawer aria-label="Close menu">×</button>
+      </div>
+      <nav class="nav-drawer__links" aria-label="Mobile">
+        <a href="#listings" aria-current="page">Listings</a>
+        <a href="#neighborhoods">Neighborhoods</a>
+        <a href="#insights">Insights</a>
+        <a href="#sell">Sell with us</a>
+      </nav>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      const toastEl = document.getElementById("toast");
+      let toastTimer;
+
+      function toast(message) {
+        toastEl.textContent = message;
+        toastEl.classList.add("is-visible");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toastEl.classList.remove("is-visible"), 2200);
+      }
+
+      /* Tabs */
+      const tabs = Array.from(document.querySelectorAll('.tabs [role="tab"]'));
+      const searchInput = document.getElementById("searchInput");
+
+      function selectTab(next) {
+        tabs.forEach((tab) => {
+          const active = tab === next;
+          tab.setAttribute("aria-selected", active ? "true" : "false");
+          tab.tabIndex = active ? 0 : -1;
+        });
+        const label = next.textContent.trim();
+        searchInput.placeholder =
+          label === "Commercial"
+            ? "Search commercial property or location"
+            : label === "Buy"
+              ? "Search homes for sale"
+              : "Search property or location";
+        toast(`Browsing: ${label}`);
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectTab(tab));
+        tab.addEventListener("keydown", (e) => {
+          let target = null;
+          if (e.key === "ArrowRight") target = tabs[(index + 1) % tabs.length];
+          if (e.key === "ArrowLeft") target = tabs[(index - 1 + tabs.length) % tabs.length];
+          if (e.key === "Home") target = tabs[0];
+          if (e.key === "End") target = tabs[tabs.length - 1];
+          if (target) {
+            e.preventDefault();
+            target.focus();
+            selectTab(target);
+          }
+        });
+      });
+
+      /* Search form */
+      const form = document.getElementById("panel-search");
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const mode = tabs.find((t) => t.getAttribute("aria-selected") === "true")?.textContent.trim() || "Rent";
+        const q = searchInput.value.trim() || "all listings";
+        toast(`Searching “${q}” · ${mode}`);
+      });
+
+      /* Suggestion chips */
+      const chips = document.querySelectorAll(".chip");
+      chips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+          chips.forEach((c) => c.classList.remove("is-active"));
+          chip.classList.add("is-active");
+          searchInput.value = chip.dataset.query || chip.textContent.trim();
+          searchInput.focus();
+          toast(`Filled: ${searchInput.value}`);
+        });
+      });
+
+      /* Favorite */
+      const favBtn = document.getElementById("favBtn");
+      favBtn.addEventListener("click", () => {
+        const pressed = favBtn.getAttribute("aria-pressed") === "true";
+        favBtn.setAttribute("aria-pressed", String(!pressed));
+        favBtn.classList.toggle("is-active", !pressed);
+        toast(pressed ? "Removed from saved" : "Saved homes");
+      });
+
+      /* Sell CTA */
+      document.getElementById("sellBtn").addEventListener("click", () => {
+        toast("Opening seller onboarding…");
+      });
+
+      /* Nav links */
+      document.querySelectorAll(".nav-links a, .nav-drawer__links a").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          document.querySelectorAll(".nav-links a, .nav-drawer__links a").forEach((a) => {
+            a.removeAttribute("aria-current");
+          });
+          const label = link.textContent.trim();
+          document.querySelectorAll(".nav-links a, .nav-drawer__links a").forEach((a) => {
+            if (a.textContent.trim() === label) a.setAttribute("aria-current", "page");
+          });
+          closeDrawer();
+          toast(`Go to ${label}`);
+        });
+      });
+
+      /* Menu drawer */
+      const menuBtn = document.getElementById("menuBtn");
+      const drawer = document.getElementById("navDrawer");
+
+      function openDrawer() {
+        drawer.hidden = false;
+        requestAnimationFrame(() => drawer.classList.add("is-open"));
+        menuBtn.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeDrawer() {
+        drawer.classList.remove("is-open");
+        menuBtn.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+        setTimeout(() => {
+          if (!drawer.classList.contains("is-open")) drawer.hidden = true;
+        }, 300);
+      }
+
+      menuBtn.addEventListener("click", () => {
+        if (drawer.classList.contains("is-open")) closeDrawer();
+        else openDrawer();
+      });
+
+      drawer.querySelectorAll("[data-close-drawer]").forEach((el) => {
+        el.addEventListener("click", closeDrawer);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && drawer.classList.contains("is-open")) closeDrawer();
+      });
+    })();
+  </script>
+</body>
+</html>
