@@ -52,7 +52,9 @@
       --dur-fast: 0.45s;
       --dur: 0.7s;
       --dur-slow: 1.15s;
-      --dur-featured: 1.25s;
+      --dur-featured: 1000ms;
+      --dur-featured-image: 1300ms;
+      --ease-featured: cubic-bezier(0.38, 0, 0, 1);
       --font-display: "Inter Display", "Inter", system-ui, sans-serif;
       --font-ui: "Geist", system-ui, sans-serif;
     }
@@ -1512,8 +1514,11 @@
       }
     }
 
-    /* ========== FEATURED LISTINGS ========== */
+    /* ========== FEATURED LISTINGS (equal-size + parallax) ========== */
     .featured {
+      --featured-card-w: 720px;
+      --featured-card-h: 480px;
+      --featured-gap: 32px;
       position: relative;
       width: 100%;
       max-width: 1440px;
@@ -1545,13 +1550,12 @@
     }
 
     .featured__all {
-      /* uses .ui-btn */
       flex-shrink: 0;
     }
 
     .featured__stage {
       position: relative;
-      height: 488px;
+      height: var(--featured-card-h);
       overflow: hidden;
       background: var(--paper);
     }
@@ -1567,11 +1571,11 @@
     .featured__track {
       display: flex;
       align-items: center;
-      gap: 40px;
+      gap: var(--featured-gap);
       height: 100%;
       width: max-content;
       will-change: transform;
-      transition: transform var(--dur-featured) var(--ease-soft);
+      transition: transform var(--dur-featured) var(--ease-featured);
     }
 
     .featured__track.is-instant,
@@ -1581,38 +1585,59 @@
 
     .featured-card {
       position: relative;
-      flex: 0 0 var(--featured-inactive-w, 400px);
-      width: var(--featured-inactive-w, 400px);
-      height: var(--featured-inactive-h, 320px);
+      flex: 0 0 var(--featured-card-w);
+      width: var(--featured-card-w);
+      height: var(--featured-card-h);
       border-radius: 16px;
       overflow: hidden;
-      background: var(--white);
-      opacity: 0.4;
+      background: transparent;
       cursor: pointer;
       transform: translateZ(0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      transition:
-        flex-basis var(--dur-featured) var(--ease-soft),
-        width var(--dur-featured) var(--ease-soft),
-        height var(--dur-featured) var(--ease-soft),
-        opacity calc(var(--dur-featured) * 0.75) var(--ease-soft);
-    }
-
-    .featured.is-jumping .featured-card {
-      transition: none !important;
+      isolation: isolate;
+      opacity: 1;
+      border: 0;
+      outline: none;
+      box-shadow: none;
     }
 
     .featured-card.is-active {
-      flex-basis: var(--featured-active-w, 814px);
-      width: var(--featured-active-w, 814px);
-      height: var(--featured-active-h, 488px);
-      opacity: 1;
       cursor: none;
       z-index: 1;
     }
 
-    .featured-card img {
+    .featured-card:focus,
+    .featured-card:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
+    .featured-card__frame {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      overflow: hidden;
+      transform: translateZ(0);
+      background: transparent;
+      border: 0;
+      outline: none;
+    }
+
+    .featured-card__media {
+      position: absolute;
+      top: -12%;
+      left: -30%;
+      width: 160%;
+      height: 124%;
+      will-change: transform;
+      transition: transform var(--dur-featured-image) var(--ease-featured);
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      opacity: 1;
+    }
+
+    .featured-card__media img {
       display: block;
       width: 100%;
       height: 100%;
@@ -1624,6 +1649,9 @@
       transform: translateZ(0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
+      opacity: 1;
+      border: 0;
+      outline: none;
     }
 
     .featured-card__details {
@@ -1666,7 +1694,7 @@
       position: absolute;
       top: 0;
       z-index: 3;
-      width: 200px;
+      width: 160px;
       height: 100%;
       pointer-events: none;
     }
@@ -1686,7 +1714,6 @@
       top: 50%;
       z-index: 5;
       transform: translateY(-50%);
-      /* button chrome from .ui-btn */
     }
 
     .featured__nav--prev {
@@ -1718,12 +1745,6 @@
       align-items: center;
       gap: 12px;
       width: 100%;
-      transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur) var(--ease-soft);
-    }
-
-    .featured__meta.is-switching .featured__meta-copy {
-      opacity: 0;
-      transform: translateY(8px);
     }
 
     .featured__name {
@@ -1783,27 +1804,20 @@
 
     @media (max-width: 1100px) {
       .featured {
-        --featured-active-w: 640px;
-        --featured-active-h: 400px;
-        --featured-inactive-w: 300px;
-        --featured-inactive-h: 240px;
+        --featured-card-w: 640px;
+        --featured-card-h: 400px;
+        --featured-gap: 28px;
       }
-
-      .featured__stage { height: 400px; }
-      .featured__track { gap: 28px; }
     }
 
     @media (max-width: 900px) {
       .featured {
-        --featured-active-w: min(86vw, 420px);
-        --featured-active-h: 280px;
-        --featured-inactive-w: 220px;
-        --featured-inactive-h: 176px;
+        --featured-card-w: min(86vw, 420px);
+        --featured-card-h: 280px;
+        --featured-gap: 16px;
       }
 
       .featured__head { padding: 56px 24px 24px; }
-      .featured__stage { height: 300px; }
-      .featured__track { gap: 16px; }
       .featured__fade { width: 72px; }
       .featured__nav--prev { left: 12px; }
       .featured__nav--next { right: 12px; }
@@ -2918,10 +2932,10 @@ said about us</h2>
 
           <div class="testimonials__controls">
             <div class="testimonials__thumbs" id="testimonialsThumbs" aria-hidden="true">
-              <div class="testimonials__thumb is-active"><img src="assets/testimonials/thumb-1.png" alt="" width="64" height="64" decoding="async"></div>
-              <div class="testimonials__thumb"><img src="assets/testimonials/thumb-2.png" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
-              <div class="testimonials__thumb"><img src="assets/testimonials/thumb-3.png" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
-              <div class="testimonials__thumb"><img src="assets/testimonials/thumb-4.png" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
+              <div class="testimonials__thumb is-active"><img src="assets/testimonials/photo-1.png" alt="" width="64" height="64" decoding="async"></div>
+              <div class="testimonials__thumb"><img src="assets/testimonials/photo-2.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
+              <div class="testimonials__thumb"><img src="assets/testimonials/photo-3.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
+              <div class="testimonials__thumb"><img src="assets/testimonials/photo-4.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
             </div>
 
             <div class="testimonials__arrows">
@@ -3614,7 +3628,7 @@ said about us</h2>
         window.addEventListener("resize", onScroll);
       })();
 
-      /* Featured listings — infinite carousel */
+      /* Featured listings — equal-size infinite carousel + parallax */
       (function initFeatured() {
         const LISTINGS = [
           {
@@ -3677,26 +3691,29 @@ said about us</h2>
 
         const COPIES = 5;
         const N = LISTINGS.length;
-        const DURATION_MS = 1250;
+        const FRAME_MS = 1000;
+        const IMAGE_MS = Math.round(FRAME_MS * 1.3);
+        const IMAGE_LAG_STEP = 72;
+        const IMAGE_LAG_MAX = 160;
+        const PLAY_PAD = 1;
+        const midCopy = Math.floor(COPIES / 2);
+
         const root = document.querySelector(".featured");
         const track = document.getElementById("featuredTrack");
         const viewport = document.getElementById("featuredViewport");
-        const meta = document.getElementById("featuredMeta");
         const nameEl = document.getElementById("featuredName");
         const addressEl = document.getElementById("featuredAddress");
         const statsEl = document.getElementById("featuredStats");
         if (!track || !viewport || !root) return;
 
-        LISTINGS.forEach((item) => {
+        LISTINGS.forEach(function (item) {
           const preload = new Image();
           preload.src = item.image;
         });
 
-        const midCopy = Math.floor(COPIES / 2);
         let logical = 0;
         let visual = midCopy * N;
         let animating = false;
-        let metaTimer = 0;
         let animTimer = 0;
         let cursorRaf = 0;
         let cursorTarget = { x: 0, y: 0 };
@@ -3718,13 +3735,9 @@ said about us</h2>
           return parseFloat(raw) || fallback;
         }
 
-        function sizes() {
-          const gap = parseFloat(getComputedStyle(track).gap) || 40;
-          return {
-            gap: gap,
-            activeW: cssPx("--featured-active-w", 814),
-            inactiveW: cssPx("--featured-inactive-w", 400),
-          };
+        function cardSize() {
+          const gap = parseFloat(getComputedStyle(track).gap) || 32;
+          return { w: cssPx("--featured-card-w", 720), gap: gap };
         }
 
         function startCursorLoop() {
@@ -3792,13 +3805,22 @@ said about us</h2>
           card.setAttribute("role", "group");
           card.setAttribute("aria-label", item.name);
 
+          const frame = document.createElement("div");
+          frame.className = "featured-card__frame";
+
+          const media = document.createElement("div");
+          media.className = "featured-card__media";
+          media.dataset.lag = "0";
+
           const img = document.createElement("img");
           img.src = item.image;
           img.alt = item.alt;
           img.draggable = false;
           img.decoding = "async";
           img.loading = "eager";
-          card.appendChild(img);
+          media.appendChild(img);
+          frame.appendChild(media);
+          card.appendChild(frame);
 
           const details = document.createElement("a");
           details.className = "featured-card__details";
@@ -3849,12 +3871,8 @@ said about us</h2>
         }
 
         function computeTranslate(activeIndex) {
-          const s = sizes();
-          let x = 0;
-          for (let i = 0; i < activeIndex; i++) {
-            x += s.inactiveW + s.gap;
-          }
-          x += s.activeW / 2;
+          const s = cardSize();
+          const x = activeIndex * (s.w + s.gap) + s.w / 2;
           return viewport.clientWidth / 2 - x;
         }
 
@@ -3872,26 +3890,68 @@ said about us</h2>
           }
         }
 
-        function updateMeta(item, animate) {
-          const apply = function () {
-            nameEl.textContent = item.name;
-            addressEl.textContent = item.address;
-            statsEl.innerHTML =
-              '<span class="featured__stat">' + ICONS.bed + '<span class="featured__stat-value">' + item.beds + "</span></span>" +
-              '<span class="featured__stat">' + ICONS.bath + '<span class="featured__stat-value">' + item.baths + "</span></span>" +
-              '<span class="featured__stat">' + ICONS.ruler + '<span class="featured__stat-value">' + item.sqft + " ft²</span></span>" +
-              '<span class="featured__stat featured__stat--price"><span class="featured__stat-value">' + item.price + "</span></span>";
-            meta.classList.remove("is-switching");
-          };
+        function isInPlay(index, fromVisual, toVisual) {
+          const lo = Math.min(fromVisual, toVisual) - PLAY_PAD;
+          const hi = Math.max(fromVisual, toVisual) + PLAY_PAD;
+          return index >= lo && index <= hi;
+        }
 
-          if (!animate) {
-            apply();
-            return;
+        function driveImageParallax(direction, fromVisual, toVisual) {
+          const cards = Array.from(track.children);
+          const hidden = [];
+
+          cards.forEach(function (card, i) {
+            const media = card.querySelector(".featured-card__media");
+            if (!media) return;
+
+            if (!isInPlay(i, fromVisual, toVisual)) {
+              media.dataset.lag = "0";
+              media.style.transition = "none";
+              media.style.transform = "translate3d(0, 0, 0)";
+              hidden.push(media);
+              return;
+            }
+
+            const current = Number(media.dataset.lag || 0);
+            const next = Math.max(
+              -IMAGE_LAG_MAX,
+              Math.min(IMAGE_LAG_MAX, current - direction * IMAGE_LAG_STEP)
+            );
+            media.dataset.lag = String(next);
+            media.style.transition =
+              "transform " + IMAGE_MS + "ms cubic-bezier(0.38, 0, 0, 1)";
+            media.style.transform = "translate3d(" + next + "px, 0, 0)";
+          });
+
+          if (hidden.length) {
+            void track.offsetHeight;
+            hidden.forEach(function (media) {
+              media.style.transition =
+                "transform " + IMAGE_MS + "ms cubic-bezier(0.38, 0, 0, 1)";
+            });
           }
+        }
 
-          meta.classList.add("is-switching");
-          clearTimeout(metaTimer);
-          metaTimer = setTimeout(apply, 280);
+        function resetHiddenLags() {
+          Array.from(track.children).forEach(function (card, i) {
+            if (Math.abs(i - visual) <= PLAY_PAD) return;
+            const media = card.querySelector(".featured-card__media");
+            if (!media || media.dataset.lag === "0") return;
+            media.dataset.lag = "0";
+            media.style.transition = "none";
+            media.style.transform = "translate3d(0, 0, 0)";
+          });
+          void track.offsetHeight;
+        }
+
+        function updateMeta(item) {
+          nameEl.textContent = item.name;
+          addressEl.textContent = item.address;
+          statsEl.innerHTML =
+            '<span class="featured__stat">' + ICONS.bed + '<span class="featured__stat-value">' + item.beds + "</span></span>" +
+            '<span class="featured__stat">' + ICONS.bath + '<span class="featured__stat-value">' + item.baths + "</span></span>" +
+            '<span class="featured__stat">' + ICONS.ruler + '<span class="featured__stat-value">' + item.sqft + " ft²</span></span>" +
+            '<span class="featured__stat featured__stat--price"><span class="featured__stat-value">' + item.price + "</span></span>";
         }
 
         function normalizeIfNeeded() {
@@ -3907,10 +3967,12 @@ said about us</h2>
           void track.offsetHeight;
           track.classList.remove("is-instant");
           root.classList.remove("is-jumping");
+          resetHiddenLags();
         }
 
         function finishAnim() {
           normalizeIfNeeded();
+          resetHiddenLags();
           animating = false;
         }
 
@@ -3920,6 +3982,8 @@ said about us</h2>
           if (nextVisual < 0 || nextVisual >= total) return;
           if (nextVisual === visual) return;
 
+          const fromVisual = visual;
+          const direction = nextVisual > visual ? 1 : -1;
           animating = true;
           cursorActive = false;
           clearTimeout(animTimer);
@@ -3927,7 +3991,8 @@ said about us</h2>
           visual = nextVisual;
           logical = Number(track.children[visual].dataset.logical);
           syncActiveClass();
-          updateMeta(LISTINGS[logical], true);
+          updateMeta(LISTINGS[logical]);
+          driveImageParallax(direction, fromVisual, nextVisual);
           position(false);
 
           const onEnd = function (e) {
@@ -3940,7 +4005,7 @@ said about us</h2>
           animTimer = setTimeout(function () {
             track.removeEventListener("transitionend", onEnd);
             if (animating) finishAnim();
-          }, DURATION_MS + 160);
+          }, FRAME_MS + 80);
         }
 
         function goToNearestLogical(targetLogical) {
@@ -3978,7 +4043,7 @@ said about us</h2>
         }
 
         renderTrack();
-        updateMeta(LISTINGS[logical], false);
+        updateMeta(LISTINGS[logical]);
         position(true);
 
         let resizeTimer = 0;
