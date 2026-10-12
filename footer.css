@@ -1,0 +1,215 @@
+/* Shared site footer — used by index.html, search.html and listing.html.
+   Expects the page's design tokens (--white, --ink, --font-*, --ease…). */
+/* ========== FOOTER ========== */
+.site-footer {
+  position: relative;
+  margin-top: 48px;
+  min-height: 640px;
+  padding: 80px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 80px;
+  overflow: hidden;
+  color: var(--white);
+  isolation: isolate;
+}
+
+.site-footer__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(20, 20, 20, 0.35);
+  pointer-events: none;
+}
+
+.site-footer__cta {
+  position: relative;
+  z-index: 2;
+  width: min(572px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+
+.site-footer__cta h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(32px, 4vw, 40px);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--white);
+}
+
+.site-footer__cta p {
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.site-footer__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.site-footer__btn.hl-btn {
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border-radius: 46px;
+}
+
+.site-footer__contact {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  border-radius: 6px;
+  transition: opacity 0.2s var(--ease);
+}
+
+.site-footer__contact:hover { opacity: 0.8; }
+
+.site-footer__panel {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1392px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 32px 40px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 30, 0.03);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+}
+
+.site-footer__row {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+}
+
+.site-footer__brand {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.site-footer__brand .logo {
+  color: var(--white);
+  width: auto;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.site-footer__addr {
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--white);
+}
+
+.site-footer__legal {
+  display: flex;
+  gap: 12px;
+}
+
+.site-footer__legal a {
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.site-footer__cols {
+  width: min(648px, 55%);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.site-footer__col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.site-footer__col h3 {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 8px;
+}
+
+.site-footer__col a {
+  display: block;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--white);
+  padding: 2px 0;
+}
+
+.site-footer__col a.is-link {
+  text-decoration: underline;
+}
+
+.site-footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.site-footer__email {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.site-footer__copy {
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--white);
+}
+
+@media (max-width: 1100px) {
+  .site-footer__row { flex-direction: column; gap: 32px; }
+  .site-footer__cols { width: 100%; }
+}

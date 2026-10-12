@@ -6,6 +6,7 @@
   <title>Search result for “Modern house” — Havenlist</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="footer.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -52,7 +53,16 @@
       --ease-morph: cubic-bezier(0.32, 0.72, 0, 1);
       --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
       --dur: 0.7s;
-      --dur-morph: 520ms;
+      /* Filter dropdown motion — live-tunable from the "Dropdown tweaks" panel */
+      --pop-open: 550ms;
+      --pop-close: 300ms;
+      --pop-fade: 160ms;
+      --pop-ease-open: cubic-bezier(0.32, 0.72, 0, 1);
+      --pop-ease-close: cubic-bezier(0.32, 0.72, 0, 1);
+      --pop-r-from: 40px;
+      --pop-r-to: 20px;
+      --pop-gap: 10px;
+      --pop-shadow: 0.12;
       --font-display: "Inter Display", "Inter", system-ui, sans-serif;
       --font-ui: "Geist", system-ui, sans-serif;
     }
@@ -104,26 +114,6 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
-    .navbar.is-hidden {
-      transform: translateY(-100%);
-      pointer-events: none;
-    }
-
-    .nav-hover-zone {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 16px;
-      z-index: 99;
-      pointer-events: none;
-    }
-
-    .nav-hover-zone.is-active {
-      pointer-events: auto;
-      height: 64px;
-    }
-
     .logo {
       position: relative;
       z-index: 2;
@@ -155,28 +145,25 @@
       transition: visibility 0s linear 0s;
     }
 
+    /* Airbnb-style sequence — going compact: the three links rise out
+       together, the rounded frame opens from the centre, then the filter
+       contents come in with a short fade. Returning runs it back. */
     .nav-links a {
       transform: translateY(0);
-      /* Returning: drop back in once the compact bar has folded away */
-      transition: transform 0.6s var(--ease-morph) 0.22s;
+      /* Returning: drop back in (all together) as the frame closes */
+      transition: transform 0.4s var(--ease-morph) 0.12s;
     }
-
-    .nav-links a:nth-child(2) { transition-delay: 0.26s; }
-    .nav-links a:nth-child(3) { transition-delay: 0.30s; }
 
     body.is-compact .nav-links {
       visibility: hidden;
       pointer-events: none;
-      transition: visibility 0s linear 0.55s;
+      transition: visibility 0s linear 0.3s;
     }
 
     body.is-compact .nav-links a {
       transform: translateY(-110%);
-      transition: transform 0.45s var(--ease-morph);
+      transition: transform 0.3s var(--ease-morph);
     }
-
-    body.is-compact .nav-links a:nth-child(2) { transition-delay: 0.04s; }
-    body.is-compact .nav-links a:nth-child(3) { transition-delay: 0.08s; }
 
     body.is-sheet-open.is-compact .nav-links {
       visibility: visible;
@@ -300,35 +287,6 @@
       100% { stroke-dashoffset: 0; }
     }
 
-    .btn-rise {
-      position: relative;
-      overflow: hidden;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 1.4em;
-      line-height: 1.4;
-    }
-
-    .btn-rise__text {
-      display: block;
-      position: relative;
-      transition: none;
-    }
-
-    .btn-rise__text::after {
-      content: attr(data-text);
-      position: absolute;
-      left: 0;
-      top: 100%;
-      white-space: nowrap;
-    }
-
-    .btn-sell:hover .btn-rise__text {
-      transform: translateY(-100%);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
     .btn-sell {
       display: inline-flex;
       align-items: center;
@@ -361,12 +319,6 @@
       background: transparent;
       color: var(--ink);
       transition: transform 0.45s var(--ease-out), opacity 0.35s var(--ease);
-    }
-
-    .menu-btn.is-nav-hidden {
-      transform: translateY(calc(-100% - 12px));
-      opacity: 0;
-      pointer-events: none;
     }
 
     .menu-btn-spacer {
@@ -489,8 +441,8 @@
       transform: translate(-50%, -50%);
       clip-path: inset(0 50% 0 50% round 46px);
       transition:
-        clip-path 0.45s var(--ease-morph) 0.1s,
-        visibility 0s linear 0.55s;
+        clip-path 0.26s var(--ease-morph),
+        visibility 0s linear 0.26s;
     }
 
     body.is-compact .compact-bar {
@@ -499,25 +451,19 @@
       /* Negative inset keeps the soft shadow visible once open */
       clip-path: inset(-8px -8px -8px -8px round 54px);
       transition:
-        clip-path 0.7s var(--ease-morph) 0.12s,
+        clip-path 0.4s var(--ease-morph) 0.06s,
         visibility 0s;
     }
 
     .compact-bar > * {
-      transform: translateY(150%);
-      transition: transform 0.3s var(--ease-morph);
+      opacity: 0;
+      transition: opacity 0.08s var(--ease);
     }
 
     body.is-compact .compact-bar > * {
-      transform: none;
-      transition: transform 0.6s var(--ease-morph);
+      opacity: 1;
+      transition: opacity 0.16s var(--ease) 0.22s;
     }
-
-    body.is-compact .compact-bar > :nth-child(1) { transition-delay: 0.24s; }
-    body.is-compact .compact-bar > :nth-child(2) { transition-delay: 0.28s; }
-    body.is-compact .compact-bar > :nth-child(3) { transition-delay: 0.32s; }
-    body.is-compact .compact-bar > :nth-child(4) { transition-delay: 0.36s; }
-    body.is-compact .compact-bar > :nth-child(5) { transition-delay: 0.40s; }
 
     .chip {
       display: inline-flex;
@@ -585,6 +531,15 @@
       white-space: nowrap;
     }
 
+    .compact-select > span,
+    .filter-select > span {
+      min-width: 0;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .compact-select svg {
       opacity: 0.43;
       flex-shrink: 0;
@@ -631,7 +586,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
+      gap: 8px;
       height: 20px;
       font-family: var(--font-ui);
       font-size: 14px;
@@ -643,12 +598,39 @@
 
     .back-link:hover { opacity: 1; }
 
+    /* Mirrored arrow-swap: leaves to the left, the next one forms from the
+       right — same tempo as the label rising */
+    .back-link__arrow {
+      position: relative;
+      display: block;
+      width: 16px;
+      height: 12px;
+      overflow: hidden;
+      transform: scaleX(-1);
+    }
+
+    .back-link__arrow svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 16px;
+      height: 12px;
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    .back-link__arrow svg:first-child { transform: translateX(0); }
+    .back-link__arrow svg:last-child { transform: translateX(-120%); }
+    .back-link:hover .back-link__arrow svg:first-child,
+    .back-link:focus-visible .back-link__arrow svg:first-child { transform: translateX(120%); }
+    .back-link:hover .back-link__arrow svg:last-child,
+    .back-link:focus-visible .back-link__arrow svg:last-child { transform: translateX(0); }
+
     .search-title {
       width: 100%;
       text-align: center;
       font-family: var(--font-display);
       font-weight: 500;
-      font-size: clamp(36px, 4vw, 48px);
+      font-size: clamp(36px, 4vw, 40px);
       letter-spacing: -0.02em;
       line-height: 1.2;
       color: var(--ink);
@@ -745,6 +727,7 @@
     .filter-query__input {
       flex: 1;
       min-width: 0;
+      text-overflow: ellipsis;
       border: none;
       outline: none;
       background: transparent;
@@ -854,14 +837,6 @@
     }
 
     .filter-more:hover { background: var(--paper); }
-
-    /* Sentinel watches when form leaves below navbar */
-    .morph-sentinel {
-      height: 1px;
-      width: 100%;
-      pointer-events: none;
-      visibility: hidden;
-    }
 
     /* ========== LISTINGS ========== */
     .listings {
@@ -1001,213 +976,19 @@
       flex-shrink: 0;
     }
 
-    /* ========== FOOTER ========== */
-    .site-footer {
-      position: relative;
-      margin-top: 48px;
-      min-height: 640px;
-      padding: 80px 24px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      gap: 80px;
-      overflow: hidden;
-      color: var(--white);
-      isolation: isolate;
-    }
+    /* Whole card is the link: the title's anchor stretches over it, the heart
+       button and badge keep their own layer */
+    .card { position: relative; }
 
-    .site-footer__bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      pointer-events: none;
-    }
-
-    .site-footer::before {
+    .card__link::after {
       content: "";
       position: absolute;
       inset: 0;
-      z-index: 1;
-      background: rgba(20, 20, 20, 0.35);
-      pointer-events: none;
     }
 
-    .site-footer__cta {
-      position: relative;
-      z-index: 2;
-      width: min(572px, 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      text-align: center;
-    }
-
-    .site-footer__cta h2 {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: clamp(32px, 4vw, 48px);
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      color: var(--white);
-    }
-
-    .site-footer__cta p {
-      font-size: 16px;
-      line-height: 1.4;
-      letter-spacing: -0.01em;
-      color: rgba(255, 255, 255, 0.9);
-    }
-
-    .site-footer__actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .site-footer__btn.hl-btn {
-      height: 40px;
-      padding: 0;
-      background: transparent;
-      border-radius: 46px;
-    }
-
-    .site-footer__contact {
-      display: inline-flex;
-      align-items: center;
-      height: 40px;
-      padding: 0 12px;
-      font-family: var(--font-ui);
-      font-weight: 500;
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      color: var(--white);
-      border-radius: 6px;
-      transition: opacity 0.2s var(--ease);
-    }
-
-    .site-footer__contact:hover { opacity: 0.8; }
-
-    .site-footer__panel {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      max-width: 1392px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 32px 40px;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(30, 30, 30, 0.03);
-      backdrop-filter: blur(32px);
-      -webkit-backdrop-filter: blur(32px);
-    }
-
-    .site-footer__row {
-      display: flex;
-      align-items: stretch;
-      gap: 16px;
-      width: 100%;
-    }
-
-    .site-footer__brand {
-      flex: 1 1 0;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .site-footer__brand .logo {
-      color: var(--white);
-      width: auto;
-      display: block;
-      margin-bottom: 16px;
-    }
-
-    .site-footer__addr {
-      font-size: 16px;
-      line-height: 1.4;
-      letter-spacing: -0.01em;
-      color: var(--white);
-    }
-
-    .site-footer__legal {
-      display: flex;
-      gap: 12px;
-    }
-
-    .site-footer__legal a {
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      color: var(--white);
-      text-decoration: underline;
-    }
-
-    .site-footer__cols {
-      width: min(648px, 55%);
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .site-footer__col {
-      flex: 1 1 0;
-      min-width: 0;
-    }
-
-    .site-footer__col h3 {
-      font-family: var(--font-ui);
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      color: rgba(255, 255, 255, 0.7);
-      margin-bottom: 8px;
-    }
-
-    .site-footer__col a {
-      display: block;
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      color: var(--white);
-      padding: 2px 0;
-    }
-
-    .site-footer__col a.is-link {
-      text-decoration: underline;
-    }
-
-    .site-footer__bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .site-footer__email {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: var(--font-display);
-      font-size: 24px;
-      letter-spacing: -0.02em;
-      color: var(--white);
-      text-decoration: underline;
-    }
-
-    .site-footer__copy {
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      color: var(--white);
-    }
+    .card__badge { pointer-events: none; }
+    .card__media img { transition: transform 0.9s var(--ease-soft); }
+    .card:hover .card__media img { transform: scale(1.035); }
 
     /* ========== HL BUTTON (Figma decoration) ========== */
     .hl-btn {
@@ -1239,11 +1020,30 @@
     }
 
     .hl-btn__icon {
+      position: relative;
       display: inline-flex;
       width: 16px;
       height: 16px;
       flex-shrink: 0;
+      overflow: hidden;
     }
+
+    /* Arrow swap, in step with the label's rise (same duration + easing):
+       the current arrow leaves right, a fresh one slides in from the left */
+    .hl-btn__icon svg {
+      position: absolute;
+      inset: 0;
+      width: 16px;
+      height: 16px;
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    .hl-btn__icon svg:first-child { transform: translateX(0); }
+    .hl-btn__icon svg:last-child { transform: translateX(-120%); }
+    .hl-btn:hover .hl-btn__icon svg:first-child,
+    .hl-btn:focus-visible .hl-btn__icon svg:first-child { transform: translateX(120%); }
+    .hl-btn:hover .hl-btn__icon svg:last-child,
+    .hl-btn:focus-visible .hl-btn__icon svg:last-child { transform: translateX(0); }
 
     .hl-btn--black {
       border: 1px solid var(--ink);
@@ -1293,45 +1093,85 @@
     }
 
     /* ========== FILTER PANELS ========== */
-    /* Dropdowns unfold downward from their trigger (clip-path wipe + a short
-       drop) — continuous motion, no scale pop and no fade. --pop-shift keeps
-       a wide panel inside the viewport. */
+    /* Dropdowns grow out of the button that opened them: the panel starts as
+       a pill the size of the button (tucked behind it), then drops and widens
+       into the full panel while its corners relax. Contents sit at their final
+       size and are uncovered as the panel grows. Closing runs in two beats:
+       the contents dissolve first, then the empty panel shrinks back into the
+       button. JS sets --from-* (button) and --pop-h / --body-h (final) sizes. */
     .filter-pop {
       --pop-shift: 0px;
+      --pop-w: 480px;
       position: absolute;
-      top: calc(100% + 10px);
-      left: 50%;
-      transform: translateX(calc(-50% + var(--pop-shift))) translateY(-8px);
-      z-index: 130;
+      z-index: 0;
+      top: 0;
+      left: 0;
+      width: var(--from-w, 40px);
+      height: var(--from-h, 40px);
+      overflow: hidden;
       background: var(--white);
-      border-radius: 20px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
       border: 1px solid var(--ink-07);
-      clip-path: inset(0 0 100% 0 round 20px);
+      border-radius: var(--pop-r-from);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0);
       visibility: hidden;
       pointer-events: none;
+      /* Closing: wait for the contents to dissolve (--pop-fade), then shrink */
       transition:
-        transform 0.32s var(--ease-morph),
-        clip-path 0.32s var(--ease-morph),
-        visibility 0s linear 0.32s;
+        top var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        left var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        width var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        height var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        border-radius var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        box-shadow var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        visibility 0s linear calc(var(--pop-fade) + var(--pop-close));
     }
 
     .filter-pop.is-open {
+      top: calc(100% + var(--pop-gap));
+      left: calc(50% - var(--pop-w) / 2 + var(--pop-shift));
+      width: var(--pop-w);
+      height: var(--pop-h);
+      border-radius: var(--pop-r-to);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, var(--pop-shadow));
       visibility: visible;
       pointer-events: auto;
-      transform: translateX(calc(-50% + var(--pop-shift))) translateY(0);
-      /* Negative inset leaves room for the shadow once fully open */
-      clip-path: inset(-48px -48px -48px -48px round 20px);
       transition:
-        transform 0.65s var(--ease-morph),
-        clip-path 0.65s var(--ease-morph),
+        top var(--pop-open) var(--pop-ease-open),
+        left var(--pop-open) var(--pop-ease-open),
+        width var(--pop-open) var(--pop-ease-open),
+        height var(--pop-open) var(--pop-ease-open),
+        border-radius var(--pop-open) var(--pop-ease-open),
+        box-shadow var(--pop-open) var(--pop-ease-open),
         visibility 0s;
     }
 
-    .filter-pop--price { width: 480px; }
-    .filter-pop--location { width: 500px; }
-    .filter-pop--beds { width: 400px; }
-    .filter-pop--more { width: 640px; max-height: min(70vh, 704px); overflow: auto; }
+    /* Contents: visible the instant it opens, dissolve first when closing */
+    .filter-pop > * {
+      opacity: 0;
+      transition: opacity var(--pop-fade) var(--ease);
+    }
+
+    .filter-pop.is-open > * {
+      opacity: 1;
+      transition: none;
+    }
+
+    /* Used by JS to read the panel's natural size without showing it */
+    .filter-pop.is-measuring {
+      top: calc(100% + var(--pop-gap));
+      left: 0;
+      width: var(--pop-w);
+      height: auto;
+      visibility: hidden;
+      transition: none !important;
+    }
+
+    .filter-pop > * { width: calc(var(--pop-w) - 2px); }
+
+    .filter-pop--price { --pop-w: 480px; }
+    .filter-pop--location { --pop-w: 500px; }
+    .filter-pop--beds { --pop-w: 400px; }
+    .filter-pop--more { --pop-w: 640px; }
 
     .filter-pop__head {
       display: flex;
@@ -1359,7 +1199,15 @@
 
     .filter-pop__close:hover { background: var(--ink-07); color: var(--ink); }
 
-    .filter-pop__body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+    .filter-pop__body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: var(--body-h, auto);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
 
     .filter-pop__foot {
       display: flex;
@@ -1381,21 +1229,29 @@
 
     .filter-field { display: flex; flex-direction: column; gap: 4px; }
     .filter-field label {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--ink-40);
       letter-spacing: -0.01em;
     }
-    .filter-field input,
     .filter-field .filter-value {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      background: var(--white);
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 500;
       color: var(--ink);
-      border: none;
-      outline: none;
-      background: transparent;
-      width: 100%;
+      white-space: nowrap;
     }
+
+    /* Maximum sits on the right edge */
+    .filter-row .filter-field:last-child { align-items: flex-end; }
+    .filter-row .filter-field:last-child .filter-value { align-self: flex-end; }
 
     .filter-row { display: flex; gap: 24px; justify-content: space-between; }
 
@@ -1463,6 +1319,8 @@
 
     .loc-search input {
       flex: 1;
+      min-width: 0;
+      text-overflow: ellipsis;
       border: none;
       outline: none;
       background: transparent;
@@ -1491,9 +1349,7 @@
     }
 
     .loc-chip.is-active {
-      background: var(--ink);
       border-color: var(--ink);
-      color: #fff;
     }
 
     .loc-meta {
@@ -1513,7 +1369,7 @@
       padding: 0 14px;
       border-radius: 10px;
       font-family: var(--font-display);
-      font-size: 15px;
+      font-size: 14px;
       letter-spacing: -0.01em;
       color: var(--ink);
       text-align: left;
@@ -1593,18 +1449,17 @@
     }
 
     .type-chip.is-active {
-      background: var(--ink);
       border-color: var(--ink);
-      color: #fff;
     }
 
-    .facilities { display: flex; flex-direction: column; gap: 10px; }
+    /* Two rows: 3 + 2 */
+    .facilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; }
 
     .facility {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 15px;
+      font-size: 14px;
       color: var(--ink);
       cursor: pointer;
     }
@@ -1622,7 +1477,12 @@
       color: var(--ink);
     }
 
-    .filter-anchor { position: relative; }
+    /* Isolated so the button can sit above its own panel without climbing
+       over the navbar; lifted above the page only while its panel is out. */
+    .filter-anchor { position: relative; isolation: isolate; }
+    .filter-anchor.is-front { z-index: 90; }
+    .filter-anchor > .filter-select,
+    .filter-anchor > .filter-more { position: relative; z-index: 1; }
 
     /* ========== FILTER SHEET (scrolled click) ========== */
     .filter-sheet {
@@ -1680,7 +1540,7 @@
       text-align: center;
       font-family: var(--font-display);
       font-weight: 500;
-      font-size: clamp(32px, 3.5vw, 48px);
+      font-size: clamp(32px, 3.5vw, 40px);
       letter-spacing: -0.02em;
       margin-bottom: 24px;
     }
@@ -1930,12 +1790,10 @@
     @media (max-width: 1100px) {
       .listings__grid { grid-template-columns: repeat(2, 1fr); }
       .compact-bar { display: none; }
-      .site-footer__row { flex-direction: column; gap: 32px; }
-      .site-footer__cols { width: 100%; }
       .filter-pop--price,
       .filter-pop--location,
       .filter-pop--beds,
-      .filter-pop--more { width: min(92vw, 480px); }
+      .filter-pop--more { --pop-w: min(92vw, 480px); }
 
       .mega-menu__panel {
         grid-template-columns: 1fr;
@@ -1949,8 +1807,6 @@
   </style>
 </head>
 <body>
-  <div class="nav-hover-zone" id="navHoverZone" aria-hidden="true"></div>
-
   <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
     <span class="menu-btn__burger" aria-hidden="true">
       <span class="menu-btn__line menu-btn__line--top"></span>
@@ -1989,7 +1845,7 @@
           </svg>
         </button>
       </div>
-      <div class="chip chip--featured" data-open-sheet>
+      <div class="chip chip--featured" data-open-sheet hidden>
         <span class="chip__label">Featured</span>
         <button class="chip__x" type="button" aria-label="Clear featured" id="clearFeaturedChip">
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
@@ -2041,9 +1897,10 @@
     <div class="search-header__inner">
       <div class="search-meta">
         <a class="back-link" href="index.html">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M8.5 3.5L5 7l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <span class="back-link__arrow" aria-hidden="true">
+            <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="currentColor"/></svg>
+            <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="currentColor"/></svg>
+          </span>
           Back to home
         </a>
       </div>
@@ -2052,13 +1909,13 @@
 
       <div class="tabs" role="tablist" aria-label="Listing type">
         <span class="tabs__pill" id="tabsPill" aria-hidden="true"></span>
-        <button class="tab" role="tab" type="button" data-morph-src="type" data-type="Rent" aria-selected="true">Rent</button>
+        <button class="tab" role="tab" type="button" data-type="Rent" aria-selected="true">Rent</button>
         <button class="tab" role="tab" type="button" data-type="Buy" aria-selected="false">Buy</button>
         <button class="tab" role="tab" type="button" data-type="Commercial" aria-selected="false">Commercial</button>
       </div>
 
       <form class="filter-form" id="filterForm" role="search" aria-label="Refine search" onsubmit="return false">
-        <label class="filter-query" data-morph-src="query">
+        <label class="filter-query">
           <span class="filter-query__icon" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
@@ -2073,7 +1930,7 @@
           </button>
         </label>
 
-        <button class="filter-pill" type="button" id="btnFeatured" aria-pressed="true">Featured</button>
+        <button class="filter-pill" type="button" id="btnFeatured" aria-pressed="false">Featured</button>
 
         <div class="filter-anchor" id="anchorPrice">
           <button class="filter-select" type="button" data-filter="price" id="btnPrice" aria-expanded="false">
@@ -2111,7 +1968,6 @@
         </div>
       </form>
 
-      <div class="morph-sentinel" id="morphSentinel" aria-hidden="true"></div>
     </div>
 
     <!-- Shared filter popovers (teleported near open trigger) -->
@@ -2123,7 +1979,7 @@
         </button>
       </div>
       <div class="filter-pop__body">
-        <div class="range-track" id="priceTrack">
+        <div class="range-track">
           <div class="range-track__fill" id="priceFill"></div>
           <input type="range" id="priceMin" min="0" max="100000" step="100" value="200">
           <input type="range" id="priceMax" min="0" max="100000" step="100" value="100000">
@@ -2133,7 +1989,7 @@
             <label>Minimum</label>
             <span class="filter-value" id="priceMinLabel">$200</span>
           </div>
-          <div class="filter-field" style="text-align:right">
+          <div class="filter-field">
             <label>Maximum</label>
             <span class="filter-value" id="priceMaxLabel">$100.000+</span>
           </div>
@@ -2159,7 +2015,7 @@
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           <input type="search" id="locSearch" placeholder="Search city or district of your property" autocomplete="off">
         </label>
-        <div class="loc-chips" id="locChips">
+        <div class="loc-chips">
           <span class="loc-meta">Top regions:</span>
           <button class="loc-chip" type="button" data-loc="German">German</button>
           <button class="loc-chip" type="button" data-loc="Japan">Japan</button>
@@ -2213,7 +2069,7 @@
 
     <div class="filter-pop filter-pop--more" id="popMore" role="dialog" aria-label="More filters">
       <div class="filter-pop__head" style="padding-top:16px">
-        <h3 class="filter-pop__title" style="font-size:24px;letter-spacing:-0.02em">Filter</h3>
+        <h3 class="filter-pop__title">Filter</h3>
         <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </button>
@@ -2236,7 +2092,7 @@
           </div>
           <div class="filter-row">
             <div class="filter-field"><label>Minimum</label><span class="filter-value" data-range-label="min">100 sqft</span></div>
-            <div class="filter-field" style="text-align:right"><label>Maximum</label><span class="filter-value" data-range-label="max">300 sqft</span></div>
+            <div class="filter-field"><label>Maximum</label><span class="filter-value" data-range-label="max">300 sqft</span></div>
           </div>
         </div>
         <div>
@@ -2248,7 +2104,7 @@
           </div>
           <div class="filter-row">
             <div class="filter-field"><label>Minimum</label><span class="filter-value" data-range-label="min">200 sqft</span></div>
-            <div class="filter-field" style="text-align:right"><label>Maximum</label><span class="filter-value" data-range-label="max">400 sqft</span></div>
+            <div class="filter-field"><label>Maximum</label><span class="filter-value" data-range-label="max">400 sqft</span></div>
           </div>
         </div>
         <div>
@@ -2283,7 +2139,7 @@
           <button class="tab" role="tab" type="button" data-type="Buy" aria-selected="false">Buy</button>
           <button class="tab" role="tab" type="button" data-type="Commercial" aria-selected="false">Commercial</button>
         </div>
-        <form class="filter-form" id="sheetForm" role="search" onsubmit="return false" style="max-width:795px;width:100%;justify-content:center">
+        <form class="filter-form" role="search" onsubmit="return false" style="max-width:795px;width:100%;justify-content:center">
           <label class="filter-query">
             <span class="filter-query__icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -2295,7 +2151,7 @@
               </svg>
             </button>
           </label>
-          <button class="filter-pill" type="button" id="sheetFeatured" aria-pressed="true">Featured</button>
+          <button class="filter-pill" type="button" id="sheetFeatured" aria-pressed="false">Featured</button>
           <div class="filter-anchor"><button class="filter-select" type="button" data-filter="price" id="sheetBtnPrice" aria-expanded="false">
             <span id="sheetLabelPrice">Price range</span>
             <svg width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2331,9 +2187,8 @@
           <span class="hl-btn__inner">
             Get started
             <span class="hl-btn__icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
           </span>
         </button>
@@ -2450,21 +2305,11 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="assets/listings-store.js"></script>
+  <script src="smooth-scroll.js"></script>
   <script>
-    const LISTINGS = [
-      { img: 1, badge: "For sale", place: "Pacific Heights", addr: "2250 Vallejo St, San Francisco", beds: 4, baths: 3, sqft: "3,180", price: "$4,950,000" },
-      { img: 2, badge: "Open house", place: "Russian Hill", addr: "1111 Jones St, San Francisco", beds: 3, baths: 2, sqft: "1,850", price: "$2,195,000" },
-      { img: 3, badge: "New listing", place: "Presidio Heights", addr: "3712 Sacramento St, San Francisco", beds: 5, baths: 4, sqft: "3,420", price: "$5,750,000" },
-      { img: 4, badge: "Just listed", place: "Cole Valley", addr: "1245 Stanyan St, San Francisco", beds: 2, baths: 2, sqft: "1,240", price: "$1,495,000" },
-      { img: 5, badge: "Price cut", place: "Noe Valley", addr: "1420 Dolores St, San Francisco", beds: 3, baths: 2, sqft: "2,080", price: "$2,450,000" },
-      { img: 6, badge: "Featured", place: "Nob Hill", addr: "1177 California St #806, San Francisco", beds: 2, baths: 2, sqft: "1,100", price: "$1,725,000" },
-      { img: 7, badge: "Available", place: "South Beach", addr: "88 Townsend St #311, San Francisco", beds: 2, baths: 2, sqft: "1,185", price: "$1,350,000" },
-      { img: 8, badge: "Exclusive", place: "Rincon Hill", addr: "301 Mission St #37E, San Francisco", beds: 2, baths: 2, sqft: "1,860", price: "$2,850,000" },
-      { img: 9, badge: "Coming soon", place: "Sea Cliff", addr: "740 El Camino del Mar, San Francisco", beds: 4, baths: 4, sqft: "3,560", price: "$6,250,000" },
-      { img: 10, badge: "Turnkey", place: "Marina District", addr: "2140 Beach St, San Francisco", beds: 3, baths: 2, sqft: "1,940", price: "$3,195,000" },
-      { img: 11, badge: "Updated", place: "Inner Sunset", addr: "1326 8th Ave, San Francisco", beds: 3, baths: 2, sqft: "1,675", price: "$1,895,000" },
-      { img: 12, badge: "View home", place: "Bernal Heights", addr: "86 Anderson St, San Francisco", beds: 3, baths: 2, sqft: "1,520", price: "$1,685,000" },
-    ];
+    const LISTINGS = HavenlistStore.get("search");
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
     const iconBed = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5V4.5a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0112 4.5V7.5M1.5 11.5v-2A1.5 1.5 0 013 8h8a1.5 1.5 0 011.5 1.5v2M1.5 7.5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
     const iconBath = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h9.5V9a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 9V3.5M3 3.5h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
@@ -2473,22 +2318,22 @@
     document.getElementById("listingsGrid").innerHTML = LISTINGS.map((l) => `
       <article class="card">
         <div class="card__media">
-          <img src="assets/listings/listing-${l.img}.webp" alt="${l.place} property" loading="lazy" width="800" height="809">
-          <span class="card__badge">${l.badge}</span>
-          <button class="card__fav" type="button" aria-label="Save ${l.place}">
+          <img src="${esc(l.image)}" alt="${esc(l.alt || l.place)}" loading="lazy" width="800" height="809">
+          <span class="card__badge">${esc(l.badge)}</span>
+          <button class="card__fav" type="button" aria-label="Save ${esc(l.place)}">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
         </div>
         <div class="card__body">
-          <h2 class="card__place">${l.place}</h2>
-          <p class="card__addr">${l.addr}</p>
+          <h2 class="card__place"><a class="card__link" href="listing.html?id=${encodeURIComponent(l.id)}">${esc(l.place)}</a></h2>
+          <p class="card__addr">${esc(l.addr)}</p>
           <div class="card__meta">
-            <span class="card__meta-item">${iconBed}${l.beds}</span>
-            <span class="card__meta-item">${iconBath}${l.baths}</span>
-            <span class="card__meta-item">${iconRuler}${l.sqft} ft²</span>
-            <span class="card__price">${l.price}</span>
+            <span class="card__meta-item">${iconBed}${esc(l.beds)}</span>
+            <span class="card__meta-item">${iconBath}${esc(l.baths)}</span>
+            <span class="card__meta-item">${iconRuler}${esc(l.sqft)} ft²</span>
+            <span class="card__price">${esc(l.price)}</span>
           </div>
         </div>
       </article>
@@ -2517,7 +2362,8 @@
       });
     }
 
-    document.querySelectorAll(".logo, .hl-btn, .tab, .back-link, .filter-pill, .filter-select, .compact-select, .filter-clear, .loc-chip, .loc-item, .type-chip, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+    /* Text buttons and text links only — not the logo, tabs, pills or dropdowns */
+    document.querySelectorAll(".hl-btn, .back-link, .filter-clear, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
 
     /* ----- Apply URL params from homepage search ----- */
     const params = new URLSearchParams(window.location.search);
@@ -2527,7 +2373,7 @@
     const state = {
       query: initialQuery,
       type: initialType,
-      featured: true,
+      featured: false,
       priceMin: 200,
       priceMax: 100000,
       location: "",
@@ -2541,15 +2387,11 @@
     const body = document.body;
     const navbar = document.getElementById("navbar");
     const menuBtn = document.getElementById("menuBtn");
-    const hoverZone = document.getElementById("navHoverZone");
     const compactBar = document.getElementById("compactBar");
     const filterForm = document.getElementById("filterForm");
     const filterSheet = document.getElementById("filterSheet");
 
     let compact = false;
-    let compactStartY = 0;
-    let lastY = window.scrollY;
-    let hoveringTop = false;
     let sheetOpen = false;
     let openPop = null;
 
@@ -2635,6 +2477,8 @@
       state.featured = !state.featured;
       e.currentTarget.setAttribute("aria-pressed", String(state.featured));
       document.getElementById("sheetFeatured").setAttribute("aria-pressed", String(state.featured));
+      /* The navbar chip only exists while the filter is on */
+      document.querySelector(".chip--featured").hidden = !state.featured;
       updateLabels();
       updateCount();
     });
@@ -2708,34 +2552,25 @@
     }
 
     function updateLabels() {
-      const priceText = state.priceMin > 200 || state.priceMax < 100000
-        ? `${formatPrice(state.priceMin).replace("+","")}-${formatPrice(state.priceMax)}`.replace("$-","$")
-        : "Price range";
-      // nicer compact price
-      const compactPrice = `$${state.priceMin}-${state.priceMax >= 100000 ? "10000" : state.priceMax}`;
-      document.getElementById("labelPrice").textContent =
-        state.priceMin === 200 && state.priceMax === 100000 ? "Price range" : `${formatPrice(state.priceMin)} – ${formatPrice(state.priceMax)}`;
-      document.getElementById("sheetLabelPrice").textContent = document.getElementById("labelPrice").textContent;
+      const priceDefault = state.priceMin === 200 && state.priceMax === 100000;
+      const priceText = priceDefault ? "Price range" : `${formatPrice(state.priceMin)} – ${formatPrice(state.priceMax)}`;
+      document.getElementById("labelPrice").textContent = priceText;
+      document.getElementById("sheetLabelPrice").textContent = priceText;
       document.getElementById("compactPriceLabel").textContent =
-        state.priceMin === 200 && state.priceMax === 100000 ? "$1000-10000" : `$${state.priceMin}-${state.priceMax >= 100000 ? "100000+" : state.priceMax}`;
+        priceDefault ? "$1000-10000" : `$${state.priceMin}-${state.priceMax >= 100000 ? "100000+" : state.priceMax}`;
 
-      const loc = state.location || "Location";
-      document.getElementById("labelLocation").textContent = state.location || "Location";
-      document.getElementById("sheetLabelLocation").textContent = document.getElementById("labelLocation").textContent;
+      const locationText = state.location || "Location";
+      document.getElementById("labelLocation").textContent = locationText;
+      document.getElementById("sheetLabelLocation").textContent = locationText;
       document.getElementById("compactLocationLabel").textContent = state.location || "San Fierro";
 
-      const bedsText = (state.beds <= 0 && state.baths <= 0)
-        ? "Bed & bath"
-        : `${state.baths > 0 ? state.baths : "Any"} bath, ${state.beds > 0 ? state.beds : "Any"} bed`;
-      document.getElementById("labelBeds").textContent = bedsText === "Any bath, Any bed" ? "Bed & bath" : bedsText.replace("Any bath, Any bed", "Bed & bath");
-      const compactBeds = (state.beds <= 0 && state.baths <= 0)
-        ? "2 bath, 2 bed"
-        : `${Math.max(state.baths, 1)} bath, ${Math.max(state.beds, 1)} bed`;
-      document.getElementById("labelBeds").textContent =
-        state.beds <= 0 && state.baths <= 0 ? "Bed & bath" : `${bedsLabel(state.baths) === "All" ? "Any" : bedsLabel(state.baths)} bath, ${bedsLabel(state.beds) === "All" ? "Any" : bedsLabel(state.beds)} bed`;
-      document.getElementById("sheetLabelBeds").textContent = document.getElementById("labelBeds").textContent;
+      const anyBeds = state.beds <= 0 && state.baths <= 0;
+      const part = (n) => (bedsLabel(n) === "All" ? "Any" : bedsLabel(n));
+      const bedsText = anyBeds ? "Bed & bath" : `${part(state.baths)} bath, ${part(state.beds)} bed`;
+      document.getElementById("labelBeds").textContent = bedsText;
+      document.getElementById("sheetLabelBeds").textContent = bedsText;
       document.getElementById("compactBedsLabel").textContent =
-        state.beds <= 0 && state.baths <= 0 ? "2 bath, 2 bed" : `${state.baths > 0 ? state.baths : 1} bath, ${state.beds > 0 ? state.beds : 1} bed`;
+        anyBeds ? "2 bath, 2 bed" : `${state.baths > 0 ? state.baths : 1} bath, ${state.beds > 0 ? state.beds : 1} bed`;
     }
 
     /* ----- Price filter ----- */
@@ -2866,8 +2701,23 @@
       });
     }
 
+    /* Tunable motion (CSS vars): full close = dissolve beat + shrink beat */
+    function cssMs(name, fallback) {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      const n = parseFloat(raw);
+      return Number.isNaN(n) ? fallback : (raw.endsWith("ms") ? n : n * 1000);
+    }
+    function popCloseMs() { return cssMs("--pop-fade", 160) + cssMs("--pop-close", 300); }
+
     function closePop() {
-      Object.values(pops).forEach((p) => p.classList.remove("is-open"));
+      Object.values(pops).forEach((p) => {
+        if (!p.classList.contains("is-open")) return;
+        p.classList.remove("is-open");
+        /* Keep its anchor above the page until the panel has folded back in */
+        const host = p.parentElement;
+        clearTimeout(host._frontTimer);
+        host._frontTimer = setTimeout(() => host.classList.remove("is-front"), popCloseMs() + 60);
+      });
       openPop = null;
       syncFilterExpanded(null);
     }
@@ -2880,26 +2730,52 @@
     };
 
     /* The dropdown always lives next to the button that opened it (in-page
-       form or the sheet), so it moves with that button — no fixed-position
-       measuring while the sheet is still sliding in. */
+       form or the sheet), so it moves with that button. It grows out of the
+       button's own rect: we measure its final size while hidden, park it at
+       the button's size, then let CSS carry it to the final size. */
     function openFilter(name, anchorEl) {
       closePop();
       const pop = pops[name];
       if (!pop) return;
       const anchor = (anchorEl && anchorEl.closest(".filter-anchor")) || anchors[name];
       if (anchor && pop.parentElement !== anchor) anchor.appendChild(pop);
+      clearTimeout(anchor._frontTimer);
+      anchor.classList.add("is-front");
 
-      /* Keep wide panels inside the viewport (layout box, unaffected by the
-         sheet's slide transform) */
-      pop.style.setProperty("--pop-shift", "0px");
+      const body = pop.querySelector(".filter-pop__body");
       const aRect = anchor.getBoundingClientRect();
+      /* Measure against where the sheet will rest, not where it is mid-slide */
+      const slide = anchor.closest(".filter-sheet__panel");
+      const settleY = slide ? new DOMMatrix(getComputedStyle(slide).transform).m42 : 0;
+      const anchorBottom = aRect.bottom - settleY;
+      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pop-gap")) || 10;
+      const maxH = Math.max(240, window.innerHeight - anchorBottom - gap - 16);
+
+      /* Natural size, off-screen state */
+      pop.style.transition = "none";
+      pop.style.setProperty("--pop-shift", "0px");
+      pop.style.setProperty("--body-h", "auto");
+      pop.classList.add("is-measuring");
       const w = pop.offsetWidth;
+      const natural = pop.offsetHeight;
+      const bodyNatural = body.offsetHeight;
+      pop.classList.remove("is-measuring");
+
+      /* Keep wide panels inside the viewport, and short ones inside the height */
       const left = aRect.left + aRect.width / 2 - w / 2;
       const min = 16;
       const max = window.innerWidth - 16 - w;
       const shift = left < min ? min - left : left > max ? max - left : 0;
+      const height = Math.min(natural, maxH);
       pop.style.setProperty("--pop-shift", `${shift}px`);
+      pop.style.setProperty("--pop-h", `${height}px`);
+      pop.style.setProperty("--body-h", `${Math.max(0, bodyNatural - (natural - height))}px`);
+      pop.style.setProperty("--from-w", `${aRect.width}px`);
+      pop.style.setProperty("--from-h", `${aRect.height}px`);
 
+      /* Land on the button-sized start frame, then release the transition */
+      void pop.offsetHeight;
+      pop.style.transition = "";
       void pop.offsetHeight;
       pop.classList.add("is-open");
       openPop = name;
@@ -2971,7 +2847,6 @@
       filterSheet.classList.add("is-open");
       filterSheet.setAttribute("aria-hidden", "false");
       body.classList.add("is-sheet-open");
-      setNavHidden(false);
       updateLabels();
       clearTimeout(sheetPopTimer);
       if (focusFilter) {
@@ -2996,7 +2871,6 @@
       filterSheet.classList.remove("is-open");
       filterSheet.setAttribute("aria-hidden", "true");
       body.classList.remove("is-sheet-open");
-      evaluateNavVisibility();
     }
 
     document.addEventListener("keydown", (e) => {
@@ -3033,31 +2907,18 @@
       if (state.featured) document.getElementById("btnFeatured").click();
     });
 
-    /* ----- Compact bar + navbar (same scroll rules as the homepage) -----
-       Top zone (search header on screen): navbar always shown.
-       Past it: hide on scroll down, reveal on scroll up or top-edge hover.
-       A short scroll grace after the bar appears lets it be seen first. */
+    /* ----- Compact filter bar -----
+       The navbar itself stays put on this page (only the homepage hides it);
+       once the in-page form scrolls away, the filters move up into it. */
     const NAV_H = 64;
     const COMPACT_ON = NAV_H + 16;   // form top crosses this → compact
     const COMPACT_OFF = NAV_H + 28;  // hysteresis so trackpad jitter can't flicker it
-    const HIDE_GRACE = 160;          // px of scroll after compact before auto-hide
-
-    function setNavHidden(hidden) {
-      if (body.classList.contains("is-menu-open") || sheetOpen) hidden = false;
-      navbar.classList.toggle("is-hidden", hidden);
-      menuBtn.classList.toggle("is-nav-hidden", hidden);
-      hoverZone.classList.toggle("is-active", hidden || hoveringTop);
-    }
 
     function setCompact(next) {
       if (next === compact) return;
       compact = next;
       body.classList.toggle("is-compact", next);
       compactBar.setAttribute("aria-hidden", String(!next));
-      if (next) {
-        compactStartY = window.scrollY;
-        setNavHidden(false);
-      }
     }
 
     function evaluateCompact() {
@@ -3070,42 +2931,6 @@
       else if (compact && top > COMPACT_OFF) setCompact(false);
     }
 
-    function evaluateNavVisibility() {
-      const y = window.scrollY;
-      const scrollingDown = y > lastY + 2;
-      const scrollingUp = y < lastY - 2;
-
-      if (sheetOpen || hoveringTop || !compact) {
-        setNavHidden(false);
-      } else if (scrollingDown && y > compactStartY + HIDE_GRACE) {
-        setNavHidden(true);
-      } else if (scrollingUp) {
-        setNavHidden(false);
-      }
-      lastY = y;
-    }
-
-    function navShouldHide() {
-      return compact && !sheetOpen && window.scrollY > compactStartY + HIDE_GRACE;
-    }
-
-    hoverZone.addEventListener("mouseenter", () => {
-      hoveringTop = true;
-      setNavHidden(false);
-    });
-    hoverZone.addEventListener("mouseleave", () => {
-      hoveringTop = false;
-      if (!navbar.matches(":hover") && navShouldHide()) setNavHidden(true);
-    });
-    navbar.addEventListener("mouseenter", () => {
-      hoveringTop = true;
-      setNavHidden(false);
-    });
-    navbar.addEventListener("mouseleave", () => {
-      hoveringTop = false;
-      if (navShouldHide()) setNavHidden(true);
-    });
-
     let scrollTicking = false;
     window.addEventListener("scroll", () => {
       if (scrollTicking) return;
@@ -3113,16 +2938,11 @@
       requestAnimationFrame(() => {
         scrollTicking = false;
         evaluateCompact();
-        evaluateNavVisibility();
       });
     }, { passive: true });
 
-    window.addEventListener("resize", () => {
-      evaluateCompact();
-      evaluateNavVisibility();
-    });
+    window.addEventListener("resize", evaluateCompact);
     evaluateCompact();
-    evaluateNavVisibility();
     updateLabels();
     updateCount();
 
@@ -3167,7 +2987,6 @@
       menuBtn.setAttribute("aria-expanded", "true");
       menuBtn.setAttribute("aria-label", "Close menu");
       body.classList.add("is-menu-open");
-      setNavHidden(false);
       setTimeout(() => { isAnimating = false; }, 1100);
     }
 
@@ -3217,6 +3036,184 @@
     window.addEventListener("resize", () => {
       if (megaMenu.classList.contains("is-open")) placeCircleOrigin();
     });
+  </script>
+  <!-- DEV TOOL — "Dropdown tweaks". Hidden unless the URL has ?tweak=1.
+       Saved values (localStorage) always apply. Once final, paste the "Copy values"
+       output into :root and delete this whole block. -->
+  <script>
+    (function dropdownTweaks() {
+      /* The panel is hidden by default. Your saved values still apply; open
+         search.html?tweak=1 to bring the panel back. */
+      var SHOW_PANEL = /[?&]tweak(=1|=true)?(&|$)/.test(window.location.search);
+
+      var KEY = "havenlist.popTweaks.v1";
+      var root = document.documentElement;
+      var EASES = {
+        "Smooth": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "Out expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "Ease in-out": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "Soft": "cubic-bezier(0.33, 0.1, 0.25, 1)",
+        "Overshoot": "cubic-bezier(0.34, 1.4, 0.64, 1)",
+        "Linear": "linear"
+      };
+      var DEFAULTS = {
+        open: 550, close: 300, fade: 160,
+        easeOpen: "Smooth", easeClose: "Smooth",
+        rFrom: 40, rTo: 20, gap: 10, shadow: 12
+      };
+      var SLIDERS = [
+        ["open", "Open duration", 150, 1400, 10, "ms"],
+        ["close", "Close · shrink duration", 100, 1000, 10, "ms"],
+        ["fade", "Close · content dissolve", 0, 600, 10, "ms"],
+        ["rFrom", "Start radius (button)", 0, 40, 1, "px"],
+        ["rTo", "End radius (panel)", 0, 40, 1, "px"],
+        ["gap", "Gap below button", 0, 32, 1, "px"],
+        ["shadow", "Shadow strength", 0, 30, 1, "%"]
+      ];
+
+      var v = {};
+      Object.keys(DEFAULTS).forEach(function (k) { v[k] = DEFAULTS[k]; });
+      try {
+        var saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+        Object.keys(saved).forEach(function (k) { if (k in DEFAULTS) v[k] = saved[k]; });
+      } catch (e) {}
+
+      function vars() {
+        return {
+          "--pop-open": v.open + "ms",
+          "--pop-close": v.close + "ms",
+          "--pop-fade": v.fade + "ms",
+          "--pop-ease-open": EASES[v.easeOpen] || EASES.Smooth,
+          "--pop-ease-close": EASES[v.easeClose] || EASES.Smooth,
+          "--pop-r-from": v.rFrom + "px",
+          "--pop-r-to": v.rTo + "px",
+          "--pop-gap": v.gap + "px",
+          "--pop-shadow": String(v.shadow / 100)
+        };
+      }
+
+      function apply() {
+        var all = vars();
+        Object.keys(all).forEach(function (k) { root.style.setProperty(k, all[k]); });
+        try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {}
+      }
+      apply();
+      if (!SHOW_PANEL) return;
+
+      var css = document.createElement("style");
+      css.textContent =
+        ".tw{position:fixed;left:16px;bottom:16px;z-index:400;font:12px/1.3 var(--font-ui);color:var(--ink)}" +
+        ".tw__btn{height:36px;padding:0 14px;border-radius:36px;background:var(--ink);color:#fff;font-weight:500;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.18)}" +
+        ".tw__card{position:absolute;left:0;bottom:44px;width:296px;max-height:calc(100vh - 80px);overflow:auto;padding:14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none}" +
+        ".tw.is-open .tw__card{display:block}" +
+        ".tw__title{font:500 14px var(--font-display);margin-bottom:10px;letter-spacing:-.01em}" +
+        ".tw__row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-bottom:10px}" +
+        ".tw__row label{color:var(--ink-70)}" +
+        ".tw__row output{font-variant-numeric:tabular-nums;font-weight:500}" +
+        ".tw__row input[type=range]{grid-column:1/3;width:100%;margin:0;accent-color:#1e1e1e}" +
+        ".tw__row select{grid-column:1/3;height:30px;border:1px solid var(--ink-10);border-radius:8px;padding:0 8px;background:#fff;font:inherit}" +
+        ".tw__sec{margin:12px 0 8px;font-weight:500;color:var(--ink-40);letter-spacing:.02em;text-transform:uppercase;font-size:10px}" +
+        ".tw__tests,.tw__acts{display:flex;flex-wrap:wrap;gap:6px}" +
+        ".tw__tests button,.tw__acts button{height:28px;padding:0 10px;border:1px solid var(--ink-10);border-radius:28px;background:#fff;font:500 12px var(--font-ui)}" +
+        ".tw__tests button:hover,.tw__acts button:hover{background:var(--ink-07)}" +
+        ".tw__acts .is-primary{background:var(--ink);color:#fff;border-color:var(--ink)}";
+      document.head.appendChild(css);
+
+      var wrap = document.createElement("div");
+      wrap.className = "tw";
+      wrap.innerHTML =
+        '<div class="tw__card" role="group" aria-label="Dropdown tweaks"><div class="tw__title">Dropdown tweaks</div>' +
+        '<div class="tw__sec">Test (scrolls to top)</div><div class="tw__tests"></div>' +
+        '<div class="tw__sec">Timing &amp; shape</div><div class="tw__sliders"></div>' +
+        '<div class="tw__sec">Easing</div><div class="tw__eases"></div>' +
+        '<div class="tw__sec">&nbsp;</div><div class="tw__acts"></div></div>' +
+        '<button class="tw__btn" type="button" aria-expanded="false">Dropdown tweaks</button>';
+      document.body.appendChild(wrap);
+
+      /* Don't let clicks in the panel count as "outside" clicks that close the dropdown */
+      wrap.addEventListener("click", function (e) { e.stopPropagation(); });
+
+      var toggle = wrap.querySelector(".tw__btn");
+      toggle.addEventListener("click", function () {
+        var open = wrap.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+
+      var inputs = {};
+      function row(key, label, node) {
+        var r = document.createElement("div");
+        r.className = "tw__row";
+        var l = document.createElement("label");
+        l.textContent = label;
+        r.appendChild(l);
+        return r;
+      }
+      var slidersEl = wrap.querySelector(".tw__sliders");
+      SLIDERS.forEach(function (def) {
+        var key = def[0];
+        var r = row(key, def[1]);
+        var out = document.createElement("output");
+        var input = document.createElement("input");
+        input.type = "range";
+        input.min = def[2]; input.max = def[3]; input.step = def[4];
+        function paint() { out.textContent = v[key] + def[5]; input.value = v[key]; }
+        input.addEventListener("input", function () { v[key] = Number(input.value); paint(); apply(); });
+        r.appendChild(out); r.appendChild(input);
+        slidersEl.appendChild(r);
+        inputs[key] = paint;
+        paint();
+      });
+
+      var easesEl = wrap.querySelector(".tw__eases");
+      [["easeOpen", "Open easing"], ["easeClose", "Close easing"]].forEach(function (def) {
+        var key = def[0];
+        var r = row(key, def[1]);
+        var sel = document.createElement("select");
+        Object.keys(EASES).forEach(function (name) {
+          var o = document.createElement("option");
+          o.value = name; o.textContent = name + "  " + (EASES[name] === "linear" ? "" : EASES[name].replace("cubic-bezier", ""));
+          sel.appendChild(o);
+        });
+        function paint() { sel.value = v[key]; }
+        sel.addEventListener("change", function () { v[key] = sel.value; apply(); });
+        r.appendChild(sel);
+        easesEl.appendChild(r);
+        inputs[key] = paint;
+        paint();
+      });
+
+      var tests = wrap.querySelector(".tw__tests");
+      [["Price", "btnPrice"], ["Location", "btnLocation"], ["Beds", "btnBeds"], ["More", "btnMore"]].forEach(function (def) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = def[0];
+        b.addEventListener("click", function () {
+          var target = document.getElementById(def[1]);
+          if (!target) return;
+          if (window.scrollY > 0) { window.scrollTo(0, 0); setTimeout(function () { target.click(); }, 120); }
+          else target.click();
+        });
+        tests.appendChild(b);
+      });
+
+      var acts = wrap.querySelector(".tw__acts");
+      var reset = document.createElement("button");
+      reset.type = "button"; reset.textContent = "Reset";
+      reset.addEventListener("click", function () {
+        Object.keys(DEFAULTS).forEach(function (k) { v[k] = DEFAULTS[k]; if (inputs[k]) inputs[k](); });
+        apply();
+      });
+      var copy = document.createElement("button");
+      copy.type = "button"; copy.className = "is-primary"; copy.textContent = "Copy values";
+      copy.addEventListener("click", function () {
+        var all = vars();
+        var text = ":root {\n" + Object.keys(all).map(function (k) { return "  " + k + ": " + all[k] + ";"; }).join("\n") + "\n}";
+        function done() { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy values"; }, 1400); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { window.prompt("Copy:", text); });
+        else window.prompt("Copy:", text);
+      });
+      acts.appendChild(reset); acts.appendChild(copy);
+    })();
   </script>
 </body>
 </html>
