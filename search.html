@@ -871,6 +871,13 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.7s var(--ease-out);
+    }
+
+    .card:hover .card__media img { transform: scale(1.05); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card__media img { transition: none; }
     }
 
     .card__badge {
@@ -1466,7 +1473,12 @@
       font-size: 14px;
       letter-spacing: -0.01em;
       color: var(--ink);
+      transition: background-color 0.2s var(--ease);
     }
+
+    /* Dropdown chips: hover is just a 3% darker fill, no text motion */
+    .loc-chip:not(.is-active):hover,
+    .type-chip:not(.is-active):hover { background: rgba(30, 30, 30, 0.03); }
 
     .loc-chip.is-active {
       background: var(--ink);
@@ -1569,6 +1581,7 @@
       font-family: var(--font-ui);
       font-size: 14px;
       letter-spacing: -0.01em;
+      transition: background-color 0.2s var(--ease);
     }
 
     .type-chip.is-active {
@@ -2558,7 +2571,7 @@
       });
     }
 
-    document.querySelectorAll(".hl-btn, .tab, .back-link, .filter-pill, .filter-select, .filter-clear, .loc-chip, .loc-item, .type-chip, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+    document.querySelectorAll(".hl-btn, .back-link, .filter-pill, .filter-select, .filter-clear, .loc-item, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
 
     /* ----- Apply URL params from homepage search ----- */
     const params = new URLSearchParams(window.location.search);
