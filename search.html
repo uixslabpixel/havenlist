@@ -104,26 +104,6 @@
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
-    .navbar.is-hidden {
-      transform: translateY(-100%);
-      pointer-events: none;
-    }
-
-    .nav-hover-zone {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 16px;
-      z-index: 99;
-      pointer-events: none;
-    }
-
-    .nav-hover-zone.is-active {
-      pointer-events: auto;
-      height: 64px;
-    }
-
     .logo {
       position: relative;
       z-index: 2;
@@ -158,25 +138,26 @@
     .nav-links a {
       transform: translateY(0);
       /* Returning: drop back in once the compact bar has folded away */
-      transition: transform 0.6s var(--ease-morph) 0.22s;
+      transition: transform 0.6s var(--ease-morph) 0.45s;
     }
 
-    .nav-links a:nth-child(2) { transition-delay: 0.26s; }
-    .nav-links a:nth-child(3) { transition-delay: 0.30s; }
+    .nav-links a:nth-child(2) { transition-delay: 0.5s; }
+    .nav-links a:nth-child(3) { transition-delay: 0.55s; }
 
     body.is-compact .nav-links {
       visibility: hidden;
       pointer-events: none;
-      transition: visibility 0s linear 0.55s;
+      transition: visibility 0s linear 0.5s;
     }
 
+    /* Step 1 of the hand-off: links rise out before the filter bar arrives */
     body.is-compact .nav-links a {
       transform: translateY(-110%);
-      transition: transform 0.45s var(--ease-morph);
+      transition: transform 0.4s var(--ease-morph);
     }
 
-    body.is-compact .nav-links a:nth-child(2) { transition-delay: 0.04s; }
-    body.is-compact .nav-links a:nth-child(3) { transition-delay: 0.08s; }
+    body.is-compact .nav-links a:nth-child(2) { transition-delay: 0.05s; }
+    body.is-compact .nav-links a:nth-child(3) { transition-delay: 0.1s; }
 
     body.is-sheet-open.is-compact .nav-links {
       visibility: visible;
@@ -363,12 +344,6 @@
       transition: transform 0.45s var(--ease-out), opacity 0.35s var(--ease);
     }
 
-    .menu-btn.is-nav-hidden {
-      transform: translateY(calc(-100% - 12px));
-      opacity: 0;
-      pointer-events: none;
-    }
-
     .menu-btn-spacer {
       width: 40px;
       height: 40px;
@@ -489,18 +464,19 @@
       transform: translate(-50%, -50%);
       clip-path: inset(0 50% 0 50% round 46px);
       transition:
-        clip-path 0.45s var(--ease-morph) 0.1s,
-        visibility 0s linear 0.55s;
+        clip-path 0.4s var(--ease-morph) 0.12s,
+        visibility 0s linear 0.52s;
     }
 
+    /* Step 2: the bar unfolds only after the links have risen away */
     body.is-compact .compact-bar {
       visibility: visible;
       pointer-events: auto;
       /* Negative inset keeps the soft shadow visible once open */
       clip-path: inset(-8px -8px -8px -8px round 54px);
       transition:
-        clip-path 0.7s var(--ease-morph) 0.12s,
-        visibility 0s;
+        clip-path 0.7s var(--ease-morph) 0.38s,
+        visibility 0s linear 0.38s;
     }
 
     .compact-bar > * {
@@ -513,11 +489,11 @@
       transition: transform 0.6s var(--ease-morph);
     }
 
-    body.is-compact .compact-bar > :nth-child(1) { transition-delay: 0.24s; }
-    body.is-compact .compact-bar > :nth-child(2) { transition-delay: 0.28s; }
-    body.is-compact .compact-bar > :nth-child(3) { transition-delay: 0.32s; }
-    body.is-compact .compact-bar > :nth-child(4) { transition-delay: 0.36s; }
-    body.is-compact .compact-bar > :nth-child(5) { transition-delay: 0.40s; }
+    body.is-compact .compact-bar > :nth-child(1) { transition-delay: 0.5s; }
+    body.is-compact .compact-bar > :nth-child(2) { transition-delay: 0.54s; }
+    body.is-compact .compact-bar > :nth-child(3) { transition-delay: 0.58s; }
+    body.is-compact .compact-bar > :nth-child(4) { transition-delay: 0.62s; }
+    body.is-compact .compact-bar > :nth-child(5) { transition-delay: 0.66s; }
 
     .chip {
       display: inline-flex;
@@ -895,6 +871,13 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.7s var(--ease-out);
+    }
+
+    .card:hover .card__media img { transform: scale(1.05); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card__media img { transition: none; }
     }
 
     .card__badge {
@@ -1370,7 +1353,7 @@
     }
 
     .filter-clear {
-      font-family: var(--font-display);
+      font-family: var(--font-ui);
       font-weight: 500;
       font-size: 14px;
       color: var(--ink-70);
@@ -1381,13 +1364,14 @@
 
     .filter-field { display: flex; flex-direction: column; gap: 4px; }
     .filter-field label {
+      font-family: var(--font-ui);
       font-size: 12px;
       color: var(--ink-40);
       letter-spacing: -0.01em;
     }
     .filter-field input,
     .filter-field .filter-value {
-      font-family: var(--font-display);
+      font-family: var(--font-ui);
       font-size: 18px;
       font-weight: 500;
       color: var(--ink);
@@ -1462,6 +1446,7 @@
     }
 
     .loc-search input {
+      font-family: var(--font-ui);
       flex: 1;
       border: none;
       outline: none;
@@ -1484,11 +1469,16 @@
       padding: 0 10px;
       border-radius: 40px;
       border: 1px solid var(--ink-10);
-      font-family: var(--font-display);
+      font-family: var(--font-ui);
       font-size: 14px;
       letter-spacing: -0.01em;
       color: var(--ink);
+      transition: background-color 0.2s var(--ease);
     }
+
+    /* Dropdown chips: hover is just a 3% darker fill, no text motion */
+    .loc-chip:not(.is-active):hover,
+    .type-chip:not(.is-active):hover { background: rgba(30, 30, 30, 0.03); }
 
     .loc-chip.is-active {
       background: var(--ink);
@@ -1497,7 +1487,7 @@
     }
 
     .loc-meta {
-      font-family: var(--font-display);
+      font-family: var(--font-ui);
       font-size: 14px;
       color: rgba(30, 30, 30, 0.5);
     }
@@ -1512,8 +1502,8 @@
       height: 40px;
       padding: 0 14px;
       border-radius: 10px;
-      font-family: var(--font-display);
-      font-size: 15px;
+      font-family: var(--font-ui);
+      font-size: 14px;
       letter-spacing: -0.01em;
       color: var(--ink);
       text-align: left;
@@ -1531,10 +1521,11 @@
     }
 
     .stepper-label {
+      font-family: var(--font-ui);
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: 16px;
+      font-size: 14px;
       color: rgba(30, 30, 30, 0.9);
     }
 
@@ -1571,7 +1562,7 @@
       justify-content: center;
       text-align: center;
       font-family: var(--font-ui);
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 400;
       color: var(--ink);
       line-height: 1.2;
@@ -1587,9 +1578,10 @@
       padding: 0 12px 0 10px;
       border: 1px solid var(--ink-10);
       border-radius: 40px;
-      font-family: var(--font-display);
+      font-family: var(--font-ui);
       font-size: 14px;
       letter-spacing: -0.01em;
+      transition: background-color 0.2s var(--ease);
     }
 
     .type-chip.is-active {
@@ -1601,10 +1593,11 @@
     .facilities { display: flex; flex-direction: column; gap: 10px; }
 
     .facility {
+      font-family: var(--font-ui);
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 15px;
+      font-size: 14px;
       color: var(--ink);
       cursor: pointer;
     }
@@ -1949,7 +1942,6 @@
   </style>
 </head>
 <body>
-  <div class="nav-hover-zone" id="navHoverZone" aria-hidden="true"></div>
 
   <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
     <span class="menu-btn__burger" aria-hidden="true">
@@ -2213,7 +2205,7 @@
 
     <div class="filter-pop filter-pop--more" id="popMore" role="dialog" aria-label="More filters">
       <div class="filter-pop__head" style="padding-top:16px">
-        <h3 class="filter-pop__title" style="font-size:24px;letter-spacing:-0.02em">Filter</h3>
+        <h3 class="filter-pop__title">Filter</h3>
         <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         </button>
@@ -2451,6 +2443,68 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+    /* ----- Smooth scroll: eased wheel scrolling for every section -----
+       Wheel input sets a target; each frame the page glides a share of the
+       way there. Touch, keyboard and scrollbar stay native. Inner scroll
+       areas (dropdowns, sheet, menu) and open overlays are left alone. */
+    const smoothScroll = (() => {
+      const EASE = 0.1; // share of the remaining distance covered per frame
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let target = window.scrollY;
+      let current = target;
+      let raf = 0;
+
+      const maxY = () => document.documentElement.scrollHeight - window.innerHeight;
+      const clamp = (y) => Math.max(0, Math.min(maxY(), y));
+      const locked = () => document.body.classList.contains("is-menu-open")
+        || document.body.classList.contains("is-sheet-open");
+
+      function scrollsItself(el) {
+        for (; el && el !== document.body; el = el.parentElement) {
+          const { overflowY } = getComputedStyle(el);
+          if (/(auto|scroll)/.test(overflowY) && el.scrollHeight > el.clientHeight) return true;
+        }
+        return false;
+      }
+
+      function frame() {
+        current += (target - current) * EASE;
+        if (Math.abs(target - current) < 0.5) current = target;
+        window.scrollTo(0, current);
+        raf = current === target ? 0 : requestAnimationFrame(frame);
+      }
+
+      function to(y) {
+        if (!raf) current = window.scrollY;
+        target = clamp(y);
+        if (reduceMotion) {
+          window.scrollTo(0, target);
+          return;
+        }
+        if (!raf) raf = requestAnimationFrame(frame);
+      }
+
+      window.addEventListener("wheel", (e) => {
+        if (reduceMotion || e.ctrlKey || locked()) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || scrollsItself(e.target)) return;
+        e.preventDefault();
+        const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+        to((raf ? target : window.scrollY) + e.deltaY * unit);
+      }, { passive: false });
+
+      /* Keyboard / scrollbar / anchor jumps: pick up from wherever the page is */
+      window.addEventListener("scroll", () => {
+        if (!raf) target = current = window.scrollY;
+      }, { passive: true });
+
+      return {
+        to,
+        toElement(el) {
+          to(el.getBoundingClientRect().top + window.scrollY);
+        },
+      };
+    })();
+
     const LISTINGS = [
       { img: 1, badge: "For sale", place: "Pacific Heights", addr: "2250 Vallejo St, San Francisco", beds: 4, baths: 3, sqft: "3,180", price: "$4,950,000" },
       { img: 2, badge: "Open house", place: "Russian Hill", addr: "1111 Jones St, San Francisco", beds: 3, baths: 2, sqft: "1,850", price: "$2,195,000" },
@@ -2517,7 +2571,7 @@
       });
     }
 
-    document.querySelectorAll(".logo, .hl-btn, .tab, .back-link, .filter-pill, .filter-select, .compact-select, .filter-clear, .loc-chip, .loc-item, .type-chip, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+    document.querySelectorAll(".hl-btn, .back-link, .filter-pill, .filter-select, .filter-clear, .loc-item, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
 
     /* ----- Apply URL params from homepage search ----- */
     const params = new URLSearchParams(window.location.search);
@@ -2541,15 +2595,11 @@
     const body = document.body;
     const navbar = document.getElementById("navbar");
     const menuBtn = document.getElementById("menuBtn");
-    const hoverZone = document.getElementById("navHoverZone");
     const compactBar = document.getElementById("compactBar");
     const filterForm = document.getElementById("filterForm");
     const filterSheet = document.getElementById("filterSheet");
 
     let compact = false;
-    let compactStartY = 0;
-    let lastY = window.scrollY;
-    let hoveringTop = false;
     let sheetOpen = false;
     let openPop = null;
 
@@ -2971,7 +3021,6 @@
       filterSheet.classList.add("is-open");
       filterSheet.setAttribute("aria-hidden", "false");
       body.classList.add("is-sheet-open");
-      setNavHidden(false);
       updateLabels();
       clearTimeout(sheetPopTimer);
       if (focusFilter) {
@@ -2996,7 +3045,6 @@
       filterSheet.classList.remove("is-open");
       filterSheet.setAttribute("aria-hidden", "true");
       body.classList.remove("is-sheet-open");
-      evaluateNavVisibility();
     }
 
     document.addEventListener("keydown", (e) => {
@@ -3033,78 +3081,30 @@
       if (state.featured) document.getElementById("btnFeatured").click();
     });
 
-    /* ----- Compact bar + navbar (same scroll rules as the homepage) -----
-       Top zone (search header on screen): navbar always shown.
-       Past it: hide on scroll down, reveal on scroll up or top-edge hover.
-       A short scroll grace after the bar appears lets it be seen first. */
-    const NAV_H = 64;
-    const COMPACT_ON = NAV_H + 16;   // form top crosses this → compact
-    const COMPACT_OFF = NAV_H + 28;  // hysteresis so trackpad jitter can't flicker it
-    const HIDE_GRACE = 160;          // px of scroll after compact before auto-hide
-
-    function setNavHidden(hidden) {
-      if (body.classList.contains("is-menu-open") || sheetOpen) hidden = false;
-      navbar.classList.toggle("is-hidden", hidden);
-      menuBtn.classList.toggle("is-nav-hidden", hidden);
-      hoverZone.classList.toggle("is-active", hidden || hoveringTop);
-    }
+    /* ----- Compact bar + navbar -----
+       The navbar never hides on this page. Airbnb-style hand-off: once 90% of
+       the search header has scrolled under the navbar, the nav links rise out
+       first, then the compact filter bar unfolds in their place (see CSS). */
+    const searchHeader = document.querySelector(".search-header");
+    const COMPACT_ON = 0.9;    // share of the search header scrolled away
+    const COMPACT_OFF = 0.84;  // hysteresis so trackpad jitter can't flicker it
 
     function setCompact(next) {
       if (next === compact) return;
       compact = next;
       body.classList.toggle("is-compact", next);
       compactBar.setAttribute("aria-hidden", String(!next));
-      if (next) {
-        compactStartY = window.scrollY;
-        setNavHidden(false);
-      }
     }
 
     function evaluateCompact() {
-      const top = filterForm.getBoundingClientRect().top;
       if (window.innerWidth <= 1100) {
         setCompact(false);
         return;
       }
-      if (!compact && top < COMPACT_ON) setCompact(true);
-      else if (compact && top > COMPACT_OFF) setCompact(false);
+      const progress = window.scrollY / Math.max(1, searchHeader.offsetHeight);
+      if (!compact && progress >= COMPACT_ON) setCompact(true);
+      else if (compact && progress < COMPACT_OFF) setCompact(false);
     }
-
-    function evaluateNavVisibility() {
-      const y = window.scrollY;
-      const scrollingDown = y > lastY + 2;
-      const scrollingUp = y < lastY - 2;
-
-      if (sheetOpen || hoveringTop || !compact) {
-        setNavHidden(false);
-      } else if (scrollingDown && y > compactStartY + HIDE_GRACE) {
-        setNavHidden(true);
-      } else if (scrollingUp) {
-        setNavHidden(false);
-      }
-      lastY = y;
-    }
-
-    function navShouldHide() {
-      return compact && !sheetOpen && window.scrollY > compactStartY + HIDE_GRACE;
-    }
-
-    hoverZone.addEventListener("mouseenter", () => {
-      hoveringTop = true;
-      setNavHidden(false);
-    });
-    hoverZone.addEventListener("mouseleave", () => {
-      hoveringTop = false;
-      if (!navbar.matches(":hover") && navShouldHide()) setNavHidden(true);
-    });
-    navbar.addEventListener("mouseenter", () => {
-      hoveringTop = true;
-      setNavHidden(false);
-    });
-    navbar.addEventListener("mouseleave", () => {
-      hoveringTop = false;
-      if (navShouldHide()) setNavHidden(true);
-    });
 
     let scrollTicking = false;
     window.addEventListener("scroll", () => {
@@ -3113,16 +3113,11 @@
       requestAnimationFrame(() => {
         scrollTicking = false;
         evaluateCompact();
-        evaluateNavVisibility();
       });
     }, { passive: true });
 
-    window.addEventListener("resize", () => {
-      evaluateCompact();
-      evaluateNavVisibility();
-    });
+    window.addEventListener("resize", evaluateCompact);
     evaluateCompact();
-    evaluateNavVisibility();
     updateLabels();
     updateCount();
 
@@ -3167,7 +3162,6 @@
       menuBtn.setAttribute("aria-expanded", "true");
       menuBtn.setAttribute("aria-label", "Close menu");
       body.classList.add("is-menu-open");
-      setNavHidden(false);
       setTimeout(() => { isAnimating = false; }, 1100);
     }
 
