@@ -61,6 +61,8 @@
       --ease-featured: cubic-bezier(0.38, 0, 0, 1);
       /* One tempo for every navbar tone change (transparent ⇄ white) */
       --nav-tone: 0.6s cubic-bezier(0.33, 0.1, 0.25, 1);
+      /* Navbar hide/reveal: one symmetric ease so showing feels as calm as hiding */
+      --nav-slide: 0.7s cubic-bezier(0.65, 0, 0.35, 1);
       --font-display: "Inter Display", "Inter", system-ui, sans-serif;
       --font-ui: "Geist", system-ui, sans-serif;
     }
@@ -201,7 +203,7 @@
       background: transparent;
       transform: translateY(0);
       transition:
-        transform 0.45s var(--ease-out),
+        transform var(--nav-slide),
         background-color var(--nav-tone),
         box-shadow var(--nav-tone),
         color var(--nav-tone);
@@ -534,8 +536,8 @@
       color: var(--white);
       transition:
         color var(--nav-tone),
-        transform 0.45s var(--ease-out),
-        opacity 0.35s var(--ease);
+        transform var(--nav-slide),
+        opacity var(--nav-slide);
     }
 
     .menu-btn.is-solid-tone {
@@ -2596,7 +2598,7 @@
   </button>
 
   <div class="page">
-    <section class="hero" aria-label="Havenlist hero">
+    <section class="hero" id="home" aria-label="Havenlist hero">
       <header class="navbar" id="navbar">
         <a class="logo" href="index.html">Havenlist.</a>
 
@@ -3106,6 +3108,68 @@ said about us</h2>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+      /* ----- Smooth scroll: eased wheel scrolling for every section -----
+         Wheel input sets a target; each frame the page glides a share of the
+         way there. Touch, keyboard and scrollbar stay native. Inner scroll
+         areas (dropdowns, sheet, menu) and open overlays are left alone. */
+      const smoothScroll = (() => {
+        const EASE = 0.1; // share of the remaining distance covered per frame
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        let target = window.scrollY;
+        let current = target;
+        let raf = 0;
+
+        const maxY = () => document.documentElement.scrollHeight - window.innerHeight;
+        const clamp = (y) => Math.max(0, Math.min(maxY(), y));
+        const locked = () => document.body.classList.contains("is-menu-open")
+          || document.body.classList.contains("is-sheet-open");
+
+        function scrollsItself(el) {
+          for (; el && el !== document.body; el = el.parentElement) {
+            const { overflowY } = getComputedStyle(el);
+            if (/(auto|scroll)/.test(overflowY) && el.scrollHeight > el.clientHeight) return true;
+          }
+          return false;
+        }
+
+        function frame() {
+          current += (target - current) * EASE;
+          if (Math.abs(target - current) < 0.5) current = target;
+          window.scrollTo(0, current);
+          raf = current === target ? 0 : requestAnimationFrame(frame);
+        }
+
+        function to(y) {
+          if (!raf) current = window.scrollY;
+          target = clamp(y);
+          if (reduceMotion) {
+            window.scrollTo(0, target);
+            return;
+          }
+          if (!raf) raf = requestAnimationFrame(frame);
+        }
+
+        window.addEventListener("wheel", (e) => {
+          if (reduceMotion || e.ctrlKey || locked()) return;
+          if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || scrollsItself(e.target)) return;
+          e.preventDefault();
+          const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+          to((raf ? target : window.scrollY) + e.deltaY * unit);
+        }, { passive: false });
+
+        /* Keyboard / scrollbar / anchor jumps: pick up from wherever the page is */
+        window.addEventListener("scroll", () => {
+          if (!raf) target = current = window.scrollY;
+        }, { passive: true });
+
+        return {
+          to,
+          toElement(el) {
+            to(el.getBoundingClientRect().top + window.scrollY);
+          },
+        };
+      })();
+
 
     /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
     function addRise(el) {
@@ -3276,6 +3340,15 @@ said about us</h2>
         let lastY = window.scrollY;
         let hoveringTop = false;
 
+        /* Navbar turns white once 80% of the hero image has scrolled away.
+           Measured on the image frame (80vh), not the 100vh section, so the
+           white-text navbar never sits over the blank strip below the photo. */
+        const heroFrame = hero.querySelector(".hero-base") || hero;
+        const SOLID_AT = 0.8;
+        function pastHeroSolidPoint() {
+          return window.scrollY - hero.offsetTop >= heroFrame.offsetHeight * SOLID_AT;
+        }
+
         /* Hero still under the navbar — Featured hasn't reached the top yet */
         function inHeroZone() {
           return hero.getBoundingClientRect().bottom > NAV_H + 8;
@@ -3301,7 +3374,7 @@ said about us</h2>
           hoverZone.classList.toggle("is-active", hidden || hoveringTop);
         }
 
-        /* Top of page: transparent. Scrolling through the hero: white, shown.
+        /* Hero: transparent and shown until 80% scrolled, then white.
            From Featured on: hide on scroll down, drop back in (white) on scroll up.
            Neighborhoods keeps the transparent tone over its dark imagery. */
         function update() {
@@ -3310,11 +3383,8 @@ said about us</h2>
           const scrollingUp = y < lastY - 2;
           const inNeigh = inNeighborhoodsZone();
 
-          if (y <= 8) {
-            setSolid(false);
-            setHidden(false);
-          } else if (inHeroZone()) {
-            setSolid(true);
+          if (inHeroZone()) {
+            setSolid(pastHeroSolidPoint());
             setHidden(false);
           } else {
             setSolid(!inNeigh);
@@ -3327,7 +3397,7 @@ said about us</h2>
 
         hoverZone.addEventListener("mouseenter", () => {
           hoveringTop = true;
-          setSolid(window.scrollY > 8 && !inNeighborhoodsZone());
+          setSolid(inHeroZone() ? pastHeroSolidPoint() : !inNeighborhoodsZone());
           setHidden(false);
           hoverZone.classList.add("is-active");
         });
@@ -3432,10 +3502,22 @@ said about us</h2>
         if (menuBtn.classList.contains("is-open")) replayXDraw();
       });
 
+      /* Section links glide to their target; links with no section yet toast */
+      function sectionFor(link) {
+        const hash = link.getAttribute("href") || "";
+        return hash.startsWith("#") && hash.length > 1 ? document.querySelector(hash) : null;
+      }
+
       megaMenu.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", (e) => {
+          if (link.href.startsWith("mailto:")) return;
           e.preventDefault();
           closeMenu();
+          const target = sectionFor(link);
+          if (target) {
+            smoothScroll.toElement(target);
+            return;
+          }
           const label = link.querySelector(".link-rise")?.dataset.text
             || link.textContent.trim();
           toast(`Go to ${label || "page"}`);
@@ -3445,7 +3527,9 @@ said about us</h2>
       document.querySelectorAll(".nav-links a").forEach((link) => {
         link.addEventListener("click", (e) => {
           e.preventDefault();
-          toast(`Go to ${link.textContent.trim()}`);
+          const target = sectionFor(link);
+          if (target) smoothScroll.toElement(target);
+          else toast(`Go to ${link.textContent.trim()}`);
         });
       });
 
