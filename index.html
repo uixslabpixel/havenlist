@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Havenlist — Find your livings</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" href="assets/hero-back.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="assets/hero-front.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="assets/InterDisplay-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -49,12 +52,15 @@
       --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
       --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
       --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
+      --ease-slide: cubic-bezier(0.38, 0, 0, 1);
       --dur-fast: 0.45s;
-      --dur: 0.7s;
+      --dur: 0.75s;
+      --dur-slide: 0.95s;
       --dur-slow: 1.15s;
       --dur-featured: 1000ms;
-      --dur-featured-image: 1300ms;
       --ease-featured: cubic-bezier(0.38, 0, 0, 1);
+      /* One tempo for every navbar tone change (transparent ⇄ white) */
+      --nav-tone: 0.6s cubic-bezier(0.33, 0.1, 0.25, 1);
       --font-display: "Inter Display", "Inter", system-ui, sans-serif;
       --font-ui: "Geist", system-ui, sans-serif;
     }
@@ -67,6 +73,8 @@
       font-family: var(--font-ui);
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
+      /* No rubber-band past the top/bottom edge */
+      overscroll-behavior-y: none;
     }
 
     body { overflow-x: hidden; }
@@ -180,16 +188,51 @@
 
     /* ========== NAVBAR ========== */
     .navbar {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      z-index: 30;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
       height: 64px;
       padding: 0 var(--page-pad);
+      background: transparent;
+      transform: translateY(0);
+      transition:
+        transform 0.45s var(--ease-out),
+        background-color var(--nav-tone),
+        box-shadow var(--nav-tone),
+        color var(--nav-tone);
+      color: var(--white);
+    }
+
+    .navbar.is-solid {
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .navbar.is-hidden {
+      transform: translateY(-100%);
+      pointer-events: none;
+    }
+
+    /* Invisible hit area — hover top edge to reveal hidden navbar */
+    .nav-hover-zone {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 16px;
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    .nav-hover-zone.is-active {
+      pointer-events: auto;
+      height: 64px;
     }
 
     .logo {
@@ -198,7 +241,7 @@
       font-size: 24px;
       line-height: 1.2;
       letter-spacing: -0.02em;
-      color: var(--white);
+      color: currentColor;
       width: 100px;
       transition: opacity 0.25s var(--ease);
     }
@@ -213,6 +256,7 @@
       display: flex;
       align-items: center;
       gap: 24px;
+      transition: opacity 0.3s var(--ease);
     }
 
     .nav-links a {
@@ -220,7 +264,7 @@
       font-weight: 500;
       font-size: 14px;
       letter-spacing: -0.01em;
-      color: var(--white);
+      color: currentColor;
       height: 1.4em;
       line-height: 1.4;
       overflow: hidden;
@@ -248,6 +292,31 @@
       transition: transform var(--dur) var(--ease-soft);
     }
 
+    /* Text rise for buttons & links: the label slides up while an identical
+       copy (its own text-shadow, 1.4em below) rises into place. Spans are
+       added in JS (addRise), so live-updating labels keep working. */
+    .rise {
+      display: inline-block;
+      vertical-align: top;
+      height: 1.4em;
+      line-height: 1.4;
+      overflow: hidden;
+    }
+
+    .rise__t {
+      display: block;
+      text-shadow: 0 1.4em 0 currentColor;
+      transition: none;
+    }
+
+    a:hover .rise__t,
+    button:hover .rise__t,
+    a:focus-visible .rise__t,
+    button:focus-visible .rise__t {
+      transform: translateY(-1.4em);
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
     .nav-actions {
       display: flex;
       align-items: center;
@@ -262,13 +331,22 @@
       height: 40px;
       border-radius: 56px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--white);
-      transition: background 0.25s var(--ease), border-color 0.25s var(--ease);
+      color: currentColor;
+      transition: background-color var(--nav-tone), border-color var(--nav-tone);
     }
 
-    .icon-btn:hover {
+    .navbar:not(.is-solid) .icon-btn:hover {
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .navbar.is-solid .icon-btn {
+      border-color: var(--ink-10);
+    }
+
+    .navbar.is-solid .icon-btn:hover {
+      background: var(--ink-07);
+      border-color: rgba(30, 30, 30, 0.18);
     }
 
     /* Heart: outline draws from top cleft, clockwise — slow & elegant */
@@ -325,31 +403,119 @@
       white-space: nowrap;
     }
 
-    .btn-sell:hover .btn-rise__text,
-    .btn-search:hover .btn-rise__text {
-      transform: translateY(-100%);
-      transition: transform var(--dur) var(--ease-soft);
+
+    /* HL button — Figma decoration (black / white) */
+    .hl-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: stretch;
+      height: 40px;
+      padding: 0;
+      border-radius: 80px;
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: filter 0.3s var(--ease), transform 0.2s var(--ease);
     }
 
-    .btn-sell {
+    .hl-btn__inner {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      height: 40px;
-      padding: 8px 16px;
-      border-radius: 56px;
-      background: var(--white);
-      color: var(--ink);
+      gap: 8px;
+      height: 100%;
+      width: 100%;
+      padding: 0 14px;
+      border-radius: inherit;
       font-family: var(--font-ui);
       font-weight: 500;
-      font-size: 14px;
+      font-size: 16px;
       letter-spacing: -0.01em;
-      transition: background 0.35s var(--ease), color 0.35s var(--ease);
+      line-height: 1.4;
+      white-space: nowrap;
     }
 
-    .btn-sell:hover {
-      background: var(--white-95);
-      color: var(--ink-95);
+    .hl-btn__icon {
+      display: inline-flex;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .hl-btn--black {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .hl-btn--black .hl-btn__inner {
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      border-radius: 70px;
+      color: #fff;
+    }
+
+    .hl-btn--black:hover { filter: brightness(1.12); }
+    .hl-btn--black:active { transform: scale(0.97); filter: brightness(0.92); }
+
+    .hl-btn--white {
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    .hl-btn--white .hl-btn__inner {
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 100px;
+    }
+
+    .hl-btn--white:hover { filter: brightness(0.98); }
+    .hl-btn--white:active { transform: scale(0.97); }
+
+    .hl-btn--lg { height: 52px; }
+    .hl-btn--lg .hl-btn__inner { padding: 0 22px; font-size: 16px; }
+
+    .btn-sell.hl-btn {
+      height: 40px;
+      /* Cross-tones with the navbar instead of swapping in one frame */
+      transition:
+        background-color var(--nav-tone),
+        border-color var(--nav-tone),
+        color var(--nav-tone),
+        box-shadow var(--nav-tone),
+        filter 0.3s var(--ease),
+        transform 0.2s var(--ease);
+    }
+
+    .btn-sell.hl-btn .hl-btn__inner {
+      transition:
+        background-color var(--nav-tone),
+        border-color var(--nav-tone),
+        color var(--nav-tone);
+    }
+
+    .btn-sell.hl-btn .hl-btn__inner {
+      padding: 0 16px;
+      font-size: 14px;
+    }
+
+    /* Transparent hero: sell uses white decoration */
+    .navbar:not(.is-solid) .btn-sell.hl-btn--black {
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    .navbar:not(.is-solid) .btn-sell.hl-btn--black .hl-btn__inner {
+      background: var(--white);
+      border: 1px solid transparent;
+      border-radius: 100px;
+      color: var(--ink);
     }
 
     /* Close/hamburger lives on <body> so it stays above mega-menu */
@@ -366,6 +532,20 @@
       border-radius: 8px;
       background: transparent;
       color: var(--white);
+      transition:
+        color var(--nav-tone),
+        transform 0.45s var(--ease-out),
+        opacity 0.35s var(--ease);
+    }
+
+    .menu-btn.is-solid-tone {
+      color: var(--ink);
+    }
+
+    .menu-btn.is-nav-hidden {
+      transform: translateY(calc(-100% - 12px));
+      opacity: 0;
+      pointer-events: none;
     }
 
     .menu-btn-spacer {
@@ -439,6 +619,9 @@
 
     .menu-btn.is-open {
       color: var(--ink);
+      transform: none !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
     }
 
     .menu-btn.is-open .menu-btn__burger {
@@ -627,50 +810,14 @@
       display: block;
     }
 
-    .btn-search {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 92px;
-      height: 52px;
-      border-radius: 70px;
-      border: 1px solid var(--ink);
-      font-family: var(--font-ui);
-      font-weight: 500;
-      font-size: 16px;
-      letter-spacing: -0.01em;
-      color: #fff;
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%),
-        #1e1e1e;
-      overflow: hidden;
-      transition: filter 0.35s var(--ease), background 0.35s var(--ease);
+    .btn-search.hl-btn {
+      width: auto;
+      min-width: 104px;
     }
 
-    .btn-search .btn-rise {
-      color: transparent;
-      background: linear-gradient(34deg, #fff 30.8%, rgba(255, 255, 255, 0.7) 91.8%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-
-    .btn-search .btn-rise__text {
-      background: inherit;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .btn-search .btn-rise__text::after {
-      background: linear-gradient(34deg, #fff 30.8%, rgba(255, 255, 255, 0.7) 91.8%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .btn-search:hover {
-      filter: brightness(0.95);
+    .btn-search:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
     }
 
     .suggestions {
@@ -989,6 +1136,36 @@
     .ui-btn:hover .ui-arrow svg:first-child { transform: translateX(120%); }
     .ui-btn:hover .ui-arrow svg:last-child { transform: translateX(0); }
 
+    /* Raised variant (section-header arrows): inner white rim over a soft
+       top shade, gradient-filled arrow — from the "Logo Arrow" spec */
+    .ui-btn--raised {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+    }
+
+    .ui-btn--raised::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--white);
+      border-radius: 44px;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, transparent 100%),
+        var(--white);
+      pointer-events: none;
+    }
+
+    .ui-btn--raised .ui-arrow {
+      z-index: 1;
+    }
+
+    .ui-btn--raised .ui-arrow path {
+      fill: url(#hlArrowGradient);
+      fill-opacity: 1;
+    }
+
     /* ========== CATEGORIES (pinned scroll) ========== */
     .categories {
       position: relative;
@@ -1063,8 +1240,9 @@
       gap: 12px;
       padding: 16px 8px;
       text-align: left;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      /* Display only — the active item follows scroll, it isn't clickable */
+      cursor: default;
+      pointer-events: none;
     }
 
     .categories__label {
@@ -1074,7 +1252,7 @@
       line-height: 1.2;
       letter-spacing: -0.02em;
       color: rgba(30, 30, 30, 0.2);
-      transition: color var(--dur) var(--ease-soft);
+      transition: color var(--dur-slide) var(--ease-slide);
       white-space: nowrap;
     }
 
@@ -1088,8 +1266,8 @@
       transform: scale(0.72);
       pointer-events: none;
       transition:
-        opacity var(--dur) var(--ease-soft),
-        transform var(--dur) var(--ease-soft),
+        opacity var(--dur-slide) var(--ease-slide),
+        transform var(--dur-slide) var(--ease-slide),
         box-shadow var(--dur-fast) var(--ease);
     }
 
@@ -1103,8 +1281,8 @@
       transform: translateX(14px);
       opacity: 0;
       transition:
-        transform var(--dur) var(--ease-soft),
-        opacity var(--dur) var(--ease-soft);
+        transform var(--dur-slide) var(--ease-slide),
+        opacity var(--dur-slide) var(--ease-slide);
     }
 
     .categories__item.is-active .categories__go .ui-arrow {
@@ -1128,7 +1306,21 @@
       inset: 0;
     }
 
+    /* Stacked slides: wrapper clips (reveal), img moves (parallax) — both driven by scroll in JS */
     .categories__slide {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      clip-path: inset(100% 0 0 0);
+      pointer-events: none;
+      will-change: clip-path;
+    }
+
+    .categories__slide.is-active {
+      clip-path: inset(0 0 0 0);
+    }
+
+    .categories__slide img {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -1136,61 +1328,11 @@
       object-fit: cover;
       object-position: center;
       display: block;
-      opacity: 0;
-      transform: translate3d(0, 0, 0) scale(1);
-      transition: none;
-      z-index: 0;
-      pointer-events: none;
+      transform: translate3d(0, 0, 0) scale(1.05);
       user-select: none;
       -webkit-user-drag: none;
       backface-visibility: hidden;
-    }
-
-    .categories__slide.is-active {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    /* From-states (no transition) — strip neighbors, +5% so frame stays filled */
-    .categories__slide.is-prezoom {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1.05);
-    }
-
-    .categories__slide.is-prep-below {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 100%, 0) scale(1.05);
-    }
-
-    .categories__slide.is-prep-above {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, -100%, 0) scale(1.05);
-    }
-
-    /* One shared move — same duration/easing as menu text (--dur) */
-    .categories__slide.is-exit-up {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, -100%, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .categories__slide.is-exit-down {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 100%, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .categories__slide.is-enter {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
+      will-change: transform;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1209,22 +1351,12 @@
       }
     }
 
+    /* Mobile stays pinned too — the items only follow scroll now */
     @media (max-width: 900px) {
-      .categories {
-        height: auto;
-      }
-
-      .categories__pin {
-        position: relative;
-        height: auto;
-        min-height: 0;
-      }
-
       .categories__inner {
         flex-direction: column;
         padding: 64px var(--page-pad) 48px;
         gap: 32px;
-        height: auto;
       }
 
       .categories__copy {
@@ -1242,10 +1374,11 @@
       }
 
       .categories__media {
-        flex: none;
+        flex: 1 1 auto;
         width: 100%;
         max-width: none;
-        height: min(56vw, 360px);
+        height: auto;
+        min-height: 0;
       }
     }
 
@@ -1272,32 +1405,27 @@
       inset: 0;
       z-index: 0;
       pointer-events: none;
+      overflow: hidden;
     }
 
     .neighborhoods__bg {
       position: absolute;
-      inset: -3%;
-      width: 106%;
-      height: 106%;
+      inset: -32px;
+      width: calc(100% + 64px);
+      height: calc(100% + 64px);
       object-fit: cover;
       object-position: center;
       opacity: 0;
-      filter: blur(10px) brightness(0.58);
-      transform: scale(1.04);
-      transition:
-        opacity calc(var(--dur) * 1.15) var(--ease-soft),
-        filter calc(var(--dur) * 1.15) var(--ease-soft);
-      will-change: opacity, filter;
+      filter: blur(16px);
+      transform: translateZ(0) scale(1.02);
+      /* Opacity follows the same scroll progress as the slides (set in JS) */
+      will-change: opacity;
+      z-index: 0;
     }
 
     .neighborhoods__bg.is-active {
       opacity: 1;
-      filter: blur(8px) brightness(0.58);
-    }
-
-    .neighborhoods__bg.is-leaving {
-      opacity: 0;
-      filter: blur(14px) brightness(0.5);
+      z-index: 1;
     }
 
     .neighborhoods__scrim {
@@ -1316,7 +1444,7 @@
       width: 100%;
       max-width: 1440px;
       margin: 0 auto;
-      padding: 48px var(--page-pad) 56px;
+      padding: 100px var(--page-pad) 100px;
       display: grid;
       grid-template-rows: auto 1fr;
       gap: 28px;
@@ -1355,8 +1483,9 @@
       display: block;
       padding: 6px 0;
       text-align: left;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      /* Display only — the active item follows scroll, it isn't clickable */
+      cursor: default;
+      pointer-events: none;
     }
 
     .neighborhoods__label {
@@ -1367,7 +1496,7 @@
       letter-spacing: -0.02em;
       color: var(--white);
       opacity: 0.28;
-      transition: opacity var(--dur) var(--ease-soft);
+      transition: opacity var(--dur-slide) var(--ease-slide);
     }
 
     .neighborhoods__item.is-active .neighborhoods__label {
@@ -1391,7 +1520,21 @@
       inset: 0;
     }
 
+    /* Stacked slides: wrapper clips (reveal), img moves (parallax) — both driven by scroll in JS */
     .neighborhoods__slide {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      clip-path: inset(100% 0 0 0);
+      pointer-events: none;
+      will-change: clip-path;
+    }
+
+    .neighborhoods__slide.is-active {
+      clip-path: inset(0 0 0 0);
+    }
+
+    .neighborhoods__slide img {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -1399,59 +1542,11 @@
       object-fit: cover;
       object-position: center;
       display: block;
-      opacity: 0;
-      transform: translate3d(0, 0, 0) scale(1);
-      transition: none;
-      z-index: 0;
-      pointer-events: none;
+      transform: translate3d(0, 0, 0) scale(1.05);
       user-select: none;
       -webkit-user-drag: none;
       backface-visibility: hidden;
-    }
-
-    .neighborhoods__slide.is-active {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    .neighborhoods__slide.is-prezoom {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1.05);
-    }
-
-    .neighborhoods__slide.is-prep-below {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 100%, 0) scale(1.05);
-    }
-
-    .neighborhoods__slide.is-prep-above {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, -100%, 0) scale(1.05);
-    }
-
-    .neighborhoods__slide.is-exit-up {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, -100%, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .neighborhoods__slide.is-exit-down {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 100%, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .neighborhoods__slide.is-enter {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
+      will-change: transform;
     }
 
     .neighborhoods__meta {
@@ -1477,18 +1572,18 @@
       letter-spacing: -0.01em;
       color: rgba(255, 255, 255, 0.9);
       transition:
-        opacity var(--dur) var(--ease-soft),
-        transform var(--dur) var(--ease-soft);
+        opacity 0.42s var(--ease-slide),
+        transform 0.42s var(--ease-slide);
     }
 
     .neighborhoods__count.is-out {
       opacity: 0;
-      transform: translateY(-12px);
+      transform: translateY(-6px);
     }
 
     .neighborhoods__count.is-in {
       opacity: 0;
-      transform: translateY(16px);
+      transform: translateY(6px);
     }
 
     .neighborhoods__count.is-show {
@@ -1521,17 +1616,24 @@
       --featured-gap: 32px;
       position: relative;
       width: 100%;
-      max-width: 1440px;
-      margin: 0 auto;
+      max-width: none;
+      margin: 0;
+      height: 100vh;
+      min-height: 100vh;
       background: var(--paper);
-      padding-bottom: 8px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
     }
 
     .featured__head {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 80px 40px 32px;
+      padding: 0 40px 32px;
+      flex-shrink: 0;
     }
 
     .featured__title-row {
@@ -1624,14 +1726,14 @@
       outline: none;
     }
 
+    /* Height-locked to frame; only L/R overflow for equal parallax travel */
     .featured-card__media {
       position: absolute;
-      top: -12%;
-      left: -30%;
-      width: 160%;
-      height: 124%;
+      top: 0;
+      left: -64px;
+      width: calc(100% + 128px);
+      height: 100%;
       will-change: transform;
-      transition: transform var(--dur-featured-image) var(--ease-featured);
       transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       opacity: 1;
@@ -1642,7 +1744,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center;
+      object-position: center center;
       pointer-events: none;
       user-select: none;
       -webkit-user-drag: none;
@@ -1815,9 +1917,12 @@
         --featured-card-w: min(86vw, 420px);
         --featured-card-h: 280px;
         --featured-gap: 16px;
+        height: auto;
+        min-height: 100vh;
+        padding: 48px 0 32px;
       }
 
-      .featured__head { padding: 56px 24px 24px; }
+      .featured__head { padding: 0 24px 24px; }
       .featured__fade { width: 72px; }
       .featured__nav--prev { left: 12px; }
       .featured__nav--next { right: 12px; }
@@ -1833,17 +1938,30 @@
     .agents {
       position: relative;
       width: 100%;
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 80px var(--page-pad) 96px;
+      max-width: none;
+      margin: 0;
+      height: 100vh;
+      min-height: 100vh;
+      padding: 48px var(--page-pad);
       background: var(--paper);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      content-visibility: auto;
+      contain-intrinsic-size: auto 100vh;
     }
 
     .agents__head {
       display: flex;
       align-items: center;
       gap: 16px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
+      flex-shrink: 0;
+      max-width: 1600px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .agents__title {
@@ -1863,8 +1981,13 @@
       display: flex;
       align-items: stretch;
       gap: 16px;
-      height: min(560px, 72vw);
+      height: min(560px, calc(100vh - 180px));
+      max-height: 560px;
       width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+      flex-shrink: 1;
+      min-height: 0;
     }
 
     .agents__card {
@@ -2013,6 +2136,8 @@
 
     @media (max-width: 900px) {
       .agents {
+        height: auto;
+        min-height: 100vh;
         padding: 56px var(--page-pad) 64px;
       }
 
@@ -2023,6 +2148,7 @@
       .agents__row {
         gap: 10px;
         height: min(420px, 118vw);
+        max-height: none;
         overflow-x: auto;
         overflow-y: hidden;
         scroll-snap-type: x mandatory;
@@ -2056,10 +2182,18 @@
     .testimonials {
       position: relative;
       width: 100%;
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 80px var(--page-pad) 64px;
+      max-width: none;
+      margin: 0;
+      height: 100vh;
+      min-height: 100vh;
+      content-visibility: auto;
+      contain-intrinsic-size: auto 100vh;
+      padding: 48px var(--page-pad);
       background: var(--paper);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .testimonials__layout {
@@ -2067,7 +2201,11 @@
       flex-direction: row;
       align-items: stretch;
       gap: 16px;
-      min-height: 584px;
+      min-height: 0;
+      height: min(584px, calc(100vh - 96px));
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     .testimonials__aside {
@@ -2125,7 +2263,22 @@
       inset: 0;
     }
 
+    /* Same reveal + parallax language as the stacked sections above (driven in JS) */
     .testimonials__slide {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+      will-change: clip-path;
+    }
+
+    .testimonials__slide.is-active {
+      visibility: visible;
+      z-index: 1;
+    }
+
+    .testimonials__slide img {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -2133,59 +2286,11 @@
       object-fit: cover;
       object-position: center top;
       display: block;
-      opacity: 0;
-      transform: translate3d(0, 0, 0) scale(1);
-      transition: none;
-      z-index: 0;
-      pointer-events: none;
+      transform: translate3d(0, 0, 0) scale(1.05);
       user-select: none;
       -webkit-user-drag: none;
       backface-visibility: hidden;
-    }
-
-    .testimonials__slide.is-active {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    .testimonials__slide.is-prezoom {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1.05);
-    }
-
-    .testimonials__slide.is-prep-right {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(100%, 0, 0) scale(1.05);
-    }
-
-    .testimonials__slide.is-prep-left {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(-100%, 0, 0) scale(1.05);
-    }
-
-    .testimonials__slide.is-exit-left {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(-100%, 0, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .testimonials__slide.is-exit-right {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(100%, 0, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .testimonials__slide.is-enter {
-      opacity: 1;
-      z-index: 1;
-      transform: translate3d(0, 0, 0) scale(1);
-      transition: transform var(--dur) var(--ease-soft);
+      will-change: transform;
     }
 
     .testimonials__body {
@@ -2385,7 +2490,13 @@
 
     @media (max-width: 900px) {
       .testimonials {
+        height: auto;
+        min-height: 100vh;
         padding: 56px var(--page-pad) 48px;
+      }
+
+      .testimonials__layout {
+        height: auto;
       }
 
       .testimonials__photo {
@@ -2461,6 +2572,17 @@
   </style>
 </head>
 <body>
+  <!-- Shared paint for raised arrow buttons -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#1E1E1E" stop-opacity="0.7"/>
+        <stop offset="1" stop-color="#1E1E1E"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <div class="nav-hover-zone" id="navHoverZone" aria-hidden="true"></div>
+
   <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
     <span class="menu-btn__burger" aria-hidden="true">
       <span class="menu-btn__line menu-btn__line--top"></span>
@@ -2475,8 +2597,8 @@
 
   <div class="page">
     <section class="hero" aria-label="Havenlist hero">
-      <header class="navbar">
-        <a class="logo" href="#">Havenlist.</a>
+      <header class="navbar" id="navbar">
+        <a class="logo" href="index.html">Havenlist.</a>
 
         <nav class="nav-links" aria-label="Primary">
           <a href="#listings"><span class="link-rise" data-text="Listings">Listings</span></a>
@@ -2496,10 +2618,8 @@
             </svg>
           </button>
 
-          <button class="btn-sell" type="button" id="sellBtn">
-            <span class="btn-rise">
-              <span class="btn-rise__text" data-text="Sell with us">Sell with us</span>
-            </span>
+          <button class="btn-sell hl-btn hl-btn--black" type="button" id="sellBtn">
+            <span class="hl-btn__inner">Sell with us</span>
           </button>
 
           <span class="menu-btn-spacer" aria-hidden="true"></span>
@@ -2510,20 +2630,22 @@
       <div class="hero-base">
         <img
           class="hero-photo hero-photo--back"
-          src="assets/hero-back.jpg?v=31"
+          src="assets/hero-back.webp"
           alt=""
           width="1566"
           height="1149"
           decoding="async"
+          fetchpriority="high"
         >
         <h1 class="hero-title">Find your livings</h1>
         <img
           class="hero-photo hero-photo--front"
-          src="assets/hero-front.png?v=37"
+          src="assets/hero-front.webp"
           alt=""
           width="1566"
           height="1149"
           decoding="async"
+          fetchpriority="high"
         >
         <!-- White gradient at bottom edge of image frame -->
         <div class="hero-fade" aria-hidden="true"></div>
@@ -2558,10 +2680,8 @@
               <path d="M3 3l6 6M9 3L3 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
             </svg>
           </button>
-          <button class="btn-search" type="submit">
-            <span class="btn-rise">
-              <span class="btn-rise__text" data-text="Search">Search</span>
-            </span>
+          <button class="btn-search hl-btn hl-btn--black hl-btn--lg" type="submit">
+            <span class="hl-btn__inner">Search</span>
           </button>
         </form>
 
@@ -2577,7 +2697,7 @@
       <div class="featured__head">
         <div class="featured__title-row">
           <h2 class="featured__title">Featured Listings</h2>
-          <a class="ui-btn featured__all" href="#" aria-label="View all listings">
+          <a class="ui-btn ui-btn--raised featured__all" href="#" aria-label="View all listings">
             <span class="ui-arrow" aria-hidden="true">
               <svg viewBox="0 0 17 12" fill="none">
                 <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
@@ -2640,9 +2760,8 @@
           <div class="categories__copy">
             <h2 class="categories__title">Browse by type</h2>
             <nav class="categories__nav" id="categoriesNav" aria-label="Property types">
-              <button
+              <div
                 class="categories__item is-active"
-                type="button"
                 data-index="0"
                 aria-current="true"
               >
@@ -2653,10 +2772,9 @@
                     <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
                   </span>
                 </span>
-              </button>
-              <button
+              </div>
+              <div
                 class="categories__item"
-                type="button"
                 data-index="1"
               >
                 <span class="categories__label">Buy (38)</span>
@@ -2666,10 +2784,9 @@
                     <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
                   </span>
                 </span>
-              </button>
-              <button
+              </div>
+              <div
                 class="categories__item"
-                type="button"
                 data-index="2"
               >
                 <span class="categories__label">Commercial (12)</span>
@@ -2679,41 +2796,15 @@
                     <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
                   </span>
                 </span>
-              </button>
+              </div>
             </nav>
           </div>
 
           <div class="categories__media" aria-hidden="true">
             <div class="categories__slides" id="categoriesSlides">
-              <img
-                class="categories__slide is-active"
-                src="assets/categories-rent.webp"
-                alt=""
-                data-index="0"
-                width="686"
-                height="913"
-                decoding="async"
-              >
-              <img
-                class="categories__slide"
-                src="assets/categories-buy.webp"
-                alt=""
-                data-index="1"
-                width="663"
-                height="892"
-                decoding="async"
-                loading="lazy"
-              >
-              <img
-                class="categories__slide"
-                src="assets/categories-commercial.webp"
-                alt=""
-                data-index="2"
-                width="666"
-                height="1008"
-                decoding="async"
-                loading="lazy"
-              >
+              <div class="categories__slide is-active" data-index="0"><img src="assets/categories-rent.webp" alt="" width="686" height="913" decoding="async"></div>
+              <div class="categories__slide" data-index="1"><img src="assets/categories-buy.webp" alt="" width="663" height="892" decoding="async" loading="lazy"></div>
+              <div class="categories__slide" data-index="2"><img src="assets/categories-commercial.webp" alt="" width="666" height="1008" decoding="async" loading="lazy"></div>
             </div>
           </div>
         </div>
@@ -2728,11 +2819,11 @@
     >
       <div class="neighborhoods__pin">
         <div class="neighborhoods__bgs" id="neighborhoodsBgs" aria-hidden="true">
-          <img class="neighborhoods__bg is-active" src="assets/neighborhood-pacific-heights.webp" alt="" data-index="0" width="603" height="800" decoding="async">
-          <img class="neighborhoods__bg" src="assets/neighborhood-noe-valley.webp" alt="" data-index="1" width="604" height="800" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-marina.webp" alt="" data-index="2" width="603" height="800" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-sausalito.webp" alt="" data-index="3" width="603" height="800" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-san-antonio.webp" alt="" data-index="4" width="533" height="800" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg is-active" src="assets/neighborhood-pacific-heights.webp" alt="" data-index="0" width="400" height="530" decoding="async">
+          <img class="neighborhoods__bg" src="assets/neighborhood-noe-valley.webp" alt="" data-index="1" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-marina.webp" alt="" data-index="2" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-sausalito.webp" alt="" data-index="3" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-san-antonio.webp" alt="" data-index="4" width="400" height="530" decoding="async" loading="lazy">
         </div>
         <div class="neighborhoods__scrim" aria-hidden="true"></div>
 
@@ -2741,30 +2832,30 @@
 
           <div class="neighborhoods__stage">
             <nav class="neighborhoods__list" id="neighborhoodsNav" aria-label="Neighborhoods">
-              <button class="neighborhoods__item is-active" type="button" data-index="0" aria-current="true">
+              <div class="neighborhoods__item is-active" data-index="0" aria-current="true">
                 <span class="neighborhoods__label">Pacific Heights</span>
-              </button>
-              <button class="neighborhoods__item" type="button" data-index="1">
+              </div>
+              <div class="neighborhoods__item" data-index="1">
                 <span class="neighborhoods__label">Noe Valley</span>
-              </button>
-              <button class="neighborhoods__item" type="button" data-index="2">
+              </div>
+              <div class="neighborhoods__item" data-index="2">
                 <span class="neighborhoods__label">Marina District</span>
-              </button>
-              <button class="neighborhoods__item" type="button" data-index="3">
+              </div>
+              <div class="neighborhoods__item" data-index="3">
                 <span class="neighborhoods__label">Sausalito</span>
-              </button>
-              <button class="neighborhoods__item" type="button" data-index="4">
+              </div>
+              <div class="neighborhoods__item" data-index="4">
                 <span class="neighborhoods__label">San Antonio</span>
-              </button>
+              </div>
             </nav>
 
             <div class="neighborhoods__media" aria-hidden="true">
               <div class="neighborhoods__slides" id="neighborhoodsSlides">
-                <img class="neighborhoods__slide is-active" src="assets/neighborhood-pacific-heights.webp" alt="" data-index="0" width="603" height="800" decoding="async">
-                <img class="neighborhoods__slide" src="assets/neighborhood-noe-valley.webp" alt="" data-index="1" width="604" height="800" decoding="async" loading="lazy">
-                <img class="neighborhoods__slide" src="assets/neighborhood-marina.webp" alt="" data-index="2" width="603" height="800" decoding="async" loading="lazy">
-                <img class="neighborhoods__slide" src="assets/neighborhood-sausalito.webp" alt="" data-index="3" width="603" height="800" decoding="async" loading="lazy">
-                <img class="neighborhoods__slide" src="assets/neighborhood-san-antonio.webp" alt="" data-index="4" width="533" height="800" decoding="async" loading="lazy">
+                <div class="neighborhoods__slide is-active" data-index="0"><img src="assets/neighborhood-pacific-heights.webp" alt="" width="603" height="800" decoding="async"></div>
+                <div class="neighborhoods__slide" data-index="1"><img src="assets/neighborhood-noe-valley.webp" alt="" width="604" height="800" decoding="async" loading="lazy"></div>
+                <div class="neighborhoods__slide" data-index="2"><img src="assets/neighborhood-marina.webp" alt="" width="603" height="800" decoding="async" loading="lazy"></div>
+                <div class="neighborhoods__slide" data-index="3"><img src="assets/neighborhood-sausalito.webp" alt="" width="603" height="800" decoding="async" loading="lazy"></div>
+                <div class="neighborhoods__slide" data-index="4"><img src="assets/neighborhood-san-antonio.webp" alt="" width="533" height="800" decoding="async" loading="lazy"></div>
               </div>
             </div>
 
@@ -2787,7 +2878,7 @@
     <section class="agents" id="agents" aria-label="Meet our agents">
       <div class="agents__head">
         <h2 class="agents__title">Meet our agents</h2>
-        <a class="ui-btn agents__all" href="#agents" aria-label="View all agents">
+        <a class="ui-btn ui-btn--raised agents__all" href="#agents" aria-label="View all agents">
           <span class="ui-arrow" aria-hidden="true">
             <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
             <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
@@ -2904,10 +2995,10 @@ said about us</h2>
           <div class="testimonials__card">
             <div class="testimonials__photo">
               <div class="testimonials__slides" id="testimonialsSlides">
-                <img class="testimonials__slide is-active" src="assets/testimonials/photo-1.png" alt="" width="360" height="480" decoding="async">
-                <img class="testimonials__slide" src="assets/testimonials/photo-2.webp" alt="" width="360" height="480" decoding="async" loading="lazy">
-                <img class="testimonials__slide" src="assets/testimonials/photo-3.webp" alt="" width="360" height="480" decoding="async" loading="lazy">
-                <img class="testimonials__slide" src="assets/testimonials/photo-4.webp" alt="" width="360" height="480" decoding="async" loading="lazy">
+                <div class="testimonials__slide is-active"><img src="assets/testimonials/photo-1.webp" alt="" width="360" height="480" decoding="async"></div>
+                <div class="testimonials__slide"><img src="assets/testimonials/photo-2.webp" alt="" width="360" height="480" decoding="async" loading="lazy"></div>
+                <div class="testimonials__slide"><img src="assets/testimonials/photo-3.webp" alt="" width="360" height="480" decoding="async" loading="lazy"></div>
+                <div class="testimonials__slide"><img src="assets/testimonials/photo-4.webp" alt="" width="360" height="480" decoding="async" loading="lazy"></div>
               </div>
             </div>
 
@@ -2932,10 +3023,10 @@ said about us</h2>
 
           <div class="testimonials__controls">
             <div class="testimonials__thumbs" id="testimonialsThumbs" aria-hidden="true">
-              <div class="testimonials__thumb is-active"><img src="assets/testimonials/photo-1.png" alt="" width="64" height="64" decoding="async"></div>
-              <div class="testimonials__thumb"><img src="assets/testimonials/photo-2.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
-              <div class="testimonials__thumb"><img src="assets/testimonials/photo-3.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
-              <div class="testimonials__thumb"><img src="assets/testimonials/photo-4.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
+              <div class="testimonials__thumb is-active"><img src="assets/testimonials/thumb-1.webp" alt="" width="64" height="64" decoding="async"></div>
+              <div class="testimonials__thumb"><img src="assets/testimonials/thumb-2.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
+              <div class="testimonials__thumb"><img src="assets/testimonials/thumb-3.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
+              <div class="testimonials__thumb"><img src="assets/testimonials/thumb-4.webp" alt="" width="64" height="64" decoding="async" loading="lazy"></div>
             </div>
 
             <div class="testimonials__arrows">
@@ -3015,6 +3106,31 @@ said about us</h2>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
+
+    /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
+    function addRise(el) {
+      if (el.querySelector(".rise, .link-rise")) return;
+      const host = el.querySelector(".hl-btn__inner") || el;
+      Array.from(host.childNodes).forEach((node) => {
+        const isText = node.nodeType === 3 && node.textContent.trim();
+        const isLabel = node.nodeType === 1 && node.tagName === "SPAN" &&
+          !node.children.length && node.textContent.trim();
+        if (!isText && !isLabel) return;
+        const clip = document.createElement("span");
+        clip.className = "rise";
+        let label = node;
+        if (isText) {
+          label = document.createElement("span");
+          label.textContent = node.textContent.trim();
+        }
+        host.replaceChild(clip, node);
+        clip.appendChild(label);
+        label.classList.add("rise__t");
+      });
+    }
+
+    document.querySelectorAll(".logo, .hl-btn, .tab, .chip").forEach(addRise);
+
     (function () {
       const toastEl = document.getElementById("toast");
       let toastTimer;
@@ -3079,8 +3195,11 @@ said about us</h2>
       document.getElementById("panel-search").addEventListener("submit", (e) => {
         e.preventDefault();
         const mode = tabs.find((t) => t.getAttribute("aria-selected") === "true")?.textContent.trim() || "Rent";
-        const q = searchInput.value.trim() || "all listings";
-        toast(`Searching “${q}” · ${mode}`);
+        const q = searchInput.value.trim() || "Modern house";
+        const url = new URL("search.html", window.location.href);
+        url.searchParams.set("q", q);
+        url.searchParams.set("type", mode);
+        window.location.href = url.pathname + url.search;
       });
 
       document.querySelectorAll(".chip").forEach((chip) => {
@@ -3143,6 +3262,100 @@ said about us</h2>
       document.getElementById("sellBtn").addEventListener("click", () => {
         toast("Opening seller onboarding…");
       });
+
+      /* Navbar: transparent on hero/neighborhoods, solid elsewhere; hide + reveal */
+      (function initNavbarBehavior() {
+        const navbar = document.getElementById("navbar");
+        const menuBtnEl = document.getElementById("menuBtn");
+        const hoverZone = document.getElementById("navHoverZone");
+        const hero = document.querySelector(".hero");
+        const neighborhoods = document.getElementById("neighborhoods");
+        if (!navbar || !hero) return;
+
+        const NAV_H = 64;
+        let lastY = window.scrollY;
+        let hoveringTop = false;
+
+        /* Hero still under the navbar — Featured hasn't reached the top yet */
+        function inHeroZone() {
+          return hero.getBoundingClientRect().bottom > NAV_H + 8;
+        }
+
+        function inNeighborhoodsZone() {
+          if (!neighborhoods) return false;
+          const r = neighborhoods.getBoundingClientRect();
+          return r.top < NAV_H + 8 && r.bottom > NAV_H;
+        }
+
+        function setSolid(solid) {
+          navbar.classList.toggle("is-solid", solid);
+          menuBtnEl.classList.toggle("is-solid-tone", solid);
+        }
+
+        function setHidden(hidden) {
+          if (document.body.classList.contains("is-menu-open")) {
+            hidden = false;
+          }
+          navbar.classList.toggle("is-hidden", hidden);
+          menuBtnEl.classList.toggle("is-nav-hidden", hidden);
+          hoverZone.classList.toggle("is-active", hidden || hoveringTop);
+        }
+
+        /* Top of page: transparent. Scrolling through the hero: white, shown.
+           From Featured on: hide on scroll down, drop back in (white) on scroll up.
+           Neighborhoods keeps the transparent tone over its dark imagery. */
+        function update() {
+          const y = window.scrollY;
+          const scrollingDown = y > lastY + 2;
+          const scrollingUp = y < lastY - 2;
+          const inNeigh = inNeighborhoodsZone();
+
+          if (y <= 8) {
+            setSolid(false);
+            setHidden(false);
+          } else if (inHeroZone()) {
+            setSolid(true);
+            setHidden(false);
+          } else {
+            setSolid(!inNeigh);
+            if (hoveringTop || scrollingUp) setHidden(false);
+            else if (scrollingDown) setHidden(true);
+          }
+
+          lastY = y;
+        }
+
+        hoverZone.addEventListener("mouseenter", () => {
+          hoveringTop = true;
+          setSolid(window.scrollY > 8 && !inNeighborhoodsZone());
+          setHidden(false);
+          hoverZone.classList.add("is-active");
+        });
+
+        hoverZone.addEventListener("mouseleave", () => {
+          hoveringTop = false;
+          if (!navbar.matches(":hover") && !inHeroZone()) {
+            setHidden(true);
+          }
+        });
+
+        navbar.addEventListener("mouseenter", () => {
+          hoveringTop = true;
+          setHidden(false);
+        });
+
+        navbar.addEventListener("mouseleave", () => {
+          hoveringTop = false;
+          if (!inHeroZone()) setHidden(true);
+        });
+
+        window.addEventListener("scroll", () => {
+          requestAnimationFrame(update);
+        }, { passive: true });
+
+        window.addEventListener("resize", update);
+        update();
+      })();
 
       /* Full-page circle menu */
       const menuBtn = document.getElementById("menuBtn");
@@ -3244,150 +3457,145 @@ said about us</h2>
         if (megaMenu.classList.contains("is-open")) placeCircleOrigin();
       });
 
-      /* Categories — pinned scroll, continuous strip */
-      (function initCategories() {
-        const root = document.getElementById("categories");
-        const nav = document.getElementById("categoriesNav");
-        const slidesRoot = document.getElementById("categoriesSlides");
-        if (!root || !nav || !slidesRoot) return;
+      /* Testimonial photo reveal (sideways, arrow-driven) */
+      const STACK_IN_SHIFT = 28;   // % the incoming image travels in from
+      const STACK_OUT_SHIFT = 14;  // % the outgoing image drifts away by
+      /* Smootherstep — soft start and landing */
+      const stackEase = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 
-        const items = Array.from(nav.querySelectorAll(".categories__item"));
-        const slides = Array.from(slidesRoot.querySelectorAll(".categories__slide"));
-        const count = items.length;
-        if (!count) return;
+      /* Pinned scroll stack — the Arcania "Our works" pinch, minus the blur.
+         Scroll maps across the items with a hold on each one; between them the
+         current image zooms out slightly, then wipes up off the next image,
+         which already sits solid underneath (no fade). */
+      function initScrubStack(opts) {
+        const root = opts.root;
+        const slides = opts.slides;
+        const imgs = slides.map((slide) => slide.querySelector("img"));
+        const bgs = opts.bgs || [];
+        const count = slides.length;
+        if (!count) return null;
 
-        const rootStyles = getComputedStyle(document.documentElement);
-        const raw = rootStyles.getPropertyValue("--dur").trim();
-        const n = parseFloat(raw);
-        const DUR_MS = (!raw || Number.isNaN(n)) ? 700 : (raw.endsWith("ms") ? n : n * 1000);
-
-        const CLASSES = [
-          "is-active",
-          "is-prezoom",
-          "is-prep-below",
-          "is-prep-above",
-          "is-exit-up",
-          "is-exit-down",
-          "is-enter",
-        ];
-
-        root.style.setProperty("--categories-count", String(count));
-
-        let active = 0;
-        let target = 0;
-        let animating = false;
-        let settleTimer = null;
+        const ZOOM_END = 0.34;  // share of a change spent on the zoom-out
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const isMobile = () => window.matchMedia("(max-width: 900px)").matches;
 
-        function setActiveMenu(index) {
+        let target = 0;
+        let pos = 0;
+        let lastPos = 0;
+        let dir = 1;
+        let active = -1;
+        let raf = 0;
+        let lastTime = 0;
+
+        const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+        /* Hold on each item, glide between (smoothstep over the middle 70%) */
+        function holdEase(raw) {
+          const a = Math.floor(raw);
+          const t = clamp((raw - a - 0.15) / 0.7, 0, 1);
+          return a + t * t * (3 - 2 * t);
+        }
+
+        function render(p) {
+          const delta = p - lastPos;
+          if (Math.abs(delta) > 0.00005) dir = delta > 0 ? 1 : -1;
+          lastPos = p;
+
+          const max = count - 1;
+          let origin;
+          let dest;
+          let t;
+          if (dir > 0) {
+            origin = Math.min(max, Math.floor(p + 0.0001));
+            dest = Math.min(max, origin + 1);
+            t = dest === origin ? 0 : p - origin;
+          } else {
+            origin = Math.max(0, Math.ceil(p - 0.0001));
+            dest = Math.max(0, origin - 1);
+            t = dest === origin ? 0 : origin - p;
+          }
+          const zoomT = clamp(t / ZOOM_END, 0, 1);
+          const cropT = t <= ZOOM_END ? 0 : clamp((t - ZOOM_END) / (1 - ZOOM_END), 0, 1);
+
+          slides.forEach((slide, n) => {
+            const outgoing = n === origin;
+            const incoming = n === dest && dest !== origin && cropT > 0;
+            if (bgs[n]) {
+              bgs[n].style.zIndex = outgoing ? "1" : "2";
+              bgs[n].style.opacity = outgoing ? "1" : incoming ? cropT.toFixed(3) : "0";
+            }
+            if (!outgoing && !incoming) {
+              slide.style.visibility = "hidden";
+              return;
+            }
+            slide.style.visibility = "visible";
+            if (outgoing) {
+              slide.style.zIndex = "3";
+              slide.style.clipPath = `inset(0 0 ${(cropT * 100).toFixed(2)}% 0)`;
+              imgs[n].style.transform = `scale(${(1.05 - 0.05 * zoomT).toFixed(4)})`;
+            } else {
+              slide.style.zIndex = "2";
+              slide.style.clipPath = "inset(0 0 0 0)";
+              imgs[n].style.transform = "scale(1.05)";
+            }
+          });
+
+          const idx = clamp(Math.round(p), 0, max);
+          if (idx !== active) {
+            const first = active < 0;
+            active = idx;
+            opts.onActive(idx, !first);
+          }
+        }
+
+        /* Same follow as Arcania: exponential catch-up, ~110ms time constant */
+        function tick(now) {
+          const dt = Math.min(0.032, (now - lastTime) / 1000 || 0.016);
+          lastTime = now;
+          const gap = target - pos;
+          pos = Math.abs(gap) < 0.0005 ? target : pos + gap * (1 - Math.exp(-dt * 9));
+          render(pos);
+          raf = pos === target ? 0 : requestAnimationFrame(tick);
+        }
+
+        function setTarget(p, instant) {
+          target = clamp(p, 0, count - 1);
+          if (instant || reduceMotion) {
+            if (raf) cancelAnimationFrame(raf);
+            raf = 0;
+            pos = target;
+            lastPos = pos;
+            render(pos);
+            return;
+          }
+          if (!raf) {
+            lastTime = performance.now();
+            raf = requestAnimationFrame(tick);
+          }
+        }
+
+        /* Progress through the pinned run → eased item position (0 … count-1) */
+        function posFromScroll() {
+          const travel = root.offsetHeight - window.innerHeight;
+          if (travel <= 0) return 0;
+          const scrolled = clamp(-root.getBoundingClientRect().top, 0, travel);
+          return holdEase((scrolled / travel) * (count - 1));
+        }
+
+        return { setTarget, posFromScroll };
+      }
+
+      function bindActiveMenu(items) {
+        return (index) => {
           items.forEach((item, i) => {
             const on = i === index;
             item.classList.toggle("is-active", on);
             if (on) item.setAttribute("aria-current", "true");
             else item.removeAttribute("aria-current");
           });
-        }
+        };
+      }
 
-        function resetSlides(visibleIndex) {
-          slides.forEach((slide, i) => {
-            slide.classList.remove(...CLASSES);
-            if (i === visibleIndex) slide.classList.add("is-active");
-          });
-        }
-
-        function settle(index) {
-          if (settleTimer) clearTimeout(settleTimer);
-          settleTimer = null;
-          resetSlides(index);
-          active = index;
-          animating = false;
-          setActiveMenu(index);
-          pump();
-        }
-
-        function pump() {
-          if (animating || target === active) return;
-          runStep(active, active + (target > active ? 1 : -1));
-        }
-
-        function runStep(from, to) {
-          const out = slides[from];
-          const inn = slides[to];
-          if (!out || !inn) {
-            settle(to);
-            return;
-          }
-
-          const forward = to > from;
-          animating = true;
-          setActiveMenu(to);
-
-          if (reduceMotion || isMobile()) {
-            settle(to);
-            return;
-          }
-
-          if (settleTimer) clearTimeout(settleTimer);
-          slides.forEach((slide) => slide.classList.remove(...CLASSES));
-
-          /* Place strip neighbors — no gap between frames */
-          out.classList.add("is-prezoom");
-          inn.classList.add(forward ? "is-prep-below" : "is-prep-above");
-          void out.offsetWidth;
-
-          /* One continuous move: zoom-out + slide together (= menu --dur) */
-          requestAnimationFrame(() => {
-            out.classList.add(forward ? "is-exit-up" : "is-exit-down");
-            out.classList.remove("is-prezoom");
-            inn.classList.add("is-enter");
-            inn.classList.remove("is-prep-below", "is-prep-above");
-          });
-
-          settleTimer = setTimeout(() => settle(to), DUR_MS + 30);
-        }
-
-        function setTarget(index) {
-          if (index < 0 || index >= count) return;
-          target = index;
-          pump();
-        }
-
-        function indexFromScroll() {
-          const rect = root.getBoundingClientRect();
-          const total = root.offsetHeight - window.innerHeight;
-          if (total <= 0) return 0;
-          const scrolled = Math.min(Math.max(-rect.top, 0), total);
-          return Math.min(count - 1, Math.floor((scrolled / total) * count + 1e-6));
-        }
-
-        function onScroll() {
-          if (!isMobile()) setTarget(indexFromScroll());
-        }
-
-        function scrollToIndex(index) {
-          if (isMobile()) return;
-          const total = root.offsetHeight - window.innerHeight;
-          if (total <= 0) return;
-          const band = total / count;
-          window.scrollTo({
-            top: root.offsetTop + band * index + band * 0.35,
-            behavior: reduceMotion ? "auto" : "smooth",
-          });
-        }
-
-        items.forEach((item) => {
-          item.addEventListener("click", () => {
-            const index = Number(item.dataset.index);
-            if (Number.isNaN(index)) return;
-            setTarget(index);
-            scrollToIndex(index);
-          });
-        });
-
-        resetSlides(0);
-        setActiveMenu(0);
-
+      function onScrollFrame(fn) {
         let ticking = false;
         window.addEventListener(
           "scroll",
@@ -3396,18 +3604,38 @@ said about us</h2>
             ticking = true;
             requestAnimationFrame(() => {
               ticking = false;
-              onScroll();
+              fn();
             });
           },
           { passive: true }
         );
+      }
 
-        window.addEventListener("resize", () => {
-          if (!isMobile()) onScroll();
+      /* Categories — pinned scroll, scroll-driven only */
+      (function initCategories() {
+        const root = document.getElementById("categories");
+        const nav = document.getElementById("categoriesNav");
+        const slidesRoot = document.getElementById("categoriesSlides");
+        if (!root || !nav || !slidesRoot) return;
+
+        const items = Array.from(nav.querySelectorAll(".categories__item"));
+        const slides = Array.from(slidesRoot.querySelectorAll(".categories__slide"));
+        if (!items.length || !slides.length) return;
+
+        root.style.setProperty("--categories-count", String(slides.length));
+
+        const stack = initScrubStack({
+          root: root,
+          slides: slides,
+          onActive: bindActiveMenu(items),
         });
+
+        stack.setTarget(stack.posFromScroll(), true);
+        onScrollFrame(() => stack.setTarget(stack.posFromScroll()));
+        window.addEventListener("resize", () => stack.setTarget(stack.posFromScroll()));
       })();
 
-      /* Neighborhoods — pinned scroll, dissolve bg + stack media */
+      /* Neighborhoods — pinned scroll, scroll-driven only; bg follows the wipe */
       (function initNeighborhoods() {
         const root = document.getElementById("neighborhoods");
         const nav = document.getElementById("neighborhoodsNav");
@@ -3435,54 +3663,13 @@ said about us</h2>
         const items = Array.from(nav.querySelectorAll(".neighborhoods__item"));
         const slides = Array.from(slidesRoot.querySelectorAll(".neighborhoods__slide"));
         const bgs = Array.from(bgsRoot.querySelectorAll(".neighborhoods__bg"));
-        const count = items.length;
-        if (!count) return;
+        if (!items.length || !slides.length) return;
 
-        const rootStyles = getComputedStyle(document.documentElement);
-        const raw = rootStyles.getPropertyValue("--dur").trim();
-        const n = parseFloat(raw);
-        const DUR_MS = (!raw || Number.isNaN(n)) ? 700 : (raw.endsWith("ms") ? n : n * 1000);
+        root.style.setProperty("--neighborhoods-count", String(slides.length));
 
-        const SLIDE_CLASSES = [
-          "is-active",
-          "is-prezoom",
-          "is-prep-below",
-          "is-prep-above",
-          "is-exit-up",
-          "is-exit-down",
-          "is-enter",
-        ];
-
-        root.style.setProperty("--neighborhoods-count", String(count));
-
-        let active = 0;
-        let target = 0;
-        let animating = false;
-        let settleTimer = null;
         let countTimer = null;
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-        function setActiveMenu(index) {
-          items.forEach((item, i) => {
-            const on = i === index;
-            item.classList.toggle("is-active", on);
-            if (on) item.setAttribute("aria-current", "true");
-            else item.removeAttribute("aria-current");
-          });
-        }
-
-        function setBg(index) {
-          bgs.forEach((bg, i) => {
-            const wasActive = bg.classList.contains("is-active");
-            bg.classList.remove("is-active", "is-leaving");
-            if (i === index) {
-              bg.classList.add("is-active");
-            } else if (wasActive && i !== index) {
-              bg.classList.add("is-leaving");
-              window.setTimeout(() => bg.classList.remove("is-leaving"), DUR_MS + 80);
-            }
-          });
-        }
+        const setActiveMenu = bindActiveMenu(items);
 
         function setCount(index, animate) {
           const next = COUNTS[index] || COUNTS[0];
@@ -3507,125 +3694,22 @@ said about us</h2>
               countEl.classList.remove("is-in");
               countEl.classList.add("is-show");
             });
-          }, Math.min(220, DUR_MS * 0.35));
+          }, 160);
         }
 
-        function resetSlides(visibleIndex) {
-          slides.forEach((slide, i) => {
-            slide.classList.remove(...SLIDE_CLASSES);
-            if (i === visibleIndex) slide.classList.add("is-active");
-          });
-        }
-
-        function settle(index) {
-          if (settleTimer) clearTimeout(settleTimer);
-          settleTimer = null;
-          resetSlides(index);
-          setBg(index);
-          active = index;
-          animating = false;
-          setActiveMenu(index);
-          pump();
-        }
-
-        function pump() {
-          if (animating || target === active) return;
-          runStep(active, active + (target > active ? 1 : -1));
-        }
-
-        function runStep(from, to) {
-          const out = slides[from];
-          const inn = slides[to];
-          if (!out || !inn) {
-            settle(to);
-            return;
-          }
-
-          const forward = to > from;
-          animating = true;
-          setActiveMenu(to);
-          setBg(to);
-          setCount(to, true);
-
-          if (reduceMotion) {
-            settle(to);
-            return;
-          }
-
-          if (settleTimer) clearTimeout(settleTimer);
-          slides.forEach((slide) => slide.classList.remove(...SLIDE_CLASSES));
-
-          out.classList.add("is-prezoom");
-          inn.classList.add(forward ? "is-prep-below" : "is-prep-above");
-          void out.offsetWidth;
-
-          requestAnimationFrame(() => {
-            out.classList.add(forward ? "is-exit-up" : "is-exit-down");
-            out.classList.remove("is-prezoom");
-            inn.classList.add("is-enter");
-            inn.classList.remove("is-prep-below", "is-prep-above");
-          });
-
-          settleTimer = setTimeout(() => settle(to), DUR_MS + 30);
-        }
-
-        function setTarget(index) {
-          if (index < 0 || index >= count) return;
-          target = index;
-          pump();
-        }
-
-        function indexFromScroll() {
-          const rect = root.getBoundingClientRect();
-          const total = root.offsetHeight - window.innerHeight;
-          if (total <= 0) return 0;
-          const scrolled = Math.min(Math.max(-rect.top, 0), total);
-          return Math.min(count - 1, Math.floor((scrolled / total) * count + 1e-6));
-        }
-
-        function onScroll() {
-          setTarget(indexFromScroll());
-        }
-
-        function scrollToIndex(index) {
-          const total = root.offsetHeight - window.innerHeight;
-          if (total <= 0) return;
-          const band = total / count;
-          window.scrollTo({
-            top: root.offsetTop + band * index + band * 0.35,
-            behavior: reduceMotion ? "auto" : "smooth",
-          });
-        }
-
-        items.forEach((item) => {
-          item.addEventListener("click", () => {
-            const index = Number(item.dataset.index);
-            if (Number.isNaN(index)) return;
-            setTarget(index);
-            scrollToIndex(index);
-          });
+        const stack = initScrubStack({
+          root: root,
+          slides: slides,
+          bgs: bgs,
+          onActive: (index, animate) => {
+            setActiveMenu(index);
+            setCount(index, animate);
+          },
         });
 
-        resetSlides(0);
-        setBg(0);
-        setActiveMenu(0);
-        setCount(0, false);
-
-        let ticking = false;
-        window.addEventListener(
-          "scroll",
-          () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-              ticking = false;
-              onScroll();
-            });
-          },
-          { passive: true }
-        );
-
-        window.addEventListener("resize", onScroll);
+        stack.setTarget(stack.posFromScroll(), true);
+        onScrollFrame(() => stack.setTarget(stack.posFromScroll()));
+        window.addEventListener("resize", () => stack.setTarget(stack.posFromScroll()));
       })();
 
       /* Featured listings — equal-size infinite carousel + parallax */
@@ -3638,8 +3722,8 @@ said about us</h2>
             baths: 3,
             sqft: "2,400",
             price: "$1,250,000",
-            image: "assets/featured-a.jpg",
-            alt: "Modern residence overlooking San Francisco hills",
+            image: "assets/featured-a.webp",
+            alt: "Modern white residence with lawn and palm trees",
           },
           {
             name: "Marina Vista",
@@ -3648,8 +3732,8 @@ said about us</h2>
             baths: 2,
             sqft: "1,850",
             price: "$980,000",
-            image: "assets/featured-b.jpg",
-            alt: "Bright living space with marina views",
+            image: "assets/featured-b.webp",
+            alt: "Cliffside villa with infinity pool at dusk",
           },
           {
             name: "Noe Valley Loft",
@@ -3658,8 +3742,8 @@ said about us</h2>
             baths: 2,
             sqft: "1,420",
             price: "$875,000",
-            image: "assets/featured-c.jpg",
-            alt: "Contemporary loft interior in Noe Valley",
+            image: "assets/featured-c.webp",
+            alt: "Cantilevered glass residence overlooking the ocean",
           },
           {
             name: "Russian Hill Terrace",
@@ -3668,8 +3752,8 @@ said about us</h2>
             baths: 4,
             sqft: "3,100",
             price: "$2,150,000",
-            image: "assets/featured-d.jpg",
-            alt: "Spacious terrace home on Russian Hill",
+            image: "assets/featured-d.webp",
+            alt: "Mediterranean villa with pool and patio lounge",
           },
           {
             name: "Mission Modern",
@@ -3678,8 +3762,8 @@ said about us</h2>
             baths: 2,
             sqft: "1,680",
             price: "$1,050,000",
-            image: "assets/featured-e.jpg",
-            alt: "Modern Mission District townhome",
+            image: "assets/featured-e.webp",
+            alt: "Minimal desert pavilion with open terrace",
           },
         ];
 
@@ -3689,13 +3773,12 @@ said about us</h2>
           ruler: `<svg class="featured__stat-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16.2 8.45 8.45 16.2a1.75 1.75 0 0 1-2.47 0L3.8 14.02a1.75 1.75 0 0 1 0-2.47l7.75-7.75a1.75 1.75 0 0 1 2.47 0l2.18 2.18a1.75 1.75 0 0 1 0 2.47Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="m7.2 10.4 1.2 1.2M9.1 8.5l1.2 1.2M11 6.6l1.2 1.2M12.9 4.7l1.2 1.2" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>`,
         };
 
-        const COPIES = 5;
+        const COPIES = 3;
         const N = LISTINGS.length;
         const FRAME_MS = 1000;
-        const IMAGE_MS = Math.round(FRAME_MS * 1.3);
-        const IMAGE_LAG_STEP = 72;
-        const IMAGE_LAG_MAX = 160;
-        const PLAY_PAD = 1;
+        const PARALLAX_PX = 36;  /* peak lag, well inside the media's 64px overflow */
+        const PLAY_PAD = 2;
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const midCopy = Math.floor(COPIES / 2);
 
         const root = document.querySelector(".featured");
@@ -3706,10 +3789,10 @@ said about us</h2>
         const statsEl = document.getElementById("featuredStats");
         if (!track || !viewport || !root) return;
 
-        LISTINGS.forEach(function (item) {
-          const preload = new Image();
-          preload.src = item.image;
-        });
+        /* Warm only the first visible listing — rest load as cards enter */
+        const warm = new Image();
+        warm.decoding = "async";
+        warm.src = LISTINGS[0].image;
 
         let logical = 0;
         let visual = midCopy * N;
@@ -3798,7 +3881,7 @@ said about us</h2>
           });
         }
 
-        function buildCard(item, logicalIndex) {
+        function buildCard(item, logicalIndex, copyIndex) {
           const card = document.createElement("article");
           card.className = "featured-card";
           card.dataset.logical = String(logicalIndex);
@@ -3810,14 +3893,16 @@ said about us</h2>
 
           const media = document.createElement("div");
           media.className = "featured-card__media";
-          media.dataset.lag = "0";
 
           const img = document.createElement("img");
           img.src = item.image;
           img.alt = item.alt;
           img.draggable = false;
           img.decoding = "async";
-          img.loading = "eager";
+          /* Eager only mid-copy (initially visible band); clones lazy */
+          img.loading = copyIndex === midCopy ? "eager" : "lazy";
+          img.width = 720;
+          img.height = 480;
           media.appendChild(img);
           frame.appendChild(media);
           card.appendChild(frame);
@@ -3850,7 +3935,7 @@ said about us</h2>
           track.replaceChildren();
           for (let c = 0; c < COPIES; c++) {
             LISTINGS.forEach(function (item, i) {
-              track.appendChild(buildCard(item, i));
+              track.appendChild(buildCard(item, i, c));
             });
           }
           syncActiveClass();
@@ -3896,52 +3981,52 @@ said about us</h2>
           return index >= lo && index <= hi;
         }
 
-        function driveImageParallax(direction, fromVisual, toVisual) {
-          const cards = Array.from(track.children);
-          const hidden = [];
-
-          cards.forEach(function (card, i) {
-            const media = card.querySelector(".featured-card__media");
-            if (!media) return;
-
-            if (!isInPlay(i, fromVisual, toVisual)) {
-              media.dataset.lag = "0";
-              media.style.transition = "none";
-              media.style.transform = "translate3d(0, 0, 0)";
-              hidden.push(media);
-              return;
+        /* cubic-bezier(x1, y1, x2, y2) as a function of progress 0–1 */
+        function cubicBezier(x1, y1, x2, y2) {
+          const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+          const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+          const sampleX = (t) => ((ax * t + bx) * t + cx) * t;
+          const sampleY = (t) => ((ay * t + by) * t + cy) * t;
+          return function (x) {
+            let lo = 0, hi = 1, t = x;
+            for (let i = 0; i < 24; i++) {
+              if (sampleX(t) < x) lo = t; else hi = t;
+              t = (lo + hi) / 2;
             }
-
-            const current = Number(media.dataset.lag || 0);
-            const next = Math.max(
-              -IMAGE_LAG_MAX,
-              Math.min(IMAGE_LAG_MAX, current - direction * IMAGE_LAG_STEP)
-            );
-            media.dataset.lag = String(next);
-            media.style.transition =
-              "transform " + IMAGE_MS + "ms cubic-bezier(0.38, 0, 0, 1)";
-            media.style.transform = "translate3d(" + next + "px, 0, 0)";
-          });
-
-          if (hidden.length) {
-            void track.offsetHeight;
-            hidden.forEach(function (media) {
-              media.style.transition =
-                "transform " + IMAGE_MS + "ms cubic-bezier(0.38, 0, 0, 1)";
-            });
-          }
+            return sampleY(t);
+          };
         }
 
-        function resetHiddenLags() {
-          Array.from(track.children).forEach(function (card, i) {
-            if (Math.abs(i - visual) <= PLAY_PAD) return;
-            const media = card.querySelector(".featured-card__media");
-            if (!media || media.dataset.lag === "0") return;
-            media.dataset.lag = "0";
-            media.style.transition = "none";
-            media.style.transform = "translate3d(0, 0, 0)";
+        /* Lag curve = where the frame is (track easing) minus where the image is
+           (a softer easing). Both start and land with zero velocity, so the lag
+           swells and settles in one continuous curve — no turning point. */
+        const LAG_SHAPE = (function () {
+          const frame = cubicBezier(0.38, 0, 0, 1);   /* --ease-featured */
+          const image = cubicBezier(0.5, 0, 0.2, 1);
+          const samples = [];
+          let peak = 0;
+          for (let i = 0; i <= 48; i++) {
+            const d = frame(i / 48) - image(i / 48);
+            samples.push(d);
+            peak = Math.max(peak, d);
+          }
+          return samples.map(function (d) { return d / peak; });
+        })();
+
+        /* Image trails its frame, then settles back to centre as the card lands —
+           every move ends at 0, so nothing accumulates. */
+        function driveImageParallax(direction, fromVisual, toVisual) {
+          if (reduceMotion || typeof Element.prototype.animate !== "function") return;
+          const frames = LAG_SHAPE.map(function (v) {
+            return { transform: "translate3d(" + (direction * PARALLAX_PX * v).toFixed(2) + "px, 0, 0)" };
           });
-          void track.offsetHeight;
+          Array.from(track.children).forEach(function (card, i) {
+            if (!isInPlay(i, fromVisual, toVisual)) return;
+            const media = card.querySelector(".featured-card__media");
+            if (!media) return;
+            media.getAnimations().forEach(function (anim) { anim.cancel(); });
+            media.animate(frames, { duration: FRAME_MS, easing: "linear" });
+          });
         }
 
         function updateMeta(item) {
@@ -3954,6 +4039,8 @@ said about us</h2>
             '<span class="featured__stat featured__stat--price"><span class="featured__stat-value">' + item.price + "</span></span>";
         }
 
+        /* Instant loop jump back into the mid copy — only after the anim settles.
+           Images are all back at centre by then, so the swap is invisible. */
         function normalizeIfNeeded() {
           const midStart = midCopy * N;
           const midEnd = midStart + N - 1;
@@ -3963,17 +4050,23 @@ said about us</h2>
           track.classList.add("is-instant");
           visual = midStart + logical;
           syncActiveClass();
-          track.style.transform = "translate3d(" + computeTranslate(visual) + "px, 0, 0)";
+          track.style.transform =
+            "translate3d(" + computeTranslate(visual) + "px, 0, 0)";
           void track.offsetHeight;
-          track.classList.remove("is-instant");
-          root.classList.remove("is-jumping");
-          resetHiddenLags();
+
+          requestAnimationFrame(function () {
+            track.classList.remove("is-instant");
+            root.classList.remove("is-jumping");
+          });
         }
 
         function finishAnim() {
-          normalizeIfNeeded();
-          resetHiddenLags();
-          animating = false;
+          /* Wait one paint after the track settles so the loop jump
+             never shares a frame with the animated transform. */
+          requestAnimationFrame(function () {
+            normalizeIfNeeded();
+            animating = false;
+          });
         }
 
         function goToVisual(nextVisual) {
@@ -4116,24 +4209,32 @@ said about us</h2>
             name: "Alexandria Josephyne",
             role: "San Antonio Homeowners",
             alt: "Alexandria Josephyne",
-          },
-          {
-            quote: "Julian made renting in the Marina feel effortless. Clear advice, quick replies, and a place that finally felt like home.",
-            name: "Daniel Park",
-            role: "Marina District Renters",
-            alt: "Daniel Park",
+            photo: "assets/testimonials/photo-1.webp",
+            thumb: "assets/testimonials/thumb-1.webp",
           },
           {
             quote: "We walked into open houses with a real plan. Maya kept us focused, and we closed on a Noe Valley loft we love.",
             name: "Priya Mehta",
             role: "Noe Valley Buyers",
             alt: "Priya Mehta",
+            photo: "assets/testimonials/photo-2.webp",
+            thumb: "assets/testimonials/thumb-2.webp",
+          },
+          {
+            quote: "Julian made renting in the Marina feel effortless. Clear advice, quick replies, and a place that finally felt like home.",
+            name: "Daniel Park",
+            role: "Marina District Renters",
+            alt: "Daniel Park",
+            photo: "assets/testimonials/photo-3.webp",
+            thumb: "assets/testimonials/thumb-3.webp",
           },
           {
             quote: "From first tour to keys in hand, the team treated our Sausalito search like it mattered — because it did to us.",
             name: "James & Elena Costa",
             role: "Sausalito Homeowners",
             alt: "James and Elena Costa",
+            photo: "assets/testimonials/photo-4.webp",
+            thumb: "assets/testimonials/thumb-4.webp",
           },
         ];
 
@@ -4147,30 +4248,49 @@ said about us</h2>
         const nextBtn = document.getElementById("testimonialsNext");
         if (!slidesRoot || !thumbsRoot || !copyRoot || !quoteEl || !nameEl || !roleEl || !prevBtn || !nextBtn) return;
 
+        /* Rebuild slides + thumbs from ITEMS so card, indicator, and copy stay in lockstep */
+        slidesRoot.replaceChildren();
+        thumbsRoot.replaceChildren();
+        ITEMS.forEach(function (item, i) {
+          const slide = document.createElement("div");
+          slide.className = "testimonials__slide" + (i === 0 ? " is-active" : "");
+          const photo = document.createElement("img");
+          photo.src = item.photo;
+          photo.alt = item.alt;
+          photo.width = 360;
+          photo.height = 480;
+          photo.decoding = "async";
+          if (i > 0) photo.loading = "lazy";
+          slide.appendChild(photo);
+          slidesRoot.appendChild(slide);
+
+          const thumb = document.createElement("div");
+          thumb.className = "testimonials__thumb" + (i === 0 ? " is-active" : "");
+          const thumbImg = document.createElement("img");
+          thumbImg.src = item.thumb;
+          thumbImg.alt = "";
+          thumbImg.width = 64;
+          thumbImg.height = 64;
+          thumbImg.decoding = "async";
+          if (i > 0) thumbImg.loading = "lazy";
+          thumb.appendChild(thumbImg);
+          thumbsRoot.appendChild(thumb);
+        });
+
         const slides = Array.from(slidesRoot.querySelectorAll(".testimonials__slide"));
+        const photos = slides.map((slide) => slide.querySelector("img"));
         const thumbs = Array.from(thumbsRoot.querySelectorAll(".testimonials__thumb"));
         const count = Math.min(ITEMS.length, slides.length, thumbs.length);
         if (!count) return;
 
-        const rootStyles = getComputedStyle(document.documentElement);
-        const raw = rootStyles.getPropertyValue("--dur").trim();
-        const n = parseFloat(raw);
-        const DUR_MS = (!raw || Number.isNaN(n)) ? 700 : (raw.endsWith("ms") ? n : n * 1000);
+        /* Arrow-driven, so it runs on a clock — same reveal, parallax and
+           smootherstep curve as the scroll stacks, sideways with the arrow */
+        const SLIDE_MS = 900;
         const TEXT_MS = 220;
-
-        const CLASSES = [
-          "is-active",
-          "is-prezoom",
-          "is-prep-left",
-          "is-prep-right",
-          "is-exit-left",
-          "is-exit-right",
-          "is-enter",
-        ];
 
         let active = 0;
         let animating = false;
-        let settleTimer = null;
+        let slideRaf = 0;
         let textTimer = null;
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -4179,7 +4299,7 @@ said about us</h2>
           quoteEl.textContent = `\u201C${item.quote}\u201D`;
           nameEl.textContent = item.name;
           roleEl.textContent = item.role;
-          slides[index].alt = item.alt;
+          photos[index].alt = item.alt;
         }
 
         function setThumbs(index) {
@@ -4199,14 +4319,29 @@ said about us</h2>
 
         function resetSlides(visibleIndex) {
           slides.forEach((slide, i) => {
-            slide.classList.remove(...CLASSES);
-            if (i === visibleIndex) slide.classList.add("is-active");
+            slide.classList.toggle("is-active", i === visibleIndex);
+            slide.style.cssText = "";
+            photos[i].style.transform = "";
           });
         }
 
+        /* e: 0 → 1 eased progress; dir: 1 = next (reveal from the right) */
+        function renderSlide(out, inn, dir, e) {
+          const hidden = ((1 - e) * 100).toFixed(3) + "%";
+          inn.style.visibility = "visible";
+          inn.style.zIndex = "2";
+          inn.style.clipPath = dir > 0 ? `inset(0 0 0 ${hidden})` : `inset(0 ${hidden} 0 0)`;
+          photos[slides.indexOf(inn)].style.transform =
+            `translate3d(${(dir * (1 - e) * STACK_IN_SHIFT).toFixed(3)}%, 0, 0) scale(${(1.05 + (1 - e) * 0.1).toFixed(4)})`;
+          out.style.visibility = "visible";
+          out.style.zIndex = "1";
+          photos[slides.indexOf(out)].style.transform =
+            `translate3d(${(-dir * e * STACK_OUT_SHIFT).toFixed(3)}%, 0, 0) scale(${(1.05 - e * 0.05).toFixed(4)})`;
+        }
+
         function settle(index) {
-          if (settleTimer) clearTimeout(settleTimer);
-          settleTimer = null;
+          if (slideRaf) cancelAnimationFrame(slideRaf);
+          slideRaf = 0;
           resetSlides(index);
           active = index;
           animating = false;
@@ -4259,21 +4394,16 @@ said about us</h2>
             return;
           }
 
-          if (settleTimer) clearTimeout(settleTimer);
-          slides.forEach((slide) => slide.classList.remove(...CLASSES));
-
-          out.classList.add("is-prezoom");
-          inn.classList.add(forward ? "is-prep-right" : "is-prep-left");
-          void out.offsetWidth;
-
-          requestAnimationFrame(() => {
-            out.classList.add(forward ? "is-exit-left" : "is-exit-right");
-            out.classList.remove("is-prezoom");
-            inn.classList.add("is-enter");
-            inn.classList.remove("is-prep-left", "is-prep-right");
-
-            settleTimer = setTimeout(() => settle(to), DUR_MS + 40);
-          });
+          const dir = forward ? 1 : -1;
+          renderSlide(out, inn, dir, 0);
+          const start = performance.now();
+          const step = (now) => {
+            const t = Math.min(1, (now - start) / SLIDE_MS);
+            renderSlide(out, inn, dir, stackEase(t));
+            if (t < 1) slideRaf = requestAnimationFrame(step);
+            else settle(to);
+          };
+          slideRaf = requestAnimationFrame(step);
         }
 
         setText(0);

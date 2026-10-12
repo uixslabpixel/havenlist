@@ -1,5 +1,54 @@
 .DS_Store
+**/.DS_Store
+
+# Local / design sandbox (not production)
 Hero section.html
+featured-option.html
+featured-previous.html
+README.md
+
+# Scratch / proof / temp assets
 assets/_*
 assets/_*/
-**/.DS_Store
+
+# Unused heavy originals (production uses optimized .webp)
+assets/hero-back-1.png
+assets/hero-back.png
+assets/hero-back.jpg
+assets/hero-back-full.jpg
+assets/hero-main.png
+assets/hero-front.png
+assets/hero-front-mask.png
+assets/hero-fade.png
+assets/hero-mask.svg
+assets/menu-house.png
+assets/featured-a.jpg
+assets/featured-b.jpg
+assets/featured-c.jpg
+assets/featured-d.jpg
+assets/featured-e.jpg
+assets/featured-active.jpg
+assets/featured-left.jpg
+assets/featured-right.jpg
+assets/testimonials/photo-1.png
+assets/testimonials/thumb-1.png
+assets/testimonials/thumb-2.png
+assets/testimonials/thumb-3.png
+assets/testimonials/thumb-4.png
+assets/testimonials/arrow-left.svg
+assets/testimonials/arrow-right.svg
+
+# Figma HTML exports / design refs (local only)
+Bed and baths filter.html
+Button decoration - black.html
+Button decoration - white.html
+Filter clicked after scroll up.html
+Havenlist footer.html
+Location filter.html
+Other filter.html
+Price range filter.html
+Search result - Navbar Scolled down.html
+Searh Result Page.html
+Havelist Featured Listings Image.zip
+Featured listings/
+.claude/
