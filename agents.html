@@ -1656,6 +1656,7 @@
 
     <nav class="nav-links" aria-label="Primary">
       <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a>
       <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
       <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
     </nav>
@@ -1746,6 +1747,7 @@
           <button class="loc-item" type="button" data-loc="South Beach">South Beach</button>
           <button class="loc-item" type="button" data-loc="Sea Cliff">Sea Cliff</button>
           <button class="loc-item" type="button" data-loc="Inner Sunset">Inner Sunset</button>
+          <button class="loc-item" type="button" data-loc="Nob Hill">Nob Hill</button>
         </div>
       </div>
     </div>
@@ -1783,9 +1785,10 @@
           <p class="filter-section-title">Role</p>
           <div class="type-chips" id="roleChips" style="margin-top:12px">
             <button class="type-chip is-active" type="button" data-role="">All</button>
-            <button class="type-chip" type="button" data-role="Senior agent">Senior agent</button>
-            <button class="type-chip" type="button" data-role="Lead consultant">Lead consultant</button>
-            <button class="type-chip" type="button" data-role="Associate agent">Associate</button>
+            <button class="type-chip" type="button" data-role="Senior">Senior</button>
+            <button class="type-chip" type="button" data-role="Lead">Lead</button>
+            <button class="type-chip" type="button" data-role="Associate">Associate</button>
+            <button class="type-chip" type="button" data-role="specialist">Specialist</button>
           </div>
         </div>
         <div>
@@ -1932,6 +1935,7 @@
             <ul class="mega-menu__links mega-menu__links--lg">
               <li><a href="#home"><span class="link-rise" data-text="Home">Home</span></a></li>
               <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a></li>
               <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
               <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
               <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
@@ -2037,7 +2041,7 @@
         (!state.location || g.location === state.location) &&
         (!state.expertise || g.expertise.includes(state.expertise)) &&
         (!state.top || g.rating >= 4.8) &&
-        (!state.role || g.role === state.role));
+        (!state.role || g.role.toLowerCase().includes(state.role.toLowerCase())));
       if (state.sort === "name") list.sort((a, b) => a.name.localeCompare(b.name));
       else if (state.sort === "listings") list.sort((a, b) => b.years - a.years);
       else list.sort((a, b) => b.rating - a.rating);

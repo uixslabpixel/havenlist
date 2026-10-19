@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neighborhood — Havenlist</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
   <link rel="stylesheet" href="icons.css">
   <link rel="stylesheet" href="components.css">
-  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -17,7 +17,6 @@
       font-style: normal;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Inter Display";
       src: url("assets/InterDisplay-Medium.woff2") format("woff2");
@@ -25,7 +24,6 @@
       font-style: normal;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Geist";
       src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2");
@@ -33,7 +31,6 @@
       font-style: normal;
       font-display: swap;
     }
-
     @font-face {
       font-family: "Geist";
       src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2");
@@ -58,6 +55,16 @@
       --ease-morph: cubic-bezier(0.32, 0.72, 0, 1);
       --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
       --dur: 0.7s;
+      /* Filter dropdown motion — live-tunable from the "Dropdown tweaks" panel */
+      --pop-open: 550ms;
+      --pop-close: 300ms;
+      --pop-fade: 160ms;
+      --pop-ease-open: cubic-bezier(0.32, 0.72, 0, 1);
+      --pop-ease-close: cubic-bezier(0.32, 0.72, 0, 1);
+      --pop-r-from: 40px;
+      --pop-r-to: 20px;
+      --pop-gap: 10px;
+      --pop-shadow: 0.12;
       --font-display: "Inter Display", "Inter", system-ui, sans-serif;
       --font-ui: "Geist", system-ui, sans-serif;
     }
@@ -76,15 +83,11 @@
       overscroll-behavior-y: none;
     }
 
-    /* Body copy runs at 140% everywhere unless a heading sets its own */
-    body { overflow-x: hidden; line-height: 1.4; }
+    body { overflow-x: hidden; }
 
     button, a, input { font: inherit; color: inherit; }
-
     button { border: none; background: none; cursor: pointer; }
-
     a { text-decoration: none; }
-
     img { display: block; max-width: 100%; }
 
     /* ========== NAVBAR ========== */
@@ -106,6 +109,11 @@
       transition:
         transform 0.45s var(--ease-out),
         box-shadow 0.35s var(--ease);
+    }
+
+    /* Same solid shadow as the homepage once listings scroll underneath */
+    body.is-compact .navbar {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
     .logo {
@@ -137,6 +145,41 @@
       overflow: hidden;
       visibility: visible;
       transition: visibility 0s linear 0s;
+    }
+
+    /* Airbnb-style sequence — going compact: the three links rise out
+       together, the rounded frame opens from the centre, then the filter
+       contents come in with a short fade. Returning runs it back. */
+    .nav-links a {
+      transform: translateY(0);
+      /* Returning: drop back in (all together) as the frame closes */
+      transition: transform 0.3s var(--ease-morph) 0.12s;
+    }
+
+    body.is-compact .nav-links {
+      visibility: hidden;
+      pointer-events: none;
+      transition: visibility 0s linear 0.3s;
+    }
+
+    body.is-compact .nav-links a {
+      transform: translateY(-110%);
+      transition: transform 0.3s var(--ease-morph);
+    }
+
+    body.is-sheet-open.is-compact .nav-links {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    body.is-sheet-open.is-compact .nav-links a {
+      transform: translateY(0);
+    }
+
+    body.is-sheet-open.is-compact .compact-bar {
+      visibility: hidden;
+      pointer-events: none;
+      clip-path: inset(0 50% 0 50% round 46px);
     }
 
     .nav-links a {
@@ -241,24 +284,6 @@
       animation: none;
     }
 
-    /* Share: arrow then tray draw themselves on hover — same line language
-       as the heart */
-    .share-icon .share-line {
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.35;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-dasharray: 100;
-      stroke-dashoffset: 0;
-    }
-
-    .icon-btn.is-drawing .share-line {
-      animation: draw-heart-outline 1.1s cubic-bezier(0.4, 0, 0.2, 1) both;
-    }
-
-    .icon-btn.is-drawing .share-line--tray { animation-delay: 0.18s; }
-
     @keyframes draw-heart-outline {
       0% { stroke-dashoffset: 100; }
       100% { stroke-dashoffset: 0; }
@@ -323,7 +348,6 @@
     }
 
     .menu-btn__line--top { top: 0; }
-
     .menu-btn__line--bot { top: 8px; }
 
     .menu-btn:focus-visible {
@@ -396,130 +420,396 @@
 
     body.is-menu-open { overflow: hidden; }
 
-    .card {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      min-width: 0;
-    }
-
-    .card__media {
-      position: relative;
-      aspect-ratio: 1 / 1.01;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #e8e8e6;
-    }
-
-    .card__media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card__badge {
+    /* Compact filter bar — sits in navbar center.
+       Opens by unfolding from the centre (clip-path), then its contents rise
+       in from below; folds back the same way. No opacity fades. */
+    .compact-bar {
       position: absolute;
-      top: 12px;
-      left: 12px;
+      left: 50%;
+      top: 50%;
       z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 48px;
+      padding: 8px 4px 8px 6px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      clip-path: inset(0 50% 0 50% round 46px);
+      transition:
+        clip-path 0.26s var(--ease-morph),
+        visibility 0s linear 0.26s;
+    }
+
+    body.is-compact .compact-bar {
+      visibility: visible;
+      pointer-events: auto;
+      /* Negative inset keeps the soft shadow visible once open */
+      clip-path: inset(-8px -8px -8px -8px round 54px);
+      transition:
+        clip-path 0.26s var(--ease-morph) 0.06s,
+        visibility 0s;
+    }
+
+    .compact-bar > * {
+      opacity: 0;
+      transition: opacity 0.08s var(--ease);
+    }
+
+    body.is-compact .compact-bar > * {
+      opacity: 1;
+      transition: opacity 0.16s var(--ease) 0.2s;
+    }
+
+    .chip {
       display: inline-flex;
       align-items: center;
-      height: 28px;
-      padding: 0 10px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(8px);
-      font-family: var(--font-ui);
-      font-size: 13px;
+      gap: 8px;
+      height: 36px;
+      padding: 0 10px 0 14px;
+      border-radius: 46px;
+      background: var(--chip);
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
       letter-spacing: -0.01em;
+      line-height: 1.4;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+
+    .chip--query { width: 180px; max-width: 180px; }
+    .chip[hidden] { display: none; }
+    .chip--type { width: 85px; }
+    .chip--featured { width: 115px; }
+
+    .chip__label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip__x {
+      flex-shrink: 0;
+      display: inline-flex;
+      width: 20px;
+      height: 20px;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.34;
       color: var(--ink);
     }
 
-    .card__fav {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 1;
-      width: 32px;
-      height: 32px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 36px;
-      background: rgba(0, 0, 0, 0.1);
-      border: 0.7px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      color: var(--white);
-      transition: background 0.25s var(--ease);
-    }
+    .chip__x:hover { opacity: 0.7; }
 
-    .card__fav:hover { background: rgba(0, 0, 0, 0.22); }
-
-    /* Heart outline draws from the top cleft on hover — as in the navbar */
-    .card__fav .heart-outline {
-      fill: none;
-      stroke-dasharray: 100;
-      stroke-dashoffset: 0;
-    }
-
-    .card__fav:hover .heart-outline {
-      animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-
-    .card__body {
+    .compact-selects {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: 8px;
-      padding-top: 16px;
+      height: 40px;
     }
 
-    .card__place {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-      line-height: 1.25;
-    }
-
-    .card__addr {
-      font-family: var(--font-ui);
-      font-size: 14px;
-      color: var(--ink-70);
-      letter-spacing: -0.01em;
-    }
-
-    .card__meta {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      color: rgba(30, 30, 30, 0.8);
-      font-family: var(--font-ui);
-      font-weight: 400;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      line-height: 1.4;
-    }
-
-    .card__meta-item {
+    .compact-select {
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      height: 40px;
+      padding: 0 2px;
+      border-radius: 46px;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .compact-select > span,
+    .filter-select > span {
+      min-width: 0;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .compact-select svg {
+      opacity: 0.43;
       flex-shrink: 0;
     }
 
-    .card__meta svg { opacity: 0.7; }
+    .compact-more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      color: var(--ink);
+    }
 
-    .card__price {
+    .compact-more:hover { background: var(--ink-07); }
+
+    /* ========== SEARCH HEADER ========== */
+    .search-header {
+      margin-top: var(--nav-h);
+      background: var(--white);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      padding: 16px var(--page-pad) 32px;
+    }
+
+    .search-header__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .search-title {
+      width: 100%;
+      text-align: center;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(36px, 4vw, 40px);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .search-title q { quotes: "“" "”"; }
+
+    /* Tabs */
+    .tabs {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 400px;
+      max-width: 100%;
+      height: 48px;
+      padding: 4px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 100%),
+        #f9f9f9;
+    }
+
+    .tabs__pill {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      width: calc((100% - 8px) / 3);
+      border-radius: 36px;
+      border: 1px solid var(--white);
+      outline: 1px solid var(--ink-07);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%),
+        var(--white);
+      transition: transform 0.45s var(--ease-out);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .tab {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       font-family: var(--font-ui);
-      font-weight: 400;
-      font-size: 14px;
+      font-weight: 500;
+      font-size: 16px;
       letter-spacing: -0.01em;
+      color: var(--ink-70);
+      border-radius: 40px;
+      transition: color 0.25s var(--ease);
+    }
+
+    .tab[aria-selected="true"] { color: var(--ink); }
+
+    /* Expanded filter form */
+    .filter-form {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: auto;
+      max-width: 100%;
+      min-height: 40px;
+      margin: 0 auto;
+    }
+
+    .filter-query {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 250px;
+      height: 40px;
+      padding: 0 10px 0 10px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .filter-query__icon {
+      flex-shrink: 0;
+      display: inline-flex;
+      color: var(--ink-40);
+    }
+
+    .filter-query__input {
+      flex: 1;
+      min-width: 0;
+      text-overflow: ellipsis;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
       line-height: 1.4;
-      color: rgba(30, 30, 30, 0.8);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .filter-query__input::-webkit-search-decoration,
+    .filter-query__input::-webkit-search-cancel-button,
+    .filter-query__input::-webkit-search-results-button,
+    .filter-query__input::-webkit-search-results-decoration {
+      -webkit-appearance: none;
+      appearance: none;
+      display: none;
+    }
+
+    .filter-query__clear {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: rgba(30, 30, 30, 0.4);
+      border-radius: 50%;
+    }
+
+    .filter-query__clear:hover { color: var(--ink-70); }
+
+    .filter-query.has-value .filter-query__clear {
+      display: inline-flex;
+    }
+
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 0 14px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
       white-space: nowrap;
       flex-shrink: 0;
+      transition: background 0.2s var(--ease), border-color 0.25s var(--ease);
     }
+
+    .filter-pill:hover { background: var(--paper); }
+
+    .filter-pill[aria-pressed="true"] {
+      border-color: var(--ink);
+    }
+
+    .filter-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 12px 0 16px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      white-space: nowrap;
+      flex: 0 0 auto;
+      min-width: 0;
+      justify-content: space-between;
+      transition: background 0.2s var(--ease);
+    }
+
+    .filter-select:hover { background: var(--paper); }
+
+    .filter-select svg {
+      opacity: 0.45;
+      flex-shrink: 0;
+      transition: transform 0.4s var(--ease-out);
+    }
+
+    .filter-select[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
+    .filter-more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      color: var(--ink);
+      flex-shrink: 0;
+      transition: background 0.2s var(--ease);
+    }
+
+    .filter-more:hover { background: var(--paper); }
+
+    /* ========== LISTINGS ========== */
+    .listings {
+      padding: 32px var(--page-pad) 48px;
+    }
+
+    .listings__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px 16px;
+      max-width: 1312px;
+      margin: 0 auto;
+    }
+
 
     /* ========== HL BUTTON (Figma decoration) ========== */
     .hl-btn {
@@ -570,12 +860,9 @@
     }
 
     .hl-btn__icon svg:first-child { transform: translateX(0); }
-
     .hl-btn__icon svg:last-child { transform: translateX(-120%); }
-
     .hl-btn:hover .hl-btn__icon svg:first-child,
     .hl-btn:focus-visible .hl-btn__icon svg:first-child { transform: translateX(120%); }
-
     .hl-btn:hover .hl-btn__icon svg:last-child,
     .hl-btn:focus-visible .hl-btn__icon svg:last-child { transform: translateX(0); }
 
@@ -592,7 +879,6 @@
     }
 
     .hl-btn--black:hover { filter: brightness(1.12); }
-
     .hl-btn--black:active { transform: scale(0.97); filter: brightness(0.92); }
 
     .hl-btn--white {
@@ -610,11 +896,9 @@
     }
 
     .hl-btn--white:hover { filter: brightness(0.98); }
-
     .hl-btn--white:active { transform: scale(0.97); }
 
     .hl-btn--sm { height: 36px; }
-
     .hl-btn--sm .hl-btn__inner { font-size: 14px; padding: 0 12px; }
 
     .btn-sell.hl-btn--black {
@@ -628,6 +912,484 @@
       padding: 0 16px;
       font-size: 14px;
     }
+
+    /* ========== FILTER PANELS ========== */
+    /* Dropdowns grow out of the button that opened them: the panel starts as
+       a pill the size of the button (tucked behind it), then drops and widens
+       into the full panel while its corners relax. Contents sit at their final
+       size and are uncovered as the panel grows. Closing runs in two beats:
+       the contents dissolve first, then the empty panel shrinks back into the
+       button. JS sets --from-* (button) and --pop-h / --body-h (final) sizes. */
+    .filter-pop {
+      --pop-shift: 0px;
+      --pop-w: 480px;
+      position: absolute;
+      z-index: 0;
+      top: 0;
+      left: 0;
+      width: var(--from-w, 40px);
+      height: var(--from-h, 40px);
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: var(--pop-r-from);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0);
+      visibility: hidden;
+      pointer-events: none;
+      /* Closing: wait for the contents to dissolve (--pop-fade), then shrink */
+      transition:
+        top var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        left var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        width var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        height var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        border-radius var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        box-shadow var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        visibility 0s linear calc(var(--pop-fade) + var(--pop-close));
+    }
+
+    .filter-pop.is-open {
+      top: calc(100% + var(--pop-gap));
+      left: calc(50% - var(--pop-w) / 2 + var(--pop-shift));
+      width: var(--pop-w);
+      height: var(--pop-h);
+      border-radius: var(--pop-r-to);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, var(--pop-shadow));
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        top var(--pop-open) var(--pop-ease-open),
+        left var(--pop-open) var(--pop-ease-open),
+        width var(--pop-open) var(--pop-ease-open),
+        height var(--pop-open) var(--pop-ease-open),
+        border-radius var(--pop-open) var(--pop-ease-open),
+        box-shadow var(--pop-open) var(--pop-ease-open),
+        visibility 0s;
+    }
+
+    /* Contents: visible the instant it opens, dissolve first when closing */
+    .filter-pop > * {
+      opacity: 0;
+      transition: opacity var(--pop-fade) var(--ease);
+    }
+
+    .filter-pop.is-open > * {
+      opacity: 1;
+      transition: none;
+    }
+
+    /* Used by JS to read the panel's natural size without showing it */
+    .filter-pop.is-measuring {
+      top: calc(100% + var(--pop-gap));
+      left: 0;
+      width: var(--pop-w);
+      height: auto;
+      visibility: hidden;
+      transition: none !important;
+    }
+
+    .filter-pop > * { width: calc(var(--pop-w) - 2px); }
+
+    .filter-pop--price { --pop-w: 480px; }
+    .filter-pop--location { --pop-w: 500px; }
+    .filter-pop--beds { --pop-w: 400px; }
+    .filter-pop--more { --pop-w: 640px; }
+
+    .filter-pop__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 24px 0;
+    }
+
+    .filter-pop__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .filter-pop__close {
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-40);
+      border-radius: 6px;
+    }
+
+    .filter-pop__close:hover { background: var(--ink-07); color: var(--ink); }
+
+    .filter-pop__body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: var(--body-h, auto);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .filter-pop__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px 24px;
+      border-top: 1px solid var(--ink-07);
+    }
+
+    .filter-clear {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--ink-70);
+      letter-spacing: -0.01em;
+    }
+
+    .filter-clear:hover { color: var(--ink); }
+
+    .filter-field { display: flex; flex-direction: column; gap: 4px; }
+    .filter-field label {
+      font-size: 14px;
+      color: var(--ink-40);
+      letter-spacing: -0.01em;
+    }
+    .filter-field .filter-value {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      background: var(--white);
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    /* Maximum sits on the right edge */
+    .filter-row .filter-field:last-child { align-items: flex-end; }
+    .filter-row .filter-field:last-child .filter-value { align-self: flex-end; }
+
+    .filter-row { display: flex; gap: 24px; justify-content: space-between; }
+
+    .range-track {
+      position: relative;
+      height: 4px;
+      background: rgba(30, 30, 30, 0.05);
+      border-radius: 16px;
+      margin: 12px 0 8px;
+    }
+
+    .range-track__fill {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: var(--ink);
+      border-radius: 32px;
+    }
+
+    .range-track input[type="range"] {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      margin: 0;
+      transform: translateY(-50%);
+      appearance: none;
+      background: transparent;
+      pointer-events: none;
+      height: 24px;
+    }
+
+    .range-track input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--ink-10);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .range-track input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--ink-10);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .loc-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 40px;
+      height: 40px;
+      min-height: 40px;
+      box-sizing: border-box;
+      padding: 0 14px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+    }
+
+    .loc-search input {
+      flex: 1;
+      min-width: 0;
+      text-overflow: ellipsis;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .loc-search input::placeholder { color: var(--ink-70); }
+
+    .loc-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .loc-chip {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 40px;
+      border: 1px solid var(--ink-10);
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .loc-chip.is-active {
+      border-color: var(--ink);
+    }
+
+    .loc-meta {
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: rgba(30, 30, 30, 0.5);
+    }
+
+    .loc-list { display: flex; flex-direction: column; gap: 4px; }
+
+    .loc-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    .loc-item:hover,
+    .loc-item.is-active { background: var(--ink-07); }
+
+    .stepper-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stepper-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      color: rgba(30, 30, 30, 0.9);
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      height: 32px;
+      border: none;
+      background: transparent;
+    }
+
+    .stepper button {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 50px;
+      flex-shrink: 0;
+      transition: background 0.2s var(--ease);
+    }
+
+    .stepper button:hover { background: var(--ink-07); }
+
+    .stepper__val {
+      min-width: 48px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--font-ui);
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .type-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .type-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 32px;
+      padding: 0 12px 0 10px;
+      border: 1px solid var(--ink-10);
+      border-radius: 40px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .type-chip.is-active {
+      border-color: var(--ink);
+    }
+
+    /* Two rows: 3 + 2 */
+    .facilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; }
+
+    .facility {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .facility input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--ink);
+    }
+
+    .filter-section-title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    /* Isolated so the button can sit above its own panel without climbing
+       over the navbar; lifted above the page only while its panel is out. */
+    .filter-anchor { position: relative; isolation: isolate; }
+    .filter-anchor.is-front { z-index: 90; }
+    .filter-anchor > .filter-select,
+    .filter-anchor > .filter-more { position: relative; z-index: 1; }
+
+    /* ========== FILTER SHEET (scrolled click) ========== */
+    .filter-sheet {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 110;
+      pointer-events: none;
+      visibility: hidden;
+      transition: visibility 0s linear 0.5s;
+    }
+
+    .filter-sheet.is-open {
+      pointer-events: auto;
+      visibility: visible;
+      transition: visibility 0s;
+    }
+
+    .filter-sheet__scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 30, 30, 0.2);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      transition: opacity 0.35s var(--ease-out);
+    }
+
+    .filter-sheet.is-open .filter-sheet__scrim {
+      opacity: 1;
+    }
+
+    .filter-sheet__panel {
+      position: relative;
+      z-index: 1;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1440px;
+      background: var(--white);
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 64px 40px 32px;
+      /* Slides down from behind the navbar like a drawer — no scale, so
+         dropdowns hosted inside it stay put relative to their buttons */
+      transform: translateY(calc(-100% - 12px));
+      transition: transform 0.45s var(--ease-morph);
+    }
+
+    .filter-sheet.is-open .filter-sheet__panel {
+      transform: translateY(0);
+      transition: transform 0.7s var(--ease-morph);
+    }
+
+    .filter-sheet__title {
+      text-align: center;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(32px, 3.5vw, 40px);
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    .filter-sheet__inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    body.is-sheet-open { overflow: hidden; }
+
+    body.is-sheet-open .navbar {
+      z-index: 115;
+      box-shadow: none;
+      background: var(--white);
+    }
+
+    body.is-sheet-open .menu-btn {
+      z-index: 116;
+    }
+
 
     /* ========== FULL-PAGE MENU (circle expand, no margin) ========== */
     .mega-menu {
@@ -769,37 +1531,25 @@
 
     /* Mega menu link hover = same rise as navbar — open stagger 30% slower */
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) .mega-menu__group-label { transition-delay: 0.81s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(2) .mega-menu__group-label { transition-delay: 0.88s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(3) .mega-menu__group-label { transition-delay: 0.95s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(4) .mega-menu__group-label { transition-delay: 1.01s; }
 
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(1) a { transition-delay: 0.88s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(2) a { transition-delay: 0.95s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(3) a { transition-delay: 1.01s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(4) a { transition-delay: 1.08s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(5) a { transition-delay: 1.14s; }
 
     .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(1) a { transition-delay: 0.95s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(2) a { transition-delay: 1.01s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(3) a { transition-delay: 1.08s; }
 
     .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(1) a { transition-delay: 1.12s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(2) a { transition-delay: 1.18s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(3) a { transition-delay: 1.25s; }
 
     .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(1) a { transition-delay: 1.18s; }
-
     .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(2) a { transition-delay: 1.25s; }
 
     .mega-menu__contact {
@@ -860,786 +1610,14 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ========== SHARED ICON BUTTON + ARROW ========== */
-        .ui-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 40px;
-          background: var(--white);
-          border: 1px solid var(--ink-07);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
-          overflow: hidden;
-          transition: box-shadow 0.35s var(--ease);
-        }
-    
-        .ui-btn:hover {
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-    
-        .ui-btn:disabled,
-        .ui-btn[aria-disabled="true"] {
-          opacity: 0.35;
-          cursor: default;
-          pointer-events: none;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-        }
-    
-        .ui-arrow {
-          position: relative;
-          display: block;
-          width: 16px;
-          height: 12px;
-          overflow: hidden;
-        }
-    
-        /* Raised variant (section-header arrows): inner white rim over a soft
-           top shade, gradient-filled arrow — from the "Logo Arrow" spec */
-        .ui-btn--raised {
-          position: relative;
-          width: 48px;
-          height: 48px;
-          border-radius: 48px;
-        }
-    
-        .ui-btn--raised::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border: 1px solid var(--white);
-          border-radius: 44px;
-          background:
-            linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, transparent 100%),
-            var(--white);
-          pointer-events: none;
-        }
-    
-        .ui-btn--raised .ui-arrow {
-          z-index: 1;
-        }
-
-    /* ========== DETAIL PAGE ========== */
-    .detail {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 80px var(--page-pad) 0;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 392px;
-      column-gap: 24px;
-      align-items: start;
-    }
-
-    .detail__main {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 40px;
-      padding-bottom: 24px;
-    }
-
-    .detail__top {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .detail__head {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-    }
-
-    .detail__back.ui-btn--raised {
-      width: 40px;
-      height: 40px;
-      border-radius: 40px;
-      flex-shrink: 0;
-    }
-
-    .detail__back.ui-btn--raised::before { border-radius: 36px; }
-    .detail__back .ui-arrow { transform: scaleX(-1); }
-
-    .detail__titles {
-      flex: 1 1 0;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .detail__title {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 32px;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-    }
-
-    .detail__addr {
-      font-size: 16px;
-      line-height: 1.4;
-      color: rgba(30, 30, 30, 0.8);
-    }
-
-    .detail__actions {
-      display: flex;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    /* Same 40px round button as the navbar's, in the page-card look */
-    .detail__actions .icon-btn {
-      background: var(--white);
-      border-color: var(--ink-07);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-    }
-
-    .detail__actions .icon-btn:hover { background: var(--paper); }
-
-    .detail__actions .icon-btn svg { fill: currentColor; }
-    .detail__actions .icon-btn--fav svg { fill: none; }
-
-    /* Gallery */
-    .gallery {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .gallery__main,
-    .gallery__thumb {
-      position: relative;
-      display: block;
-      width: 100%;
-      overflow: hidden;
-      border-radius: 12px;
-      background: #dddddd;
-      cursor: pointer;
-    }
-
-    .gallery__main { height: 500px; }
-
-    .gallery__row {
-      display: flex;
-      gap: 12px;
-    }
-
-    .gallery__thumb {
-      flex: 1 1 0;
-      min-width: 0;
-      width: auto;
-      height: 200px;
-    }
-
-    .gallery img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .gallery__more {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: rgba(30, 30, 30, 0.2);
-      color: var(--white);
-      pointer-events: none;
-    }
-
-    .gallery__more strong {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 32px;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-    }
-
-    .gallery__more span { font-size: 14px; line-height: 1.4; }
-
-    .detail__desc {
-      font-size: 16px;
-      line-height: 1.4;
-      color: rgba(30, 30, 30, 0.9);
-    }
-
-    .detail__h2 {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 20px;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-    }
-
-    /* Features */
-    .features {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .features__card {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-rows: repeat(4, auto);
-      grid-auto-flow: column;
-      gap: 16px 8px;
-      padding: 16px;
-      background: var(--white);
-      border: 1px solid var(--ink-07);
-      border-radius: 16px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-    }
-
-    .feature {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-height: 22px;
-      font-size: 16px;
-      line-height: 1.4;
-      color: rgba(30, 30, 30, 0.9);
-    }
-
-    .feature svg { width: 16px; height: 16px; flex: none; }
-    .feature span { min-width: 0; }
-
-    /* Location + map */
-    .location {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .location__head {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .map-slot {
-      position: relative;
-      height: 400px;
-    }
-
-    /* The map is one element: in the page it fills its slot; opening lifts it to
-       a fixed box at the same spot and the box grows to the viewport (below the
-       navbar). container-type lets the artwork keep "cover" sizing at any size. */
-    .map {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      border-radius: 16px;
-      background: var(--white);
-      container-type: size;
-      cursor: pointer;
-    }
-
-    .map.is-lifted {
-      position: fixed;
-      inset: auto;
-      z-index: 90;
-      transition:
-        top 0.7s var(--ease-morph),
-        left 0.7s var(--ease-morph),
-        width 0.7s var(--ease-morph),
-        height 0.7s var(--ease-morph),
-        border-radius 0.7s var(--ease-morph);
-    }
-
-    .map.is-expanded { cursor: default; }
-
-    .map__canvas {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: max(100cqw, 224cqh);
-      aspect-ratio: 1792 / 800;
-      transform: translate(-50%, -50%) scale(var(--zoom, 1));
-      transition: transform 0.5s var(--ease-morph);
-    }
-
-    .map__img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-
-    .pin {
-      position: absolute;
-      display: block;
-      width: 3.386%;
-      aspect-ratio: 48.55 / 64;
-    }
-
-    .pin--main { width: 5.419%; z-index: 2; }
-
-    .pin__shape {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .pin__dot {
-      position: absolute;
-      left: 9.09%;
-      top: 6.9%;
-      width: 81.82%;
-      height: 62.07%;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.05), transparent);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .pin--main .pin__dot {
-      background-color: var(--ink);
-      background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent);
-    }
-
-    .pin__icon { height: 44%; width: auto; display: block; }
-    .pin--main .pin__icon { height: 60%; }
-
-    .map__zoom,
-    .map__expand {
-      position: absolute;
-      right: 16px;
-      z-index: 4;
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)),
-        var(--white);
-      border: 1px solid rgba(30, 30, 30, 0.1);
-      color: var(--ink);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
-    }
-
-    .map__expand {
-      top: 16px;
-      width: 32px;
-      height: 32px;
-      border-radius: 200px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .map__expand svg { width: 13px; height: 13px; fill: currentColor; }
-    .map__expand .icon-collapse,
-    .map.is-expanded .map__expand .icon-expand { display: none; }
-    .map.is-expanded .map__expand .icon-collapse { display: block; }
-
-    .map__zoom {
-      bottom: 16px;
-      width: 32px;
-      border-radius: 200px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .map__zoom button {
-      width: 100%;
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s var(--ease);
-    }
-
-    .map__zoom button:hover { background: var(--ink-07); }
-    .map__zoom button:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
-    .map__zoom svg { width: 12px; fill: currentColor; }
-    .map__zoom button + button { border-top: 1px solid var(--ink-07); }
-
-    body.is-map-open { overflow: hidden; }
-
-    /* Sticky inquiry card */
-    .detail__aside {
-      position: sticky;
-      top: 80px;
-      align-self: start;
-      padding-bottom: 24px;
-    }
-
-    .inquiry {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 24px;
-      background: var(--white);
-      border: 1px solid rgba(30, 30, 30, 0.05);
-      border-radius: 16px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
-    }
-
-    .inquiry__top {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--ink-07);
-    }
-
-    .inquiry__price {
-      font-weight: 500;
-      font-size: 24px;
-      line-height: 1.4;
-      color: var(--ink);
-    }
-
-    .inquiry__specs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 16px;
-    }
-
-    .spec {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 16px;
-      line-height: 1.4;
-      color: rgba(30, 30, 30, 0.8);
-    }
-
-    .spec svg { height: 14px; width: auto; flex: none; }
-
-    .agent {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 12px 8px 8px;
-      background: var(--white);
-      border: 1px solid var(--ink-07);
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
-
-    .agent__photo {
-      width: 48px;
-      height: 48px;
-      flex: none;
-      border-radius: 8px;
-      object-fit: cover;
-      object-position: center top;
-    }
-
-    .agent__name {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 16px;
-      line-height: 1.4;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-    }
-
-    .agent__role {
-      font-size: 16px;
-      line-height: 1.4;
-      color: rgba(18, 18, 18, 0.6);
-    }
-
-    .form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .form__row {
-      display: flex;
-      gap: 16px;
-    }
-
-    .field {
-      flex: 1 1 0;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .field label {
-      font-size: 14px;
-      line-height: 1.4;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-    }
-
-    .field input,
-    .field textarea {
-      width: 100%;
-      height: 40px;
-      padding: 4px 14px;
-      background: var(--white);
-      border: 1px solid rgba(30, 30, 30, 0.13);
-      border-radius: 46px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-      font-family: var(--font-ui);
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      outline: none;
-      transition: border-color 0.25s var(--ease);
-    }
-
-    .field textarea {
-      height: 100px;
-      padding: 14px;
-      border-radius: 14px;
-      resize: none;
-    }
-
-    .field input::placeholder,
-    .field textarea::placeholder { color: rgba(30, 30, 30, 0.7); }
-
-    .field input:focus,
-    .field textarea:focus { border-color: var(--ink); }
-
-    .form .hl-btn { width: 100%; }
-    .form .hl-btn__inner { flex: 1; }
-
-    /* ========== NAVBAR: SECTION TABS + LISTING PILL ========== */
-    /* Tabs: each one rises into place beside the logo when its section has been
-       scrolled through (no fade — it moves in from below its own clip). */
-    .sec-tabs {
-      position: absolute;
-      left: calc(var(--page-pad) + 132px);
-      top: 50%;
-      transform: translateY(-50%);
-      display: none;
-      align-items: center;
-      gap: 16px;
-      z-index: 1;
-    }
-
-    .sec-tab {
-      display: inline-block;
-      height: 1.4em;
-      overflow: hidden;
-      font-size: 14px;
-      line-height: 1.4;
-      letter-spacing: -0.01em;
-      color: var(--ink-70);
-      visibility: hidden;
-      pointer-events: none;
-      transition: color 0.25s var(--ease), visibility 0s linear 0.5s;
-    }
-
-    .sec-tab.is-active { color: var(--ink); }
-
-    .sec-tab.is-shown {
-      visibility: visible;
-      pointer-events: auto;
-      transition: color 0.25s var(--ease), visibility 0s;
-    }
-
-    .sec-tab__in {
-      display: block;
-      transform: translateY(115%);
-      transition: transform 0.5s var(--ease-morph);
-    }
-
-    .sec-tab.is-shown .sec-tab__in { transform: none; }
-
-    /* Pill: the inquiry card's essentials, in the navbar. Unfolds from the
-       centre as the primary links rise out of the way (same moves as the
-       search page's filter bar). */
-    .nav-pill {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      z-index: 1;
-      display: none;
-      align-items: center;
-      gap: 12px;
-      height: 48px;
-      padding: 0 6px 0 16px;
-      background: var(--white);
-      border: 1px solid var(--ink-07);
-      border-radius: 46px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
-      overflow: hidden;
-      white-space: nowrap;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      visibility: hidden;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      clip-path: inset(0 50% 0 50% round 46px);
-      transition:
-        clip-path 0.26s var(--ease-morph),
-        visibility 0s linear 0.26s;
-    }
-
-    .nav-pill > * {
-      opacity: 0;
-      transition: opacity 0.08s var(--ease);
-    }
-
-    .nav-pill__price { font-weight: 500; }
-
-    .nav-pill__specs {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      color: rgba(30, 30, 30, 0.8);
-    }
-
-    .nav-pill__spec {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .nav-pill__spec svg { height: 14px; width: auto; flex: none; }
-
-    .nav-pill__agent {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-display);
-      font-weight: 500;
-    }
-
-    .nav-pill__photo {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      object-fit: cover;
-      object-position: center top;
-    }
-
-    .nav-pill__btn {
-      height: 36px;
-      padding: 0 16px;
-      border: 1px solid rgba(30, 30, 30, 0.1);
-      border-radius: 40px;
-      background: var(--white);
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      transition: background 0.2s var(--ease);
-    }
-
-    .nav-pill__btn:hover { background: var(--paper); }
-
-    .nav-links a { transition: transform 0.4s var(--ease-morph) 0.12s; }
-
-    /* Links drop back in one after another as the pill folds away */
-    .nav-links a:nth-child(2) { transition-delay: 0.2s; }
-    .nav-links a:nth-child(3) { transition-delay: 0.28s; }
-
-    @media (min-width: 1280px) {
-      .sec-tabs { display: flex; }
-      .nav-pill { display: flex; }
-
-      /* Closing (default): content lets go first, then the frame folds shut */
-      .nav-pill {
-        transition:
-          clip-path 0.45s var(--ease-morph) 0.08s,
-          visibility 0s linear 0.53s;
-      }
-
-      .nav-pill > * {
-        transform: translateY(6px);
-        transition: opacity 0.14s var(--ease), transform 0.14s var(--ease);
-      }
-
-      body.is-pill .nav-links {
-        visibility: hidden;
-        pointer-events: none;
-        transition: visibility 0s linear 0.45s;
-      }
-
-      /* Opening: links rise out in a short cascade, the frame unfolds
-         from the centre while they go, then the content settles in */
-      body.is-pill .nav-links a {
-        transform: translateY(-110%);
-        transition: transform 0.4s var(--ease-morph);
-      }
-
-      body.is-pill .nav-links a:nth-child(2) { transition-delay: 0.05s; }
-      body.is-pill .nav-links a:nth-child(3) { transition-delay: 0.1s; }
-
-      body.is-pill .nav-pill {
-        visibility: visible;
-        pointer-events: auto;
-        clip-path: inset(-8px -8px -8px -8px round 54px);
-        transition:
-          clip-path 0.6s var(--ease-morph) 0.12s,
-          visibility 0s;
-      }
-
-      body.is-pill .nav-pill > * {
-        opacity: 1;
-        transform: none;
-        transition: opacity 0.3s var(--ease) 0.38s, transform 0.5s var(--ease-morph) 0.38s;
-      }
-
-      body.is-pill .nav-pill > :nth-child(2) { transition-delay: 0.44s; }
-      body.is-pill .nav-pill > :nth-child(3) { transition-delay: 0.5s; }
-      body.is-pill .nav-pill > :nth-child(4) { transition-delay: 0.56s; }
-    }
-
-    /* Similar properties */
-    .similar {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 24px var(--page-pad) 48px;
-    }
-
-    .similar__title {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 32px;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      margin-bottom: 24px;
-    }
-
-    .similar__grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px 16px;
-    }
-
-    /* Whole card is the link (the title's anchor stretches over it) */
-    .card { position: relative; }
-
-    .card__link::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-    }
-
-    .card__badge { pointer-events: none; }
-
+    /* Desktop-first: keep compact usable ≥1100 */
     @media (max-width: 1100px) {
-      .detail {
-        grid-template-columns: minmax(0, 1fr);
-        padding-inline: 32px;
-      }
-
-      .detail__aside { position: static; padding-bottom: 0; }
-      .similar { padding-inline: 32px; }
-      .similar__grid { grid-template-columns: repeat(2, 1fr); }
+      .listings__grid { grid-template-columns: repeat(2, 1fr); }
+      .compact-bar { display: none; }
+      .filter-pop--price,
+      .filter-pop--location,
+      .filter-pop--beds,
+      .filter-pop--more { --pop-w: min(92vw, 480px); }
 
       .mega-menu__panel {
         grid-template-columns: 1fr;
@@ -1651,175 +1629,27 @@
       .mega-menu__media { height: 260px; }
     }
 
-    @media (max-width: 700px) {
-      :root { --page-pad: 24px; }
-      .detail { padding-inline: 24px; }
-      .similar { padding-inline: 24px; }
-      .nav-links { display: none; }
-      .detail__title { font-size: 26px; }
-      .gallery__main { height: 280px; }
-      .gallery__row { flex-wrap: wrap; }
-      .gallery__thumb { flex: 1 1 calc(50% - 6px); height: 140px; }
-      .features__card { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
-      .form__row { flex-direction: column; }
-      .similar__grid { grid-template-columns: 1fr; }
-    }
-
-  </style>
-  <style>
-    /* Placeholder page — real content is not ready yet */
-    .soon {
-      min-height: calc(100vh - 64px);
-      padding: 160px var(--page-pad) 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 20px;
-      background: var(--paper);
-    }
-    .soon__tag {
-      font-family: var(--font-ui);
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      color: var(--ink-70);
-      padding: 6px 14px;
-      border: 1px solid var(--ink-10);
-      border-radius: 56px;
-    }
-    .soon__title {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: clamp(44px, 6vw, 84px);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-    }
-    .soon__lead {
-      max-width: 520px;
-      font-family: var(--font-ui);
-      font-size: 16px;
-      line-height: 1.5;
-      color: var(--ink-70);
-    }
-    .soon .btn-sell { margin-top: 12px; }
-    @media (max-width: 700px) { .soon { padding-top: 120px; } }
-  
-    /* ========== WISHLIST PAGE ========== */
-    .wl { max-width: 1440px; margin: 0 auto; padding: 64px var(--page-pad) 96px; }
-    .wl__top { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0 24px; }
-    .wl__title { margin: 0; font: 500 48px/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-    .wl__lists { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 259px)); gap: 16px; }
-    .wl__list { position: relative; display: flex; flex-direction: column; }
-    .wl__hit { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
-    .wl__collage { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; aspect-ratio: 1; }
-    .wl__cell { border-radius: 10px; background: #ddd; overflow: hidden; }
-    .wl__cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .wl__cell--empty { background: transparent; border: 1px solid rgba(0,0,0,.07); }
-    .wl__meta { padding-top: 16px; display: flex; flex-direction: column; gap: 4px; }
-    .wl__name { font: 500 18px/1.4 var(--font-display); letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .wl__count { font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
-    .wl__del { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 36px; border: .7px solid rgba(255,255,255,.15); background: rgba(0,0,0,.28); backdrop-filter: blur(8px); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .2s, background .2s; }
-    .wl__list:hover .wl__del, .wl__del:focus-visible { opacity: 1; }
-    .wl__del:hover { background: rgba(0,0,0,.5); }
-    .wl__del path { fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-dasharray: 100; }
-    .wl__del:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .wl__del:hover path + path { animation-delay: .14s; }
-    /* Add tile: the card itself stays still — only the plus draws, when the icon is hovered */
-    .wl__add { align-self: start; width: 100%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid rgba(30,30,30,.1); border-radius: 16px; box-shadow: 0 2px 4px rgba(0,0,0,.05); cursor: pointer; font: 500 16px var(--font-ui); letter-spacing: -.01em; color: var(--ink); }
-    .wl__add-ic { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
-    .wl__add-ic path { stroke-dasharray: 100; stroke-dashoffset: 0; }
-    .wl__add-ic:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .wl__add-ic:hover path + path { animation-delay: .14s; }
-    .wl__empty { grid-column: 1 / -1; color: var(--ink-70); font: 400 16px/1.5 var(--font-ui); }
-    .wl__sec { padding-top: 64px; }
-    .wl__sec--first { padding-top: 32px; }
-    .wl__sub { margin: 0; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
-    .wl__h2 { margin: 0 0 24px; font: 500 32px/1.4 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-    .wl__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
-    /* Photos fill the frame's full height; the width follows the image's own scale */
-    .wl__grid .card__media img { top: 0; height: 100%; translate: none; will-change: auto; }
-    @media (max-width: 1100px) { .wl__grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 900px) { .wl { padding: 32px 24px 72px; } .wl__title { font-size: 36px; } .wl__lists { grid-template-columns: repeat(2, 1fr); } }
-
-    /* ========== NEIGHBORHOOD DETAIL ========== */
-    .nbd { max-width: 1440px; margin: 0 auto; padding: 64px var(--page-pad) 96px; }
-    .nbd__top { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0 24px; text-align: center; }
-    .nbd__title { margin: 0; font: 500 clamp(36px, 4vw, 48px)/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-    .nbd__sub { margin: 0; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
-    .nbd__hero { position: relative; max-width: 1312px; margin: 0 auto; height: clamp(260px, 36vw, 480px); border-radius: 24px; overflow: hidden; background: #ddd; }
-    .nbd__hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .nbd__stats { max-width: 1312px; margin: 16px auto 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .nbd__stat { background: #fff; border-radius: 16px; padding: 20px 24px; display: flex; flex-direction: column; gap: 6px; }
-    .nbd__stat b { font: 500 28px/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-    .nbd__stat span { font: 400 14px/1.4 var(--font-ui); color: var(--ink-70); }
-    .nbd__about { max-width: 1312px; margin: 48px auto 0; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; }
-    .nbd__h2 { margin: 0 0 16px; font: 500 32px/1.3 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-    .nbd__p { margin: 0; font: 400 18px/1.6 var(--font-ui); color: rgba(30,30,30,.85); }
-    .nbd__list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
-    .nbd__list li { display: flex; align-items: center; gap: 12px; font: 400 16px/1.4 var(--font-ui); color: var(--ink); }
-    .nbd__list li::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
-    .nbd__sec { max-width: 1312px; margin: 64px auto 0; }
-    .nbd__map { position: relative; height: 420px; border-radius: 24px; overflow: hidden; background: #e8e8e6; isolation: isolate; }
-    .nbd__legend { position: absolute; left: 16px; bottom: 16px; z-index: 500; display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.94); font: 400 13px/1.2 var(--font-ui); color: var(--ink); }
-    .nbd__map .leaflet-control-attribution { font-size: 10px; }
-    .nbd__grid, .nbd__more { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
-    .nbd__grid .card__media img { top: 0; height: 100%; translate: none; will-change: auto; }
-    .nbd__empty { grid-column: 1 / -1; padding: 32px; border-radius: 16px; background: #fff; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); display: flex; flex-direction: column; align-items: center; gap: 16px; }
-    .hl-mk { background: none; border: 0; }
-    .hl-mk .pin__shape { z-index: 0; }
-    .hl-mk .pin__dot { z-index: 1; }
-    .hl-mk .pin { width: 100%; }
-    .pin { position: relative; display: block; width: 30px; aspect-ratio: 48.55 / 64; cursor: pointer; }
-    .pin__shape { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
-    .pin__dot { position: absolute; z-index: 1; left: 9.09%; top: 6.9%; width: 81.82%; height: 62.07%; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-image: linear-gradient(180deg, rgba(0,0,0,.05), transparent); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
-    .pin--main .pin__dot { background-color: var(--ink); background-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent); }
-    .pin__icon { height: 44%; width: auto; display: block; }
-    .pin--main .pin__icon { height: 60%; }
-    .nbd__legend .pin { width: 18px; flex: none; }
-    .nbd__legend span { display: inline-flex; align-items: center; gap: 8px; }
-    .leaflet-tooltip.hl-tip { padding: 6px 10px; border: 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.16); font: 500 13px/1.2 var(--font-ui); color: var(--ink); }
-    .leaflet-tooltip.hl-tip::before { display: none; }
-    .hl-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
-    @media (max-width: 1100px) { .nbd__grid, .nbd__more { grid-template-columns: repeat(2, 1fr); } .nbd__stats { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 900px) { .nbd { padding: 32px 24px 72px; } .nbd__about { grid-template-columns: 1fr; gap: 32px; } }
-    @media (max-width: 560px) { .nbd__more { grid-template-columns: 1fr; } }
+    /* ========== AGENT DETAIL ========== */
+    .filter-form .filter-anchor:has([data-filter="location"]), .compact-select[data-filter="location"], .chip--type { display: none !important; }
+    .filter-form [hidden] { display: none !important; }
+    .agent-profile { width: 100%; display: flex; justify-content: center; margin: 4px 0 24px; }
+    .nbp { display: flex; align-items: center; gap: 16px; width: min(812px, 100%); background: #fff; border-radius: 16px; padding: 16px; text-align: left; }
+    .nbp__thumb { flex: none; width: 120px; height: 120px; border-radius: 16px; background: #ddd; overflow: hidden; }
+    .nbp__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .nbp__main { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 8px 0; }
+    .nbp__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .nbp__name { margin: 0; font: 500 20px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .nbp__addr { margin: 4px 0 0; font: 400 16px/1.4 var(--font-ui); letter-spacing: -0.01em; color: rgba(30,30,30,.8); }
+    .nbp__dir { flex: none; display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 46px; border: 1px solid rgba(30,30,30,.07); background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.03); font: 400 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; transition: background .2s; }
+    .nbp__dir:hover { background: var(--ink-07, rgba(0,0,0,.05)); }
+    .nbp__stats { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; font: 400 16px/1.4 var(--font-ui); color: rgba(30,30,30,.9); }
+    .chip--agent { gap: 8px; padding-left: 4px; }
+    .chip__avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: top; background: #f2f1ee; }
+    .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
+    @media (max-width: 720px) { .nbp { flex-direction: column; align-items: flex-start; } .nbp__main { width: 100%; align-self: auto; } .nbp__row { flex-wrap: wrap; } }
   </style>
 </head>
 <body>
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-<symbol id="p-main" viewBox="0 0 15 21"><path d="M0 7.38281C0 3.28125 3.35938 0 7.5 0C11.6406 0 15 3.28125 15 7.38281C15 12.0312 10.3125 17.6172 8.35938 19.7266C7.89062 20.2344 7.10938 20.2344 6.64062 19.7266C4.6875 17.6172 0 12.0312 0 7.38281ZM7.5 10C8.86719 10 10 8.86719 10 7.5C10 6.13281 8.86719 5 7.5 5C6.13281 5 5 6.13281 5 7.5C5 8.86719 6.13281 10 7.5 10Z" fill="#fff"/></symbol>
-<symbol id="p-0" viewBox="0 0 10 10"><path d="M0.9375 0.273438L1.21094 2.92969C1.21094 3.04688 1.30859 3.125 1.42578 3.125C1.52344 3.125 1.62109 3.04688 1.64062 2.92969L1.875 0.292969C1.89453 0.117188 2.03125 0 2.1875 0C2.34375 0 2.48047 0.117188 2.5 0.292969L2.73438 2.92969C2.75391 3.04688 2.85156 3.125 2.94922 3.125C3.06641 3.125 3.16406 3.04688 3.18359 2.92969L3.4375 0.273438C3.45703 0.117188 3.59375 0 3.75 0C3.90625 0 4.04297 0.117188 4.0625 0.273438L4.33594 2.92969C4.35547 3.04688 4.375 3.16406 4.375 3.28125C4.375 4.17969 3.69141 4.92188 2.8125 5V9.375C2.8125 9.72656 2.53906 10 2.1875 10C1.83594 10 1.5625 9.72656 1.5625 9.375V5C0.683594 4.92188 0 4.17969 0 3.28125C0 3.16406 0.0195312 3.04688 0.0390625 2.92969L0.3125 0.273438C0.332031 0.117188 0.46875 0 0.625 0C0.78125 0 0.917969 0.117188 0.9375 0.273438ZM8.4375 0C8.78906 0 9.0625 0.273438 9.0625 0.625V9.375C9.0625 9.72656 8.78906 10 8.4375 10C8.08594 10 7.8125 9.72656 7.8125 9.375V6.875H7.1875C6.50391 6.875 5.9375 6.30859 5.9375 5.625V3.4375C5.9375 0.625 8.125 0 8.4375 0Z" fill="#fff"/></symbol>
-<symbol id="p-1" viewBox="0 0 12 10"><path d="M2.5 1.25C2.5 0.566406 3.06641 0 3.75 0H7.5C8.18359 0 8.75 0.566406 8.75 1.25V2.5H10C10.6836 2.5 11.25 3.06641 11.25 3.75V8.75C11.25 9.43359 10.6836 10 10 10H1.25C0.566406 10 0 9.43359 0 8.75V3.75C0 3.06641 0.566406 2.5 1.25 2.5H2.5V1.25ZM5.3125 6.875C4.96094 6.875 4.6875 7.14844 4.6875 7.5V9.0625H6.5625V7.5C6.5625 7.14844 6.28906 6.875 5.9375 6.875H5.3125ZM2.5 7.1875V6.5625C2.5 6.38672 2.36328 6.25 2.1875 6.25H1.5625C1.38672 6.25 1.25 6.38672 1.25 6.5625V7.1875C1.25 7.36328 1.38672 7.5 1.5625 7.5H2.1875C2.36328 7.5 2.5 7.36328 2.5 7.1875ZM2.1875 5C2.36328 5 2.5 4.86328 2.5 4.6875V4.0625C2.5 3.88672 2.36328 3.75 2.1875 3.75H1.5625C1.38672 3.75 1.25 3.88672 1.25 4.0625V4.6875C1.25 4.86328 1.38672 5 1.5625 5H2.1875ZM10 7.1875V6.5625C10 6.38672 9.86328 6.25 9.6875 6.25H9.0625C8.88672 6.25 8.75 6.38672 8.75 6.5625V7.1875C8.75 7.36328 8.88672 7.5 9.0625 7.5H9.6875C9.86328 7.5 10 7.36328 10 7.1875ZM9.6875 5C9.86328 5 10 4.86328 10 4.6875V4.0625C10 3.88672 9.86328 3.75 9.6875 3.75H9.0625C8.88672 3.75 8.75 3.88672 8.75 4.0625V4.6875C8.75 4.86328 8.88672 5 9.0625 5H9.6875ZM5.15625 2.03125V2.65625H4.53125C4.35547 2.65625 4.21875 2.79297 4.21875 2.96875V3.28125C4.21875 3.45703 4.35547 3.59375 4.53125 3.59375H5.15625V4.21875C5.15625 4.39453 5.29297 4.53125 5.46875 4.53125H5.78125C5.95703 4.53125 6.09375 4.39453 6.09375 4.21875V3.59375H6.71875C6.89453 3.59375 7.03125 3.45703 7.03125 3.28125V2.96875C7.03125 2.79297 6.89453 2.65625 6.71875 2.65625H6.09375V2.03125C6.09375 1.85547 5.95703 1.71875 5.78125 1.71875H5.46875C5.29297 1.71875 5.15625 1.85547 5.15625 2.03125Z" fill="#fff"/></symbol>
-<symbol id="p-2" viewBox="0 0 12 11"><path d="M0.46875 0H1.34766C1.875 0 2.34375 0.371094 2.42188 0.898438L2.44141 0.9375H10.4883C10.8984 0.9375 11.1914 1.28906 11.1133 1.67969L10.5078 4.92188C10.3906 5.50781 9.88281 5.9375 9.27734 5.9375H3.33984L3.45703 6.48438C3.49609 6.71875 3.69141 6.875 3.90625 6.875H8.90625C9.16016 6.875 9.375 7.08984 9.375 7.34375C9.375 7.59766 9.16016 7.8125 8.90625 7.8125H3.90625C3.22266 7.8125 2.65625 7.32422 2.51953 6.66016L1.50391 1.07422C1.50391 0.996094 1.42578 0.9375 1.34766 0.9375H0.46875C0.214844 0.9375 0 0.722656 0 0.46875C0 0.214844 0.214844 0 0.46875 0ZM4.0625 10.3125C3.53516 10.3125 3.125 9.90234 3.125 9.375C3.125 8.84766 3.53516 8.4375 4.0625 8.4375C4.58984 8.4375 5 8.84766 5 9.375C5 9.90234 4.58984 10.3125 4.0625 10.3125ZM8.4375 10.3125C7.91016 10.3125 7.5 9.90234 7.5 9.375C7.5 8.84766 7.91016 8.4375 8.4375 8.4375C8.96484 8.4375 9.375 8.84766 9.375 9.375C9.375 9.90234 8.96484 10.3125 8.4375 10.3125Z" fill="#fff"/></symbol>
-<symbol id="p-3" viewBox="0 0 8 11"><path d="M0 1.875C0 0.839844 0.839844 0 1.875 0H5.625C6.66016 0 7.5 0.839844 7.5 1.875V6.875C7.5 7.65625 7.01172 8.33984 6.34766 8.61328L7.38281 9.86328C7.55859 10.0586 7.53906 10.3516 7.34375 10.5078C7.14844 10.6836 6.83594 10.6641 6.67969 10.4688L5.23438 8.75H2.28516L0.839844 10.4688C0.664062 10.6641 0.371094 10.6836 0.175781 10.5078C-0.0195312 10.3516 -0.0585938 10.0586 0.117188 9.86328L1.17188 8.61328C0.488281 8.33984 0 7.65625 0 6.875V1.875ZM1.25 2.5V4.375C1.25 4.72656 1.52344 5 1.875 5H5.625C5.97656 5 6.25 4.72656 6.25 4.375V2.5C6.25 2.14844 5.97656 1.875 5.625 1.875H1.875C1.52344 1.875 1.25 2.14844 1.25 2.5ZM3.75 7.5C4.10156 7.5 4.375 7.22656 4.375 6.875C4.375 6.52344 4.10156 6.25 3.75 6.25C3.39844 6.25 3.125 6.52344 3.125 6.875C3.125 7.22656 3.39844 7.5 3.75 7.5Z" fill="#fff"/></symbol>
-<symbol id="pin-shape" viewBox="0 0 48.55 64"><path transform="translate(1.24 1.21)" d="M23.947 61.1626L41.4402 35.3615C45.1597 29.8756 46.2351 22.9583 44.408 16.5873C42.7801 10.9111 38.9283 6.06817 33.7433 3.24255C27.079 -0.389227 19.0156 -0.339927 12.3962 3.37306L11.6203 3.8083C6.50239 6.67906 2.76795 11.5031 1.27118 17.1771C-0.325691 23.2305 0.774188 29.6788 4.28745 34.8605L22.1204 61.1626C22.5581 61.8083 23.5093 61.8083 23.947 61.1626Z" fill="#D9D9D9" stroke="#1E1E1E" stroke-opacity="0.1" stroke-width="1.1"/><path transform="translate(1.8 1.77)" d="M12.1113 3.2998C18.5652 -0.320314 26.4272 -0.36906 32.9248 3.17188C37.9788 5.92609 41.7357 10.6489 43.3232 16.1846C45.1058 22.4001 44.0554 29.148 40.4287 34.4971L22.9355 60.2979C22.7167 60.6207 22.2413 60.6207 22.0225 60.2979L4.18945 33.9961C0.76571 28.9463 -0.306195 22.6619 1.25 16.7627C2.70873 11.2334 6.3485 6.53195 11.3359 3.73438L12.1113 3.2998Z" fill="#fff"/></symbol>
-</defs></svg>
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-<symbol id="i-tree" viewBox="0 0 13 16"><path d="M6.13594 0C6.32734 0 6.49141 0.0820312 6.62813 0.21875L10.3469 4.62109C10.5109 4.8125 10.5383 5.08594 10.4289 5.30469C10.3195 5.55078 10.1008 5.6875 9.85469 5.6875H9.17109L11.2219 8.12109C11.3859 8.3125 11.4133 8.58594 11.3039 8.80469C11.1945 9.05078 10.9758 9.1875 10.7297 9.1875H9.66328L12.0969 12.0586C12.2609 12.25 12.2883 12.5234 12.1789 12.7422C12.0695 12.9883 11.8508 13.125 11.6047 13.125H6.79219V15.0938C6.79219 15.4492 6.49141 15.75 6.13594 15.75C5.75313 15.75 5.47969 15.4492 5.47969 15.0938V13.125H0.667188C0.39375 13.125 0.175 12.9883 0.065625 12.7422C-0.04375 12.5234 -0.0164063 12.25 0.147656 12.0586L2.58125 9.1875H1.54219C1.26875 9.1875 1.05 9.05078 0.940625 8.80469C0.83125 8.58594 0.858594 8.3125 1.02266 8.12109L3.07344 5.6875H2.41719C2.14375 5.6875 1.925 5.55078 1.81562 5.30469C1.70625 5.08594 1.73359 4.8125 1.89766 4.62109L5.61641 0.21875L5.67109 0.191406C5.78047 0.0546875 5.94453 0 6.13594 0ZM3.81172 4.375H4.49531C4.76875 4.375 4.9875 4.53906 5.09688 4.75781C5.20625 4.97656 5.17891 5.25 5.01484 5.46875L2.93672 7.875H4.00313C4.24922 7.875 4.49531 8.01172 4.60469 8.25781C4.71406 8.47656 4.65938 8.75 4.49531 8.96875L2.06172 11.8125H10.1828L7.74922 8.96875C7.58516 8.75 7.53047 8.47656 7.63984 8.25781C7.74922 8.01172 7.99531 7.875 8.24141 7.875H9.30781L7.22969 5.46875C7.06563 5.25 7.03828 4.97656 7.14766 4.75781C7.25703 4.51172 7.47578 4.375 7.74922 4.375H8.43281L6.13594 1.66797L3.81172 4.375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-key" viewBox="0 0 14 14"><path d="M7.81348 5.30469L8.68848 6.17969C8.96191 6.42578 9.29004 6.5625 9.61816 6.5625C10.1924 6.5625 10.958 6.20703 11.6143 5.38672C12.2705 4.62109 12.6807 3.58203 12.6807 2.625C12.6807 1.91406 12.1064 1.3125 11.3682 1.3125C10.4111 1.3125 9.37207 1.72266 8.60645 2.37891C7.78613 3.03516 7.43066 3.80078 7.43066 4.375C7.43066 4.70312 7.56738 5.05859 7.81348 5.30469ZM6.85645 6.20703C6.36426 5.6875 6.11816 5.03125 6.11816 4.375C6.11816 2.1875 8.74316 0 11.3682 0C12.8174 0 13.9932 1.17578 13.9932 2.625C13.9932 5.25 11.8057 7.875 9.61816 7.875C8.96191 7.875 8.30566 7.62891 7.78613 7.13672L1.11426 13.8086C0.868164 14.0547 0.430664 14.0547 0.18457 13.8086C-0.0615234 13.5625 -0.0615234 13.125 0.18457 12.8789L6.85645 6.20703Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-shower" viewBox="0 0 14 14"><path d="M12.8789 0.196244C13.0703 0.0321813 13.3164 -0.04985 13.5625 0.0321813C13.8086 0.141556 14 0.38765 14 0.661088V5.77437C14 9.3564 11.0469 12.2548 7.46484 12.2548C5.25 12.2548 3.33594 10.7236 2.78906 8.67281C1.88672 9.49312 1.3125 10.6962 1.3125 12.0361V12.4736C1.3125 12.8291 1.01172 13.1298 0.65625 13.1298C0.300781 13.1298 0 12.8291 0 12.4736V12.0361C0 9.98531 1.03906 8.18062 2.625 7.11421C2.81641 4.59859 4.89453 2.62984 7.4375 2.62984C9.24219 2.62984 10.6094 2.02828 11.5117 1.42671C12.0312 1.07124 12.4688 0.661088 12.8789 0.196244ZM12.6875 2.19234C11.6484 2.98531 9.89844 3.94234 7.4375 3.94234C5.85156 3.94234 4.53906 4.9814 4.10156 6.40328C4.67578 6.23921 5.27734 6.12984 5.90625 6.12984H8.09375C8.44922 6.12984 8.75 6.43062 8.75 6.78609C8.75 7.14156 8.44922 7.44234 8.09375 7.44234H5.90625C5.22266 7.44234 4.56641 7.6064 3.96484 7.87984C4.18359 9.60249 5.6875 10.9423 7.46484 10.9423C10.3359 10.9423 12.6875 8.61812 12.6875 5.77437V2.19234Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-window" viewBox="0 0 13 14"><path d="M10.5 1.3125H1.75C1.50391 1.3125 1.3125 1.50391 1.3125 1.75V12.25C1.3125 12.4961 1.50391 12.6875 1.75 12.6875H10.5C10.7461 12.6875 10.9375 12.4961 10.9375 12.25V1.75C10.9375 1.50391 10.7461 1.3125 10.5 1.3125ZM1.75 0H10.5C11.457 0 12.25 0.792969 12.25 1.75V12.25C12.25 13.207 11.457 14 10.5 14H1.75C0.792969 14 0 13.207 0 12.25V1.75C0 0.792969 0.792969 0 1.75 0ZM3.5 2.84375C3.5 3.19922 3.19922 3.5 2.84375 3.5C2.48828 3.5 2.1875 3.19922 2.1875 2.84375C2.1875 2.48828 2.48828 2.1875 2.84375 2.1875C3.19922 2.1875 3.5 2.48828 3.5 2.84375ZM5.03125 3.5C4.67578 3.5 4.375 3.19922 4.375 2.84375C4.375 2.48828 4.67578 2.1875 5.03125 2.1875C5.38672 2.1875 5.6875 2.48828 5.6875 2.84375C5.6875 3.19922 5.38672 3.5 5.03125 3.5ZM8.61328 8.75C8.69531 8.47656 8.75 8.17578 8.75 7.875C8.75 6.42578 7.57422 5.25 6.125 5.25C4.97656 5.25 3.99219 5.98828 3.63672 7C3.74609 7 3.85547 7 3.9375 7C5.6875 7 6.5625 8.75 8.3125 8.75C8.42188 8.75 8.50391 8.75 8.61328 8.75ZM10.0625 7.875C10.0625 10.0625 8.3125 11.8125 6.125 11.8125C3.9375 11.8125 2.1875 10.0625 2.1875 7.875C2.1875 5.6875 3.9375 3.9375 6.125 3.9375C8.3125 3.9375 10.0625 5.6875 10.0625 7.875Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-car" viewBox="0 0 14 13"><path d="M3.22656 2.21484L2.51562 4.375H11.4844L10.7734 2.21484C10.582 1.66797 10.0898 1.3125 9.51562 1.3125H4.48438C3.91016 1.3125 3.41797 1.66797 3.22656 2.21484ZM1.09375 4.51172L1.99609 1.80469C2.35156 0.710938 3.36328 0 4.48438 0H9.51562C10.6367 0 11.6484 0.710938 12.0039 1.80469L12.9062 4.51172C13.5625 4.75781 14 5.38672 14 6.125V11.5938C14 11.9492 13.6992 12.25 13.3438 12.25C12.9883 12.25 12.6875 11.9492 12.6875 11.5938V10.5H1.3125V11.5938C1.3125 11.9492 1.01172 12.25 0.65625 12.25C0.300781 12.25 0 11.9492 0 11.5938V6.125C0 5.38672 0.4375 4.75781 1.09375 4.51172ZM1.75 5.6875C1.50391 5.6875 1.3125 5.87891 1.3125 6.125V9.1875H12.6875V6.125C12.6875 5.87891 12.4961 5.6875 12.25 5.6875H1.75ZM3.0625 6.5625C3.55469 6.5625 3.9375 6.94531 3.9375 7.4375C3.9375 7.92969 3.55469 8.3125 3.0625 8.3125C2.57031 8.3125 2.1875 7.92969 2.1875 7.4375C2.1875 6.94531 2.57031 6.5625 3.0625 6.5625ZM10.0625 7.4375C10.0625 6.94531 10.4453 6.5625 10.9375 6.5625C11.4297 6.5625 11.8125 6.94531 11.8125 7.4375C11.8125 7.92969 11.4297 8.3125 10.9375 8.3125C10.4453 8.3125 10.0625 7.92969 10.0625 7.4375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-home" viewBox="0 0 13 14"><path d="M1.53676 5.6875H10.7243L8.89223 1.3125H3.36879L1.53676 5.6875ZM3.94301 7H0.880507C0.579726 7 0.306288 6.86328 0.142226 6.61719C-0.021837 6.37109 -0.0491807 6.07031 0.087538 5.79688L2.27504 0.546875C2.38441 0.21875 2.71254 0 3.06801 0H9.19301C9.54848 0 9.8766 0.21875 10.0133 0.546875L12.2008 5.79688C12.3102 6.07031 12.2829 6.37109 12.1188 6.61719C11.9547 6.86328 11.6813 7 11.3805 7H8.31801V7.76562C9.11098 8.42188 9.63051 9.40625 9.63051 10.5C9.63051 11.5391 9.16566 12.4961 8.45473 13.125H3.80629C3.09535 12.4961 2.63051 11.5391 2.63051 10.5C2.63051 9.40625 3.15004 8.42188 3.94301 7.76562V7ZM7.00551 7H5.25551V8.39453L4.76332 8.80469C4.27113 9.1875 3.94301 9.81641 3.94301 10.5C3.94301 10.9922 4.10707 11.457 4.38051 11.8125H7.88051C8.15394 11.457 8.31801 10.9922 8.31801 10.5C8.31801 9.81641 7.98988 9.1875 7.49769 8.80469L7.00551 8.39453V7Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-bolt" viewBox="0 0 13 15"><path d="M9.32422 0.107727C9.57031 0.271789 9.67969 0.57257 9.59766 0.873352L7.98438 5.68585H11.293C11.8125 5.68585 12.25 6.12335 12.25 6.64288C12.25 6.91632 12.1406 7.18976 11.9219 7.35382L3.71875 14.7093C3.5 14.9007 3.17188 14.928 2.92578 14.764C2.67969 14.5999 2.57031 14.2991 2.65234 14.0257L4.26562 9.18585H0.957031C0.4375 9.18585 0 8.74835 0 8.22882C0 7.95538 0.109375 7.70929 0.328125 7.51788L8.53125 0.162414C8.75 -0.0289922 9.07812 -0.056336 9.32422 0.107727ZM1.88672 7.87335H5.16797C5.38672 7.87335 5.57812 7.98273 5.71484 8.14679C5.82422 8.31085 5.87891 8.5296 5.79688 8.74835L4.67578 12.0843L10.3633 6.99835H7.08203C6.86328 6.99835 6.67188 6.88898 6.53516 6.72491C6.42578 6.56085 6.39844 6.3421 6.45312 6.12335L7.57422 2.78741L1.88672 7.87335Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-bed" viewBox="0 0 18 14"><path d="M1.5 0.75V9.5H8.5V5.25C8.5 4.28125 9.28125 3.5 10.25 3.5H14.25C16.3125 3.5 18 5.1875 18 7.25V13.25C18 13.6562 17.6562 14 17.25 14C16.8438 14 16.5 13.6562 16.5 13.25V11H1.5V13.25C1.5 13.6562 1.15625 14 0.75 14C0.34375 14 0 13.6562 0 13.25V0.75C0 0.34375 0.34375 0 0.75 0C1.15625 0 1.5 0.34375 1.5 0.75ZM16.5 7.25C16.5 6 15.5 5 14.25 5H10.25C10.125 5 10 5.125 10 5.25V9.5H16.5V7.25ZM4 6C4 6.5625 4.4375 7 5 7C5.5625 7 6 6.5625 6 6C6 5.4375 5.5625 5 5 5C4.4375 5 4 5.4375 4 6ZM7.5 6C7.5 7.375 6.375 8.5 5 8.5C3.625 8.5 2.5 7.375 2.5 6C2.5 4.625 3.625 3.5 5 3.5C6.375 3.5 7.5 4.625 7.5 6Z" fill="#1E1E1E" fill-opacity="0.8"/></symbol>
-<symbol id="i-bath" viewBox="0 0 16 16"><path d="M2.5 2.15625V8H15.25C15.6562 8 16 8.34375 16 8.75C16 9.15625 15.6562 9.5 15.25 9.5H15V11.5C15 12.4062 14.625 13.1875 14 13.75V15.25C14 15.6562 13.6562 16 13.25 16C12.8438 16 12.5 15.6562 12.5 15.25V14.4688C12.3438 14.5 12.1875 14.5 12 14.5H4C3.84375 14.5 3.65625 14.5 3.5 14.4688V15.25C3.5 15.6562 3.15625 16 2.75 16C2.34375 16 2 15.6562 2 15.25V13.75C1.375 13.1875 1 12.375 1 11.5V9.5H0.75C0.34375 9.5 0 9.15625 0 8.75C0 8.34375 0.34375 8 0.75 8H1V2.15625C1 0.96875 1.96875 0 3.15625 0C3.75 0 4.28125 0.21875 4.6875 0.625L4.84375 0.78125C5.1875 0.59375 5.59375 0.5 6 0.5C6.75 0.5 7.40625 0.84375 7.875 1.34375C8.15625 1.1875 8.53125 1.21875 8.78125 1.46875C9.0625 1.75 9.0625 2.25 8.78125 2.53125L5.53125 5.78125C5.25 6.0625 4.78125 6.0625 4.46875 5.78125C4.21875 5.53125 4.1875 5.15625 4.34375 4.875C3.84375 4.40625 3.5 3.75 3.5 3C3.5 2.59375 3.59375 2.1875 3.78125 1.84375L3.625 1.6875C3.5 1.5625 3.34375 1.5 3.15625 1.5C2.8125 1.5 2.5 1.8125 2.5 2.15625ZM6.8125 2.40625C6.625 2.15625 6.34375 2 6 2C5.4375 2 5 2.4375 5 3C5 3.3125 5.15625 3.625 5.40625 3.78125L6.8125 2.40625ZM2.5 9.5V11.5C2.5 12.3438 3.1875 13 4 13H12C12.8438 13 13.5 12.3438 13.5 11.5V9.5H2.5Z" fill="#1E1E1E" fill-opacity="0.8"/></symbol>
-<symbol id="i-area" viewBox="0 0 18 18"><path d="M5.03906 15.6328L15.6641 5.03906L12.1016 1.50781L11.0703 2.57031L12.6328 4.16406C12.9453 4.44531 12.9453 4.91406 12.6328 5.22656C12.3516 5.50781 11.8828 5.50781 11.6016 5.22656L10.0078 3.63281L8.57031 5.03906L9.47656 5.91406C9.75781 6.22656 9.75781 6.69531 9.47656 6.97656C9.16406 7.25781 8.69531 7.28906 8.41406 6.97656L7.50781 6.10156L6.10156 7.50781L7.69531 9.10156C7.97656 9.38281 7.97656 9.88281 7.69531 10.1641C7.41406 10.4453 6.91406 10.4453 6.63281 10.1641L5.03906 8.57031L3.63281 9.97656L4.50781 10.8828C4.82031 11.1641 4.82031 11.6328 4.50781 11.9453C4.22656 12.2266 3.75781 12.2266 3.44531 11.9453L2.57031 11.0391L1.50781 12.1016L5.03906 15.6328ZM6.10156 16.6953C5.50781 17.2891 4.57031 17.2891 3.97656 16.6953L0.445312 13.1641C-0.148438 12.5703 -0.148438 11.6328 0.445312 11.0391L11.0703 0.445312C11.6328 -0.148438 12.6016 -0.148438 13.1641 0.445312L16.7266 3.97656C17.2891 4.57031 17.2891 5.50781 16.7266 6.10156L6.10156 16.6953Z" fill="#1E1E1E" fill-opacity="0.8"/></symbol>
-<symbol id="i-expand" viewBox="0 0 13 13"><path d="M8.09375 0H11.5938C11.9492 0 12.25 0.300781 12.25 0.65625V4.15625C12.25 4.51172 11.9492 4.8125 11.5938 4.8125C11.2383 4.8125 10.9375 4.51172 10.9375 4.15625V2.24219L7.05469 6.125L10.9375 10.0078V8.09375C10.9375 7.73828 11.2383 7.4375 11.5938 7.4375C11.9492 7.4375 12.25 7.73828 12.25 8.09375V11.5938C12.25 11.9492 11.9492 12.25 11.5938 12.25H8.09375C7.73828 12.25 7.4375 11.9492 7.4375 11.5938C7.4375 11.2383 7.73828 10.9375 8.09375 10.9375H10.0078L6.125 7.05469L2.24219 10.9375H4.15625C4.51172 10.9375 4.8125 11.2383 4.8125 11.5938C4.8125 11.9492 4.51172 12.25 4.15625 12.25H0.65625C0.300781 12.25 0 11.9492 0 11.5938V8.09375C0 7.73828 0.300781 7.4375 0.65625 7.4375C1.01172 7.4375 1.3125 7.73828 1.3125 8.09375V10.0078L5.19531 6.125L1.3125 2.24219V4.15625C1.3125 4.51172 1.01172 4.8125 0.65625 4.8125C0.300781 4.8125 0 4.51172 0 4.15625V0.65625C0 0.300781 0.300781 0 0.65625 0H4.15625C4.51172 0 4.8125 0.300781 4.8125 0.65625C4.8125 1.01172 4.51172 1.3125 4.15625 1.3125H2.24219L6.125 5.19531L10.0078 1.3125H8.09375C7.73828 1.3125 7.4375 1.01172 7.4375 0.65625C7.4375 0.300781 7.73828 0 8.09375 0Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-plus" viewBox="0 0 13 13"><path d="M6.78125 0.65625V5.46875H11.5938C11.9492 5.46875 12.25 5.76953 12.25 6.125C12.25 6.48047 11.9492 6.78125 11.5938 6.78125H6.78125V11.5938C6.78125 11.9492 6.48047 12.25 6.125 12.25C5.76953 12.25 5.46875 11.9492 5.46875 11.5938V6.78125H0.65625C0.300781 6.78125 0 6.48047 0 6.125C0 5.76953 0.300781 5.46875 0.65625 5.46875H5.46875V0.65625C5.46875 0.300781 5.76953 0 6.125 0C6.48047 0 6.78125 0.300781 6.78125 0.65625Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="i-minus" viewBox="0 0 13 2"><path d="M0 0.65625C0 0.300781 0.300781 0 0.65625 0H11.5938C11.9492 0 12.25 0.300781 12.25 0.65625C12.25 1.01172 11.9492 1.3125 11.5938 1.3125H0.65625C0.300781 1.3125 0 1.01172 0 0.65625Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
-<symbol id="p-main" viewBox="0 0 15 21"><path d="M0 7.38281C0 3.28125 3.35938 0 7.5 0C11.6406 0 15 3.28125 15 7.38281C15 12.0312 10.3125 17.6172 8.35938 19.7266C7.89062 20.2344 7.10938 20.2344 6.64062 19.7266C4.6875 17.6172 0 12.0312 0 7.38281ZM7.5 10C8.86719 10 10 8.86719 10 7.5C10 6.13281 8.86719 5 7.5 5C6.13281 5 5 6.13281 5 7.5C5 8.86719 6.13281 10 7.5 10Z" fill="#fff"/></symbol>
-<symbol id="p-0" viewBox="0 0 10 10"><path d="M0.9375 0.273438L1.21094 2.92969C1.21094 3.04688 1.30859 3.125 1.42578 3.125C1.52344 3.125 1.62109 3.04688 1.64062 2.92969L1.875 0.292969C1.89453 0.117188 2.03125 0 2.1875 0C2.34375 0 2.48047 0.117188 2.5 0.292969L2.73438 2.92969C2.75391 3.04688 2.85156 3.125 2.94922 3.125C3.06641 3.125 3.16406 3.04688 3.18359 2.92969L3.4375 0.273438C3.45703 0.117188 3.59375 0 3.75 0C3.90625 0 4.04297 0.117188 4.0625 0.273438L4.33594 2.92969C4.35547 3.04688 4.375 3.16406 4.375 3.28125C4.375 4.17969 3.69141 4.92188 2.8125 5V9.375C2.8125 9.72656 2.53906 10 2.1875 10C1.83594 10 1.5625 9.72656 1.5625 9.375V5C0.683594 4.92188 0 4.17969 0 3.28125C0 3.16406 0.0195312 3.04688 0.0390625 2.92969L0.3125 0.273438C0.332031 0.117188 0.46875 0 0.625 0C0.78125 0 0.917969 0.117188 0.9375 0.273438ZM8.4375 0C8.78906 0 9.0625 0.273438 9.0625 0.625V9.375C9.0625 9.72656 8.78906 10 8.4375 10C8.08594 10 7.8125 9.72656 7.8125 9.375V6.875H7.1875C6.50391 6.875 5.9375 6.30859 5.9375 5.625V3.4375C5.9375 0.625 8.125 0 8.4375 0Z" fill="#fff"/></symbol>
-<symbol id="p-1" viewBox="0 0 12 10"><path d="M2.5 1.25C2.5 0.566406 3.06641 0 3.75 0H7.5C8.18359 0 8.75 0.566406 8.75 1.25V2.5H10C10.6836 2.5 11.25 3.06641 11.25 3.75V8.75C11.25 9.43359 10.6836 10 10 10H1.25C0.566406 10 0 9.43359 0 8.75V3.75C0 3.06641 0.566406 2.5 1.25 2.5H2.5V1.25ZM5.3125 6.875C4.96094 6.875 4.6875 7.14844 4.6875 7.5V9.0625H6.5625V7.5C6.5625 7.14844 6.28906 6.875 5.9375 6.875H5.3125ZM2.5 7.1875V6.5625C2.5 6.38672 2.36328 6.25 2.1875 6.25H1.5625C1.38672 6.25 1.25 6.38672 1.25 6.5625V7.1875C1.25 7.36328 1.38672 7.5 1.5625 7.5H2.1875C2.36328 7.5 2.5 7.36328 2.5 7.1875ZM2.1875 5C2.36328 5 2.5 4.86328 2.5 4.6875V4.0625C2.5 3.88672 2.36328 3.75 2.1875 3.75H1.5625C1.38672 3.75 1.25 3.88672 1.25 4.0625V4.6875C1.25 4.86328 1.38672 5 1.5625 5H2.1875ZM10 7.1875V6.5625C10 6.38672 9.86328 6.25 9.6875 6.25H9.0625C8.88672 6.25 8.75 6.38672 8.75 6.5625V7.1875C8.75 7.36328 8.88672 7.5 9.0625 7.5H9.6875C9.86328 7.5 10 7.36328 10 7.1875ZM9.6875 5C9.86328 5 10 4.86328 10 4.6875V4.0625C10 3.88672 9.86328 3.75 9.6875 3.75H9.0625C8.88672 3.75 8.75 3.88672 8.75 4.0625V4.6875C8.75 4.86328 8.88672 5 9.0625 5H9.6875ZM5.15625 2.03125V2.65625H4.53125C4.35547 2.65625 4.21875 2.79297 4.21875 2.96875V3.28125C4.21875 3.45703 4.35547 3.59375 4.53125 3.59375H5.15625V4.21875C5.15625 4.39453 5.29297 4.53125 5.46875 4.53125H5.78125C5.95703 4.53125 6.09375 4.39453 6.09375 4.21875V3.59375H6.71875C6.89453 3.59375 7.03125 3.45703 7.03125 3.28125V2.96875C7.03125 2.79297 6.89453 2.65625 6.71875 2.65625H6.09375V2.03125C6.09375 1.85547 5.95703 1.71875 5.78125 1.71875H5.46875C5.29297 1.71875 5.15625 1.85547 5.15625 2.03125Z" fill="#fff"/></symbol>
-<symbol id="p-2" viewBox="0 0 12 11"><path d="M0.46875 0H1.34766C1.875 0 2.34375 0.371094 2.42188 0.898438L2.44141 0.9375H10.4883C10.8984 0.9375 11.1914 1.28906 11.1133 1.67969L10.5078 4.92188C10.3906 5.50781 9.88281 5.9375 9.27734 5.9375H3.33984L3.45703 6.48438C3.49609 6.71875 3.69141 6.875 3.90625 6.875H8.90625C9.16016 6.875 9.375 7.08984 9.375 7.34375C9.375 7.59766 9.16016 7.8125 8.90625 7.8125H3.90625C3.22266 7.8125 2.65625 7.32422 2.51953 6.66016L1.50391 1.07422C1.50391 0.996094 1.42578 0.9375 1.34766 0.9375H0.46875C0.214844 0.9375 0 0.722656 0 0.46875C0 0.214844 0.214844 0 0.46875 0ZM4.0625 10.3125C3.53516 10.3125 3.125 9.90234 3.125 9.375C3.125 8.84766 3.53516 8.4375 4.0625 8.4375C4.58984 8.4375 5 8.84766 5 9.375C5 9.90234 4.58984 10.3125 4.0625 10.3125ZM8.4375 10.3125C7.91016 10.3125 7.5 9.90234 7.5 9.375C7.5 8.84766 7.91016 8.4375 8.4375 8.4375C8.96484 8.4375 9.375 8.84766 9.375 9.375C9.375 9.90234 8.96484 10.3125 8.4375 10.3125Z" fill="#fff"/></symbol>
-<symbol id="p-3" viewBox="0 0 8 11"><path d="M0 1.875C0 0.839844 0.839844 0 1.875 0H5.625C6.66016 0 7.5 0.839844 7.5 1.875V6.875C7.5 7.65625 7.01172 8.33984 6.34766 8.61328L7.38281 9.86328C7.55859 10.0586 7.53906 10.3516 7.34375 10.5078C7.14844 10.6836 6.83594 10.6641 6.67969 10.4688L5.23438 8.75H2.28516L0.839844 10.4688C0.664062 10.6641 0.371094 10.6836 0.175781 10.5078C-0.0195312 10.3516 -0.0585938 10.0586 0.117188 9.86328L1.17188 8.61328C0.488281 8.33984 0 7.65625 0 6.875V1.875ZM1.25 2.5V4.375C1.25 4.72656 1.52344 5 1.875 5H5.625C5.97656 5 6.25 4.72656 6.25 4.375V2.5C6.25 2.14844 5.97656 1.875 5.625 1.875H1.875C1.52344 1.875 1.25 2.14844 1.25 2.5ZM3.75 7.5C4.10156 7.5 4.375 7.22656 4.375 6.875C4.375 6.52344 4.10156 6.25 3.75 6.25C3.39844 6.25 3.125 6.52344 3.125 6.875C3.125 7.22656 3.39844 7.5 3.75 7.5Z" fill="#fff"/></symbol>
-<symbol id="pin-shape" viewBox="0 0 48.55 64"><path transform="translate(1.24 1.21)" d="M23.947 61.1626L41.4402 35.3615C45.1597 29.8756 46.2351 22.9583 44.408 16.5873C42.7801 10.9111 38.9283 6.06817 33.7433 3.24255C27.079 -0.389227 19.0156 -0.339927 12.3962 3.37306L11.6203 3.8083C6.50239 6.67906 2.76795 11.5031 1.27118 17.1771C-0.325691 23.2305 0.774188 29.6788 4.28745 34.8605L22.1204 61.1626C22.5581 61.8083 23.5093 61.8083 23.947 61.1626Z" fill="#D9D9D9" stroke="#1E1E1E" stroke-opacity="0.1" stroke-width="1.1"/><path transform="translate(1.8 1.77)" d="M12.1113 3.2998C18.5652 -0.320314 26.4272 -0.36906 32.9248 3.17188C37.9788 5.92609 41.7357 10.6489 43.3232 16.1846C45.1058 22.4001 44.0554 29.148 40.4287 34.4971L22.9355 60.2979C22.7167 60.6207 22.2413 60.6207 22.0225 60.2979L4.18945 33.9961C0.76571 28.9463 -0.306195 22.6619 1.25 16.7627C2.70873 11.2334 6.3485 6.53195 11.3359 3.73438L12.1113 3.2998Z" fill="#fff"/></symbol>
-<linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse"><stop stop-color="#1E1E1E" stop-opacity="0.7"/><stop offset="1" stop-color="#1E1E1E"/></linearGradient>
-</defs></svg>
-
   <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
     <span class="menu-btn__burger" aria-hidden="true">
       <span class="menu-btn__line menu-btn__line--top"></span>
@@ -1837,11 +1667,57 @@
 
     <nav class="nav-links" aria-label="Primary">
       <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a>
       <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
       <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
     </nav>
 
-    <!-- Takes the middle once the inquiry card has scrolled away -->
+    <div class="compact-bar" id="compactBar" aria-hidden="true">
+      <div class="chip chip--agent" data-open-sheet id="agentChip"><img class="chip__avatar" id="agentChipImg" alt="" width="24" height="24"><span class="chip__label" id="agentChipName"></span></div>
+      <div class="chip chip--query" data-open-sheet>
+        <span class="chip__label" id="compactQueryLabel">Modern house</span>
+        <button class="chip__x" type="button" aria-label="Clear search" id="clearQueryChip">
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+        </button>
+      </div>
+      <div class="chip chip--type" data-open-sheet>
+        <span class="chip__label" id="compactTypeLabel">Rent</span>
+        <button class="chip__x" type="button" aria-label="Clear type">
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+        </button>
+      </div>
+      <div class="chip chip--featured" data-open-sheet hidden>
+        <span class="chip__label">Featured</span>
+        <button class="chip__x" type="button" aria-label="Clear featured" id="clearFeaturedChip">
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+        </button>
+      </div>
+      <div class="compact-selects">
+        <button class="compact-select" type="button" data-open-sheet data-filter="price" aria-expanded="false">
+          <span id="compactPriceLabel">$1000-10000</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="compact-select" type="button" data-open-sheet data-filter="location" aria-expanded="false">
+          <span id="compactLocationLabel">All neighborhoods</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="compact-select" type="button" data-open-sheet data-filter="beds" aria-expanded="false">
+          <span id="compactBedsLabel">2 bath, 2 bed</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <button class="compact-more" type="button" aria-label="More filters" data-open-sheet data-filter="more" aria-expanded="false">
+        <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
 
     <div class="nav-actions">
       <button class="icon-btn icon-btn--fav" type="button" id="favBtn" aria-label="Saved homes" aria-pressed="false">
@@ -1856,33 +1732,297 @@
     </div>
   </header>
 
-  <main class="nbd">
-    <div class="nbd__top">
-      <a class="back-link" href="neighborhoods.html">
-        <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
-        Back to neighborhoods
-      </a>
-      <h1 class="nbd__title" id="nbdName">Neighborhood</h1>
-      <p class="nbd__sub" id="nbdSub"></p>
+  <section class="search-header" aria-label="Search filters">
+    <div class="search-header__inner">
+      <div class="search-meta">
+        <a class="back-link" href="neighborhoods.html">
+          <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          Back to neighborhoods
+        </a>
+      </div>
+
+      <h1 class="search-title" id="agentTitle" hidden><span id="titlePrefix"></span><q id="titleQuery"></q></h1>
+      <div class="agent-profile" id="agentProfile"></div>
+
+      <div class="tabs" role="tablist" aria-hidden="true" style="display:none">
+        <span class="tabs__pill" id="tabsPill" aria-hidden="true"></span>
+        <button class="tab" role="tab" type="button" data-type="Rent" aria-selected="true">Rent</button>
+        <button class="tab" role="tab" type="button" data-type="Buy" aria-selected="false">Buy</button>
+        <button class="tab" role="tab" type="button" data-type="Commercial" aria-selected="false">Commercial</button>
+      </div>
+
+      <form class="filter-form" id="filterForm" role="search" aria-label="Refine search" onsubmit="return false">
+        <label class="filter-query">
+          <span class="filter-query__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
+              <path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input class="filter-query__input" id="searchInput" type="search" value="Modern house" placeholder="Search here" aria-label="Search">
+          <button class="filter-query__clear" type="button" id="searchClearBtn" aria-label="Clear search">
+            <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+          </button>
+        </label>
+
+        <div class="filter-anchor" id="anchorType"><button class="filter-select" type="button" data-filter="type" id="btnType" aria-expanded="false"><span id="labelType">Rent</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><button class="filter-pill" type="button" id="btnFeatured" aria-pressed="false" hidden>Featured</button>
+
+        <div class="filter-anchor" id="anchorPrice">
+          <button class="filter-select" type="button" data-filter="price" id="btnPrice" aria-expanded="false">
+            <span data-expanded-label="price" id="labelPrice">Price range</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-anchor" id="anchorLocation">
+          <button class="filter-select" type="button" data-filter="location" id="btnLocation" aria-expanded="false">
+            <span data-expanded-label="location" id="labelLocation">All neighborhoods</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-anchor" id="anchorBeds">
+          <button class="filter-select" type="button" data-filter="beds" id="btnBeds" aria-expanded="false">
+            <span data-expanded-label="beds" id="labelBeds">Bed &amp; bath</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-anchor" id="anchorMore">
+          <button class="filter-more" type="button" data-filter="more" id="btnMore" aria-label="More filters" aria-expanded="false">
+            <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+
     </div>
-    <div class="nbd__hero"><img id="nbdHero" alt=""></div>
-    <div class="nbd__stats" id="nbdStats"></div>
-    <div class="nbd__about">
-      <div><h2 class="nbd__h2">About <span id="nbdAboutName"></span></h2><p class="nbd__p" id="nbdAbout"></p></div>
-      <div><h2 class="nbd__h2">Highlights</h2><ul class="nbd__list" id="nbdHigh"></ul></div>
+
+    <!-- Shared filter popovers (teleported near open trigger) -->
+    <div class="filter-pop filter-pop--location" id="popType" role="dialog" aria-label="Listing type">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Listing type</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close"><svg class="x-icon" width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg></button>
+      </div>
+      <div class="filter-pop__body">
+        <div class="loc-list" id="typeList">
+          <button class="loc-item is-active" type="button" data-typ="Rent">Rent</button>
+          <button class="loc-item" type="button" data-typ="Buy">Buy</button>
+          <button class="loc-item" type="button" data-typ="Commercial">Commercial</button>
+        </div>
+      </div>
     </div>
-    <section class="nbd__sec" aria-label="Map">
-      <h2 class="nbd__h2">On the map</h2>
-      <div class="nbd__map" id="nbdMap"><div class="nbd__legend" id="nbdLegend"></div></div>
-    </section>
-    <section class="nbd__sec" aria-label="Listings">
-      <h2 class="nbd__h2" id="nbdListHead">Homes for you</h2>
-      <div class="nbd__grid" id="nbdGrid"></div>
-    </section>
-    <section class="nbd__sec" aria-label="More neighborhoods">
-      <h2 class="nbd__h2">Explore more neighborhoods</h2>
-      <div class="nbd__more" id="nbdMore"></div>
-    </section>
+
+    <div class="filter-pop filter-pop--price" id="popPrice" role="dialog" aria-label="Price range">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Price range</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <div class="range-track">
+          <div class="range-track__fill" id="priceFill"></div>
+          <input type="range" id="priceMin" min="0" max="100000" step="100" value="200">
+          <input type="range" id="priceMax" min="0" max="100000" step="100" value="100000">
+        </div>
+        <div class="filter-row">
+          <div class="filter-field">
+            <label>Minimum</label>
+            <span class="filter-value" id="priceMinLabel">$200</span>
+          </div>
+          <div class="filter-field">
+            <label>Maximum</label>
+            <span class="filter-value" id="priceMaxLabel">$100.000+</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-pop__foot">
+        <button class="filter-clear" type="button" data-clear="price">Clear filters</button>
+        <button class="hl-btn hl-btn--black hl-btn--sm" type="button" data-apply-pop>
+          <span class="hl-btn__inner"><span id="priceShowCount">Show 56 listings</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--location" id="popLocation" role="dialog" aria-label="Select location">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Select location</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <label class="loc-search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.4"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <input type="search" id="locSearch" placeholder="Search city or district of your property" autocomplete="off">
+        </label>
+        <div class="loc-chips">
+          <span class="loc-meta">Top regions:</span>
+          <button class="loc-chip" type="button" data-loc="German">German</button>
+          <button class="loc-chip" type="button" data-loc="Japan">Japan</button>
+          <button class="loc-chip" type="button" data-loc="New York">New York</button>
+          <button class="loc-chip" type="button" data-loc="Bali">Bali</button>
+        </div>
+        <button class="filter-clear" type="button" id="useCurrentLoc" style="align-self:flex-start">Use current location</button>
+        <div class="loc-list" id="locList">
+          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (226)</button>
+          <button class="loc-item" type="button" data-loc="New York">New york (32)</button>
+          <button class="loc-item" type="button" data-loc="Los Angeles">Los angeles (48)</button>
+          <button class="loc-item" type="button" data-loc="Texas">Texas (40)</button>
+          <button class="loc-item" type="button" data-loc="Chicago">Chicago (24)</button>
+          <button class="loc-item" type="button" data-loc="San Fierro">San Fierro (18)</button>
+          <button class="loc-item" type="button" data-loc="San Francisco">San Francisco (64)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--beds" id="popBeds" role="dialog" aria-label="Beds and baths">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Beds &amp; baths</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <div class="stepper-row">
+          <span class="stepper-label">Bedroom</span>
+          <div class="stepper" data-stepper="beds">
+            <button type="button" data-step="-1" aria-label="Fewer bedrooms">−</button>
+            <span class="stepper__val" id="bedsVal">All</span>
+            <button type="button" data-step="1" aria-label="More bedrooms">+</button>
+          </div>
+        </div>
+        <div class="stepper-row">
+          <span class="stepper-label">Bathroom</span>
+          <div class="stepper" data-stepper="baths">
+            <button type="button" data-step="-1" aria-label="Fewer bathrooms">−</button>
+            <span class="stepper__val" id="bathsVal">All</span>
+            <button type="button" data-step="1" aria-label="More bathrooms">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="filter-pop__foot">
+        <button class="filter-clear" type="button" data-clear="beds">Clear filters</button>
+        <button class="hl-btn hl-btn--black hl-btn--sm" type="button" data-apply-pop>
+          <span class="hl-btn__inner"><span id="bedsShowCount">Show 48 listings</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--more" id="popMore" role="dialog" aria-label="More filters">
+      <div class="filter-pop__head" style="padding-top:16px">
+        <h3 class="filter-pop__title">Filter</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <div>
+          <p class="filter-section-title">Property type</p>
+          <div class="type-chips" id="propTypes" style="margin-top:12px">
+            <button class="type-chip is-active" type="button" data-type="House">House</button>
+            <button class="type-chip" type="button" data-type="Apartment">Apartment</button>
+            <button class="type-chip" type="button" data-type="Villa">Villa</button>
+          </div>
+        </div>
+        <div>
+          <p class="filter-section-title">Building area</p>
+          <div class="range-track" data-range="build" style="margin-top:20px">
+            <div class="range-track__fill"></div>
+            <input type="range" min="0" max="1000" step="10" value="100" data-end="min" aria-label="Minimum building area">
+            <input type="range" min="0" max="1000" step="10" value="300" data-end="max" aria-label="Maximum building area">
+          </div>
+          <div class="filter-row">
+            <div class="filter-field"><label>Minimum</label><span class="filter-value" data-range-label="min">100 sqft</span></div>
+            <div class="filter-field"><label>Maximum</label><span class="filter-value" data-range-label="max">300 sqft</span></div>
+          </div>
+        </div>
+        <div>
+          <p class="filter-section-title">Land area</p>
+          <div class="range-track" data-range="land" style="margin-top:20px">
+            <div class="range-track__fill"></div>
+            <input type="range" min="0" max="2000" step="10" value="200" data-end="min" aria-label="Minimum land area">
+            <input type="range" min="0" max="2000" step="10" value="400" data-end="max" aria-label="Maximum land area">
+          </div>
+          <div class="filter-row">
+            <div class="filter-field"><label>Minimum</label><span class="filter-value" data-range-label="min">200 sqft</span></div>
+            <div class="filter-field"><label>Maximum</label><span class="filter-value" data-range-label="max">400 sqft</span></div>
+          </div>
+        </div>
+        <div>
+          <p class="filter-section-title">Living facilities</p>
+          <div class="facilities" id="facilities" style="margin-top:12px">
+            <label class="facility"><input type="checkbox" value="Swimming pool"> Swimming pool</label>
+            <label class="facility"><input type="checkbox" value="Garage/Carport"> Garage/Carport</label>
+            <label class="facility"><input type="checkbox" value="24 Hours security"> 24 Hours security</label>
+            <label class="facility"><input type="checkbox" value="House garden"> House garden</label>
+            <label class="facility"><input type="checkbox" value="Parking area"> Parking area</label>
+          </div>
+        </div>
+      </div>
+      <div class="filter-pop__foot">
+        <button class="filter-clear" type="button" data-clear="more">Clear filters</button>
+        <button class="hl-btn hl-btn--black hl-btn--sm" type="button" data-apply-pop>
+          <span class="hl-btn__inner"><span id="moreShowCount">Show 56 listings</span></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Expanded filter sheet when accessing filters after scroll -->
+  <div class="filter-sheet" id="filterSheet" aria-hidden="true">
+    <div class="filter-sheet__scrim" id="filterSheetScrim"></div>
+    <div class="filter-sheet__panel">
+      <div class="filter-sheet__inner">
+        <h2 class="filter-sheet__title" id="sheetTitle">All listings (104)</h2>
+        <div class="tabs" role="tablist" aria-label="Listing type sheet" id="sheetTabs" style="display:none">
+          <span class="tabs__pill" id="sheetTabsPill" aria-hidden="true"></span>
+          <button class="tab" role="tab" type="button" data-type="Rent" aria-selected="true">Rent</button>
+          <button class="tab" role="tab" type="button" data-type="Buy" aria-selected="false">Buy</button>
+          <button class="tab" role="tab" type="button" data-type="Commercial" aria-selected="false">Commercial</button>
+        </div>
+        <form class="filter-form" role="search" onsubmit="return false" style="max-width:795px;width:100%;justify-content:center">
+          <label class="filter-query">
+            <span class="filter-query__icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+            <input class="filter-query__input" id="sheetSearchInput" type="search" placeholder="Search here" aria-label="Search">
+            <button class="filter-query__clear" type="button" id="sheetSearchClearBtn" aria-label="Clear search">
+              <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+            </button>
+          </label>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="type" id="sheetBtnType" aria-expanded="false"><span id="sheetLabelType">Rent</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><button class="filter-pill" type="button" id="sheetFeatured" aria-pressed="false" hidden>Featured</button>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="price" id="sheetBtnPrice" aria-expanded="false">
+            <span id="sheetLabelPrice">Price range</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button></div>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="location" id="sheetBtnLocation" aria-expanded="false">
+            <span id="sheetLabelLocation">All neighborhoods</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button></div>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="beds" id="sheetBtnBeds" aria-expanded="false">
+            <span id="sheetLabelBeds">Bed &amp; bath</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button></div>
+          <div class="filter-anchor"><button class="filter-more" type="button" data-filter="more" id="sheetBtnMore" aria-label="More filters" aria-expanded="false">
+            <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <main class="listings" aria-label="Property listings">
+    <div class="listings__grid" id="listingsGrid"></div>
+    <p class="listings__empty" id="listingsEmpty" hidden>No listings match these filters.</p>
   </main>
 
   <footer class="site-footer">
@@ -1969,8 +2109,9 @@
           <div>
             <p class="mega-menu__group-label">Our pages</p>
             <ul class="mega-menu__links mega-menu__links--lg">
-              <li><a href="index.html"><span class="link-rise" data-text="Home">Home</span></a></li>
+              <li><a href="#home"><span class="link-rise" data-text="Home">Home</span></a></li>
               <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a></li>
               <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
               <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
               <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
@@ -2012,180 +2153,928 @@
     </div>
   </div>
 
-  <script>window.HL_SMOOTH_TAU = 120;</script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script src="assets/listings-store.js"></script>
+  <script src="assets/neighborhoods.js"></script>
+  <script src="assets/geo.js"></script>
   <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
-  <script src="assets/neighborhoods.js"></script>
-  <script src="assets/sf-base.js"></script>
-  <script src="assets/geo.js"></script>
-  <script src="assets/vendor/leaflet/leaflet.js"></script>
-  <script src="parallax.js"></script>
   <script src="smooth-scroll.js"></script>
   <script>
-    (function () {
-      "use strict";
-      var $ = function (id) { return document.getElementById(id); };
-      function toast() {}
-      function closeMap() {}
-
-      /* ---------- full-page circle menu (same as the other pages) ---------- */
-      var menuBtn = $("menuBtn");
-      var megaMenu = $("megaMenu");
-      var xLines = Array.prototype.slice.call(menuBtn.querySelectorAll(".menu-btn__x-line"));
-      var closingTimer;
-      var menuBusy = false;
-
-      function replayXDraw() {
-        xLines.forEach(function (line) { line.style.animation = "none"; line.style.strokeDashoffset = "100"; });
-        void menuBtn.offsetHeight;
-        xLines.forEach(function (line) { line.style.animation = ""; line.style.strokeDashoffset = ""; });
-      }
-
-      function placeCircleOrigin() {
-        var rect = menuBtn.getBoundingClientRect();
-        megaMenu.style.setProperty("--cx", (rect.left + rect.width / 2) + "px");
-        megaMenu.style.setProperty("--cy", (rect.top + rect.height / 2) + "px");
-      }
-
-      function openMenu() {
-        if (menuBusy) return;
-        menuBusy = true;
-        clearTimeout(closingTimer);
-        closeMap();
-        megaMenu.classList.remove("is-closing");
-        megaMenu.style.clipPath = "";
-        placeCircleOrigin();
-        megaMenu.hidden = false;
-        void megaMenu.offsetHeight;
-        megaMenu.classList.add("is-open");
-        menuBtn.classList.add("is-open");
-        replayXDraw();
-        menuBtn.setAttribute("aria-expanded", "true");
-        menuBtn.setAttribute("aria-label", "Close menu");
-        document.body.classList.add("is-menu-open");
-        setTimeout(function () { menuBusy = false; }, 1100);
-      }
-
-      function closeMenu() {
-        if (menuBusy && !megaMenu.classList.contains("is-open")) return;
-        menuBusy = true;
-        placeCircleOrigin();
-        megaMenu.style.clipPath = "";
-        megaMenu.classList.add("is-closing");
-        megaMenu.classList.remove("is-open");
-        menuBtn.classList.remove("is-open");
-        menuBtn.setAttribute("aria-expanded", "false");
-        menuBtn.setAttribute("aria-label", "Open menu");
-        document.body.classList.remove("is-menu-open");
-        clearTimeout(closingTimer);
-        closingTimer = setTimeout(function () {
-          megaMenu.classList.remove("is-closing");
-          megaMenu.hidden = true;
-          menuBusy = false;
-        }, 750);
-      }
-
-      menuBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (megaMenu.classList.contains("is-open")) closeMenu(); else openMenu();
-      });
-      menuBtn.addEventListener("mouseenter", function () { if (menuBtn.classList.contains("is-open")) replayXDraw(); });
-
-      /* Links to a page just go there; the rest keep the placeholder toast */
-      megaMenu.querySelectorAll("a").forEach(function (link) {
-        link.addEventListener("click", function (e) {
-          var href = link.getAttribute("href") || "";
-          if (href.charAt(0) !== "#") return;
-          e.preventDefault();
-          closeMenu();
-          var label = link.querySelector(".link-rise") ? link.querySelector(".link-rise").dataset.text : link.textContent.trim();
-          toast("Go to " + (label || "page"));
-        });
-      });
-
-      document.querySelectorAll(".nav-links a").forEach(function (link) {
-        link.addEventListener("click", function (e) {
-          var href = link.getAttribute("href") || "";
-          if (href.indexOf("#insights") === -1) return;
-          e.preventDefault();
-          toast("Go to Insights");
-        });
-      });
-
-      document.addEventListener("keydown", function (e) {
-        if (e.key !== "Escape") return;
-        if (megaMenu.classList.contains("is-open")) closeMenu(); else closeMap();
-      });
-      window.addEventListener("resize", function () { if (megaMenu.classList.contains("is-open")) placeCircleOrigin(); });
-
+    const NB = HLNeighborhoods.get(new URLSearchParams(location.search).get("id")) || HLNeighborhoods.all()[0];
+    const ALLL = HavenlistStore.all();
+    /* The area's own listings first, then the nearest others, so every page has a full grid */
+    const LISTINGS = (function () {
+      const own = NB.listings.map((id) => ALLL.find((l) => l.id === id)).filter(Boolean);
+      const dist = (l) => { const p = HLGeo.center(l); return Math.hypot(p[0] - NB.ll[0], (p[1] - NB.ll[1]) * 0.8); };
+      const rest = ALLL.filter((l) => !own.includes(l)).sort((a, b) => dist(a) - dist(b));
+      return own.concat(rest).slice(0, 8);
     })();
-  </script>
+    document.title = NB.name + " — Havenlist";
+    document.getElementById("agentProfile").innerHTML =
+      '<div class="nbp"><div class="nbp__thumb"><img src="' + NB.image + '" alt="' + NB.name + '"></div>' +
+      '<div class="nbp__main"><div class="nbp__row"><div><h1 class="nbp__name">' + NB.name + '</h1><p class="nbp__addr">' + NB.name + ', San Francisco, CA</p></div>' +
+      '<a class="nbp__dir" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + NB.ll[0] + "," + NB.ll[1] + '">Show directions</a></div>' +
+      '<p class="nbp__stats"><span>' + HLNeighborhoods.price(NB) + ' Avg price</span><span>(' + NB.count + ' Listings)</span></p></div></div>';
+    document.getElementById("agentChipImg").src = NB.image;
+    document.getElementById("agentChipName").textContent = NB.name;
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  <script>
-  (function () {
-    var $ = function (id) { return document.getElementById(id); };
-    var all = HLNeighborhoods.all();
-    var N = HLNeighborhoods.get(new URLSearchParams(location.search).get("id")) || all[0];
-    var store = HavenlistStore.all();
-    var items = N.listings.map(function (id) { return store.filter(function (l) { return l.id === id; })[0]; }).filter(Boolean);
+    function renderListings() {
+      const q = state.query.toLowerCase();
+      const list = LISTINGS.filter((l) =>
+        (!q || (l.place + " " + l.addr + " " + l.badge).toLowerCase().includes(q)) &&
+        (state.beds <= 0 || (state.beds >= 5 ? l.beds >= 5 : l.beds === state.beds)) &&
+        (state.baths <= 0 || (state.baths >= 5 ? l.baths >= 5 : l.baths === state.baths)));
+      const key = list.map((l) => l.id).join();
+      if (renderListings.key !== key) { renderListings.key = key; HLCard.mount(document.getElementById("listingsGrid"), list); }
+      document.getElementById("listingsEmpty").hidden = list.length > 0;
+      return list.length;
+    }
 
-    document.title = N.name + " — Havenlist";
-    $("nbdName").textContent = N.name;
-    $("nbdSub").textContent = N.area + " · " + HLNeighborhoods.price(N) + " average price · " + N.count + " listings";
-    $("nbdHero").src = N.hero; $("nbdHero").alt = N.name;
-    $("nbdAboutName").textContent = N.name; $("nbdAbout").textContent = N.about;
-    $("nbdHigh").innerHTML = N.highlights.map(function (h) { return "<li>" + h + "</li>"; }).join("");
-    $("nbdStats").innerHTML = [[HLNeighborhoods.price(N), "Average price"], [N.count, "Active listings"], [N.days + " days", "Median time on market"], [N.walk + " / " + N.transit, "Walk / transit score"]]
-      .map(function (r) { return '<div class="nbd__stat"><b>' + r[0] + "</b><span>" + r[1] + "</span></div>"; }).join("");
 
-    $("nbdListHead").textContent = "Homes in " + N.name;
-    if (items.length) HLCard.mount($("nbdGrid"), items);
-    else $("nbdGrid").innerHTML = '<div class="nbd__empty"><span>New homes in ' + N.name + ' are added every week.</span><a class="btn-sell hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">Browse all listings</span></a></div>';
-    HLNeighborhoods.mount($("nbdMore"), all.filter(function (g) { return g.id !== N.id; }).slice(0, 4));
 
-    /* Real map: OpenStreetMap tiles over an offline SF base, the area's centre, its listings and real places nearby */
-    (function () {
-      if (!window.L) return;
-      var c = N.ll, el = $("nbdMap");
-      var VB = { "p-main": "0 0 15 21", "p-0": "0 0 10 10", "p-1": "0 0 12 10", "p-2": "0 0 12 11", "p-3": "0 0 8 11" };
-      var m = L.map(el, { center: c, zoom: 14, minZoom: 11, maxZoom: 18, scrollWheelZoom: false });
-      m.attributionControl.setPrefix(false);
-      HLGeo.base(m, N.poly);
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { subdomains: "abcd", maxZoom: 19, attribution: "&copy; OpenStreetMap contributors &copy; CARTO" }).addTo(m);
-      function pin(icon, color, main) {
-        var html = '<span class="pin' + (main ? " pin--main" : "") + '"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg><span class="pin__dot"' + (main ? "" : ' style="background-color:' + color + '"') + '><svg class="pin__icon" viewBox="' + VB[icon] + '" aria-hidden="true"><use href="#' + icon + '"/></svg></span></span>';
-        return L.divIcon({ className: "hl-mk", html: html, iconSize: main ? [36, 48] : [26, 34], iconAnchor: main ? [18, 48] : [13, 34] });
-      }
-      var group = L.featureGroup().addTo(m);
-      L.marker(c, { icon: pin("p-main", "", true), zIndexOffset: 1000, keyboard: false }).bindTooltip(N.name, { direction: "top", offset: [0, -48], className: "hl-tip" }).addTo(group);
-      items.forEach(function (l) { L.circleMarker(HLGeo.center(l), { radius: 6, color: "#fff", weight: 2, fillColor: "#1e1e1e", fillOpacity: 1 }).bindTooltip(l.place + " · " + l.price, { className: "hl-tip" }).addTo(group); });
-      $("nbdLegend").innerHTML = HLGeo.CATS.map(function (k) {
-        return '<span><span class="pin"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg><span class="pin__dot" style="background-color:' + k.color + '"><svg class="pin__icon" viewBox="' + VB[k.icon] + '" aria-hidden="true"><use href="#' + k.icon + '"/></svg></span></span>' + k.label + "</span>";
-      }).join("");
-      m.fitBounds(group.getBounds().pad(0.5), { maxZoom: 15 });
-      HLGeo.pois(c, "nb-" + N.id, function (list) {
-        list.forEach(function (p) {
-          var k = HLGeo.CATS.filter(function (x) { return x.key === p.cat; })[0];
-          L.marker([p.lat, p.lng], { icon: pin(k.icon, k.color, false), keyboard: false }).bindTooltip(p.name, { direction: "top", offset: [0, -34], className: "hl-tip" }).addTo(m);
-        });
-      });
-      el.addEventListener("click", function () { m.scrollWheelZoom.enable(); }, { once: true });
-      setTimeout(function () { m.invalidateSize(); }, 300);
-    })();
-
+    /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
     function addRise(el) {
-      if (el.querySelector(".rise")) return;
-      Array.from(el.childNodes).forEach(function (node) {
-        if (node.nodeType !== 3 || !node.textContent.trim()) return;
-        var clip = document.createElement("span"), label = document.createElement("span");
-        clip.className = "rise"; label.className = "rise__t"; label.textContent = node.textContent.trim();
-        el.replaceChild(clip, node); clip.appendChild(label);
+      if (el.querySelector(".rise, .link-rise")) return;
+      const host = el.querySelector(".hl-btn__inner") || el;
+      Array.from(host.childNodes).forEach((node) => {
+        const isText = node.nodeType === 3 && node.textContent.trim();
+        const isLabel = node.nodeType === 1 && node.tagName === "SPAN" &&
+          !node.children.length && node.textContent.trim();
+        if (!isText && !isLabel) return;
+        const clip = document.createElement("span");
+        clip.className = "rise";
+        let label = node;
+        if (isText) {
+          label = document.createElement("span");
+          label.textContent = node.textContent.trim();
+        }
+        host.replaceChild(clip, node);
+        clip.appendChild(label);
+        label.classList.add("rise__t");
       });
     }
-    document.querySelectorAll(".back-link").forEach(addRise);
-  })();
+
+    /* Text buttons and text links only — not the logo, tabs, pills or dropdowns */
+    document.querySelectorAll(".hl-btn, .back-link, .filter-clear, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+
+    /* ----- Apply URL params from homepage search ----- */
+    const params = new URLSearchParams(window.location.search);
+    /* ?q= (even empty) = all listings; no q at all keeps the demo query */
+    const initialQuery = "";
+    const initialType = params.get("type")?.trim() || "Rent";
+
+    const state = {
+      query: initialQuery,
+      type: initialType,
+      featured: false,
+      priceMin: 200,
+      priceMax: 100000,
+      location: "",
+      beds: 0, // 0 = All
+      baths: 0,
+      propType: "House",
+      facilities: [],
+      listingCount: 104,
+    };
+
+    const body = document.body;
+    const navbar = document.getElementById("navbar");
+    const menuBtn = document.getElementById("menuBtn");
+    const compactBar = document.getElementById("compactBar");
+    const filterForm = document.getElementById("filterForm");
+    const filterSheet = document.getElementById("filterSheet");
+
+    let compact = false;
+    let sheetOpen = false;
+    let openPop = null;
+
+    /* ----- Tabs ----- */
+    const tabs = Array.from(document.querySelectorAll(".search-header .tab"));
+    const tabsPill = document.getElementById("tabsPill");
+    const compactTypeLabel = document.getElementById("compactTypeLabel");
+    const sheetTabs = Array.from(document.querySelectorAll("#sheetTabs .tab"));
+    const sheetTabsPill = document.getElementById("sheetTabsPill");
+
+    function setTab(index, syncSheet = true) {
+      tabs.forEach((t, i) => t.setAttribute("aria-selected", String(i === index)));
+      tabsPill.style.transform = `translateX(${index * 100}%)`;
+      state.type = tabs[index].dataset.type;
+      compactTypeLabel.textContent = state.type;
+      if (syncSheet) {
+        sheetTabs.forEach((t, i) => t.setAttribute("aria-selected", String(i === index)));
+        sheetTabsPill.style.transform = `translateX(${index * 100}%)`;
+      }
+      updateCount();
+    }
+
+    tabs.forEach((tab, i) => tab.addEventListener("click", () => setTab(i)));
+    sheetTabs.forEach((tab, i) => tab.addEventListener("click", () => setTab(i)));
+
+    const typeIndex = Math.max(0, tabs.findIndex((t) => t.dataset.type === initialType));
+    setTab(typeIndex);
+
+    /* ----- Query sync ----- */
+    const searchInput = document.getElementById("searchInput");
+    const sheetSearchInput = document.getElementById("sheetSearchInput");
+    const titleQuery = document.getElementById("titleQuery");
+    const compactQueryLabel = document.getElementById("compactQueryLabel");
+
+    searchInput.value = initialQuery;
+    sheetSearchInput.value = initialQuery;
+
+    const titlePrefix = document.getElementById("titlePrefix");
+    const compactQueryChip = compactQueryLabel.closest(".chip");
+
+    /* Mirror the edited field into the other one — never rewrite the field
+       being typed in (trimming it would eat spaces mid-word). Empty = all. */
+    function syncQuery(from) {
+      const source = from === "sheet" ? sheetSearchInput : searchInput;
+      const other = from === "sheet" ? searchInput : sheetSearchInput;
+      const q = source.value.trim();
+      state.query = q;
+      if (other.value !== source.value) other.value = source.value;
+      titlePrefix.textContent = q ? "Search result for " : "All listings";
+      titleQuery.textContent = q;
+      titleQuery.hidden = !q;
+      compactQueryLabel.textContent = q;
+      if (compactQueryChip) compactQueryChip.hidden = !q;
+      
+      updateCount();
+    }
+    searchInput.addEventListener("input", () => syncQuery("main"));
+    sheetSearchInput.addEventListener("input", () => syncQuery("sheet"));
+    syncQuery("main");
+
+    function syncClearVisibility() {
+      searchInput.closest(".filter-query")?.classList.toggle("has-value", !!searchInput.value.trim());
+      sheetSearchInput.closest(".filter-query")?.classList.toggle("has-value", !!sheetSearchInput.value.trim());
+    }
+    searchInput.addEventListener("input", syncClearVisibility);
+    sheetSearchInput.addEventListener("input", syncClearVisibility);
+    syncClearVisibility();
+
+    document.getElementById("searchClearBtn")?.addEventListener("click", () => {
+      searchInput.value = "";
+      syncQuery("main");
+      syncClearVisibility();
+      searchInput.focus();
+    });
+    document.getElementById("sheetSearchClearBtn")?.addEventListener("click", () => {
+      sheetSearchInput.value = "";
+      syncQuery("sheet");
+      syncClearVisibility();
+      sheetSearchInput.focus();
+    });
+
+    document.getElementById("btnFeatured").addEventListener("click", (e) => {
+      state.featured = !state.featured;
+      e.currentTarget.setAttribute("aria-pressed", String(state.featured));
+      document.getElementById("sheetFeatured").setAttribute("aria-pressed", String(state.featured));
+      /* The navbar chip only exists while the filter is on */
+      document.querySelector(".chip--featured").hidden = !state.featured;
+      updateLabels();
+      updateCount();
+    });
+    document.getElementById("sheetFeatured").addEventListener("click", () => {
+      document.getElementById("btnFeatured").click();
+    });
+
+    /* ----- Fav ----- */
+    const favBtn = document.getElementById("favBtn");
+    favBtn.addEventListener("mouseenter", () => {
+      const path = favBtn.querySelector(".heart-outline");
+      path.style.animation = "none";
+      void path.getBoundingClientRect();
+      path.style.animation = "";
+      favBtn.classList.add("is-drawing");
+    });
+    favBtn.addEventListener("mouseleave", () => {
+      const path = favBtn.querySelector(".heart-outline");
+      favBtn.classList.remove("is-drawing");
+      path.style.animation = "none";
+      path.style.strokeDashoffset = "0";
+    });
+    favBtn.addEventListener("click", () => {
+      const pressed = favBtn.getAttribute("aria-pressed") === "true";
+      favBtn.setAttribute("aria-pressed", String(!pressed));
+      favBtn.classList.toggle("is-active", !pressed);
+      toast(pressed ? "Removed from saved" : "Saved homes");
+    });
+
+    document.getElementById("sellBtn").addEventListener("click", () => {
+      toast("Opening seller onboarding…");
+    });
+
+    /* ----- Helpers ----- */
+    const toastEl = document.getElementById("toast");
+    let toastTimer;
+
+    function toast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("is-visible");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("is-visible"), 2200);
+    }
+
+    function formatPrice(n) {
+      if (n >= 100000) return "$100.000+";
+      return "$" + n.toLocaleString("de-DE");
+    }
+
+    function bedsLabel(n) {
+      return n <= 0 ? "All" : n >= 5 ? "5+" : String(n);
+    }
+
+    function updateCount() {
+      const n = renderListings();
+      state.listingCount = n;
+      const show = `Show ${n} listing${n === 1 ? "" : "s"}`;
+      ["priceShowCount", "bedsShowCount", "moreShowCount"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = show;
+      });
+      document.getElementById("sheetTitle").textContent = `${NB.name} (${n})`;
+      ["labelType", "sheetLabelType"].forEach((id) => { const el = document.getElementById(id); if (el) el.textContent = state.type; });
+    }
+
+    function updateLabels() {
+      const priceDefault = state.priceMin === 200 && state.priceMax === 100000;
+      const priceText = priceDefault ? "Price range" : `${formatPrice(state.priceMin)} – ${formatPrice(state.priceMax)}`;
+      document.getElementById("labelPrice").textContent = priceText;
+      document.getElementById("sheetLabelPrice").textContent = priceText;
+      document.getElementById("compactPriceLabel").textContent =
+        priceDefault ? "$1000-10000" : `$${state.priceMin}-${state.priceMax >= 100000 ? "100000+" : state.priceMax}`;
+
+      const locationText = state.location || "All neighborhoods";
+      document.getElementById("labelLocation").textContent = locationText;
+      document.getElementById("sheetLabelLocation").textContent = locationText;
+      document.getElementById("compactLocationLabel").textContent = state.location || "All neighborhoods";
+
+      const anyBeds = state.beds <= 0 && state.baths <= 0;
+      const part = (n) => (bedsLabel(n) === "All" ? "Any" : bedsLabel(n));
+      const bedsText = anyBeds ? "Bed & bath" : `${part(state.baths)} bath, ${part(state.beds)} bed`;
+      document.getElementById("labelBeds").textContent = bedsText;
+      document.getElementById("sheetLabelBeds").textContent = bedsText;
+      document.getElementById("compactBedsLabel").textContent =
+        anyBeds ? "2 bath, 2 bed" : `${state.baths > 0 ? state.baths : 1} bath, ${state.beds > 0 ? state.beds : 1} bed`;
+    }
+
+    /* ----- Price filter ----- */
+    const priceMin = document.getElementById("priceMin");
+    const priceMax = document.getElementById("priceMax");
+    const priceFill = document.getElementById("priceFill");
+
+    function syncPriceUI() {
+      let a = Number(priceMin.value);
+      let b = Number(priceMax.value);
+      if (a > b) [a, b] = [b, a];
+      state.priceMin = a;
+      state.priceMax = b;
+      const max = 100000;
+      priceFill.style.left = `${(a / max) * 100}%`;
+      priceFill.style.width = `${((b - a) / max) * 100}%`;
+      document.getElementById("priceMinLabel").textContent = formatPrice(a);
+      document.getElementById("priceMaxLabel").textContent = formatPrice(b);
+      updateCount();
+    }
+    priceMin.addEventListener("input", syncPriceUI);
+    priceMax.addEventListener("input", syncPriceUI);
+    syncPriceUI();
+
+    /* ----- Building / land area ranges ----- */
+    function bindAreaRange(track) {
+      const lo = track.querySelector('[data-end="min"]');
+      const hi = track.querySelector('[data-end="max"]');
+      const fill = track.querySelector(".range-track__fill");
+      const row = track.nextElementSibling;
+      const loLabel = row.querySelector('[data-range-label="min"]');
+      const hiLabel = row.querySelector('[data-range-label="max"]');
+      const max = Number(hi.max);
+      const defaults = [lo.value, hi.value];
+      const fmt = (n) => `${n.toLocaleString("en-US")}${n >= max ? "+" : ""} sqft`;
+
+      function sync() {
+        let a = Number(lo.value);
+        let b = Number(hi.value);
+        if (a > b) [a, b] = [b, a];
+        fill.style.left = `${(a / max) * 100}%`;
+        fill.style.width = `${((b - a) / max) * 100}%`;
+        loLabel.textContent = fmt(a);
+        hiLabel.textContent = fmt(b);
+        state[track.dataset.range] = [a, b];
+        updateCount();
+      }
+
+      lo.addEventListener("input", sync);
+      hi.addEventListener("input", sync);
+      sync();
+      return {
+        reset() {
+          lo.value = defaults[0];
+          hi.value = defaults[1];
+          sync();
+        },
+      };
+    }
+    const areaRanges = Array.from(document.querySelectorAll(".range-track[data-range]")).map(bindAreaRange);
+
+    /* ----- Location ----- */
+    function selectLocation(loc) {
+      state.location = loc;
+      document.querySelectorAll(".loc-chip, .loc-item").forEach((el) => {
+        el.classList.toggle("is-active", el.dataset.loc === loc);
+      });
+      updateLabels();
+      updateCount();
+      closePop();
+    }
+    document.querySelectorAll(".loc-chip, .loc-item").forEach((el) => {
+      el.addEventListener("click", () => selectLocation(el.dataset.loc));
+    });
+    document.getElementById("locSearch").addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll("#locList .loc-item").forEach((item) => {
+        item.style.display = item.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+    document.getElementById("useCurrentLoc").addEventListener("click", () => selectLocation("San Francisco"));
+
+    /* ----- Beds / baths steppers ----- */
+    function setStepper(kind, delta) {
+      const key = kind;
+      let v = state[key] + delta;
+      if (v < 0) v = 0;
+      if (v > 5) v = 5;
+      state[key] = v;
+      document.getElementById(kind + "Val").textContent = bedsLabel(v);
+      updateLabels();
+      updateCount();
+    }
+    document.querySelectorAll("[data-stepper]").forEach((row) => {
+      const kind = row.dataset.stepper;
+      row.querySelectorAll("[data-step]").forEach((btn) => {
+        btn.addEventListener("click", () => setStepper(kind, Number(btn.dataset.step)));
+      });
+    });
+
+    /* ----- More filters ----- */
+    document.querySelectorAll("#propTypes .type-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll("#propTypes .type-chip").forEach((c) => c.classList.remove("is-active"));
+        chip.classList.add("is-active");
+        state.propType = chip.dataset.type;
+        updateCount();
+      });
+    });
+    document.querySelectorAll("#facilities input").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        state.facilities = Array.from(document.querySelectorAll("#facilities input:checked")).map((i) => i.value);
+        updateCount();
+      });
+    });
+
+    /* ----- Listing type dropdown ----- */
+    document.querySelectorAll("#typeList .loc-item").forEach((el) => el.addEventListener("click", () => {
+      const idx = tabs.findIndex((t) => t.dataset.type === el.dataset.typ);
+      setTab(Math.max(0, idx));
+      document.querySelectorAll("#typeList .loc-item").forEach((x) => x.classList.toggle("is-active", x === el));
+      closePop();
+    }));
+
+    /* ----- Popover open/close ----- */
+    const pops = {
+      type: document.getElementById("popType"),
+      price: document.getElementById("popPrice"),
+      location: document.getElementById("popLocation"),
+      beds: document.getElementById("popBeds"),
+      more: document.getElementById("popMore"),
+    };
+
+    function syncFilterExpanded(name) {
+      document.querySelectorAll("[data-filter]").forEach((btn) => {
+        btn.setAttribute("aria-expanded", String(!!name && btn.dataset.filter === name));
+      });
+    }
+
+    /* Tunable motion (CSS vars): full close = dissolve beat + shrink beat */
+    function cssMs(name, fallback) {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      const n = parseFloat(raw);
+      return Number.isNaN(n) ? fallback : (raw.endsWith("ms") ? n : n * 1000);
+    }
+    function popCloseMs() { return cssMs("--pop-fade", 160) + cssMs("--pop-close", 300); }
+
+    function closePop() {
+      Object.values(pops).forEach((p) => {
+        if (!p.classList.contains("is-open")) return;
+        p.classList.remove("is-open");
+        /* Keep its anchor above the page until the panel has folded back in */
+        const host = p.parentElement;
+        clearTimeout(host._frontTimer);
+        host._frontTimer = setTimeout(() => host.classList.remove("is-front"), popCloseMs() + 60);
+      });
+      openPop = null;
+      syncFilterExpanded(null);
+    }
+
+    const anchors = {
+      type: document.getElementById("anchorType"),
+      price: document.getElementById("anchorPrice"),
+      location: document.getElementById("anchorLocation"),
+      beds: document.getElementById("anchorBeds"),
+      more: document.getElementById("anchorMore"),
+    };
+
+    /* The dropdown always lives next to the button that opened it (in-page
+       form or the sheet), so it moves with that button. It grows out of the
+       button's own rect: we measure its final size while hidden, park it at
+       the button's size, then let CSS carry it to the final size. */
+    function openFilter(name, anchorEl) {
+      closePop();
+      const pop = pops[name];
+      if (!pop) return;
+      const anchor = (anchorEl && anchorEl.closest(".filter-anchor")) || anchors[name];
+      if (anchor && pop.parentElement !== anchor) anchor.appendChild(pop);
+      clearTimeout(anchor._frontTimer);
+      anchor.classList.add("is-front");
+
+      const body = pop.querySelector(".filter-pop__body");
+      const aRect = anchor.getBoundingClientRect();
+      /* Measure against where the sheet will rest, not where it is mid-slide */
+      const slide = anchor.closest(".filter-sheet__panel");
+      const settleY = slide ? new DOMMatrix(getComputedStyle(slide).transform).m42 : 0;
+      const anchorBottom = aRect.bottom - settleY;
+      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pop-gap")) || 10;
+      const maxH = Math.max(240, window.innerHeight - anchorBottom - gap - 16);
+
+      /* Natural size, off-screen state */
+      pop.style.transition = "none";
+      pop.style.setProperty("--pop-shift", "0px");
+      pop.style.setProperty("--body-h", "auto");
+      pop.classList.add("is-measuring");
+      const w = pop.offsetWidth;
+      const natural = pop.offsetHeight;
+      const bodyNatural = body.offsetHeight;
+      pop.classList.remove("is-measuring");
+
+      /* Keep wide panels inside the viewport, and short ones inside the height */
+      const left = aRect.left + aRect.width / 2 - w / 2;
+      const min = 16;
+      const max = window.innerWidth - 16 - w;
+      const shift = left < min ? min - left : left > max ? max - left : 0;
+      const height = Math.min(natural, maxH);
+      pop.style.setProperty("--pop-shift", `${shift}px`);
+      pop.style.setProperty("--pop-h", `${height}px`);
+      pop.style.setProperty("--body-h", `${Math.max(0, bodyNatural - (natural - height))}px`);
+      pop.style.setProperty("--from-w", `${aRect.width}px`);
+      pop.style.setProperty("--from-h", `${aRect.height}px`);
+
+      /* Land on the button-sized start frame, then release the transition */
+      void pop.offsetHeight;
+      pop.style.transition = "";
+      void pop.offsetHeight;
+      pop.classList.add("is-open");
+      openPop = name;
+      syncFilterExpanded(name);
+    }
+
+    function bindFilterButton(btn) {
+      if (!btn) return;
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const name = btn.dataset.filter;
+        if (compact && !sheetOpen && btn.closest("#compactBar")) {
+          openSheet(name);
+          return;
+        }
+        if (openPop === name) closePop();
+        else openFilter(name, btn);
+      });
+    }
+
+    ["btnType", "sheetBtnType", "btnPrice", "btnLocation", "btnBeds", "btnMore",
+     "sheetBtnPrice", "sheetBtnLocation", "sheetBtnBeds", "sheetBtnMore"].forEach((id) => {
+      bindFilterButton(document.getElementById(id));
+    });
+
+    document.querySelectorAll("[data-close-pop]").forEach((btn) => {
+      btn.addEventListener("click", closePop);
+    });
+    document.querySelectorAll("[data-apply-pop]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        updateLabels();
+        updateCount();
+        closePop();
+        if (sheetOpen) closeSheet();
+      });
+    });
+    document.querySelectorAll("[data-clear]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const kind = btn.dataset.clear;
+        if (kind === "price") {
+          priceMin.value = 200; priceMax.value = 100000; syncPriceUI();
+        } else if (kind === "beds") {
+          state.beds = 0; state.baths = 0;
+          document.getElementById("bedsVal").textContent = "All";
+          document.getElementById("bathsVal").textContent = "All";
+        } else if (kind === "more") {
+          state.propType = "House";
+          state.facilities = [];
+          document.querySelectorAll("#propTypes .type-chip").forEach((c, i) => c.classList.toggle("is-active", i === 0));
+          document.querySelectorAll("#facilities input").forEach((i) => { i.checked = false; });
+          areaRanges.forEach((range) => range.reset());
+        }
+        updateLabels();
+        updateCount();
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!openPop) return;
+      const pop = pops[openPop];
+      if (pop && !pop.contains(e.target) && !e.target.closest("[data-filter]")) closePop();
+    });
+
+    /* ----- Filter sheet (after scroll) ----- */
+    let sheetPopTimer = null;
+
+    function openSheet(focusFilter) {
+      sheetOpen = true;
+      filterSheet.classList.add("is-open");
+      filterSheet.setAttribute("aria-hidden", "false");
+      body.classList.add("is-sheet-open");
+      updateLabels();
+      clearTimeout(sheetPopTimer);
+      if (focusFilter) {
+        /* Let the drawer arrive first, then unfold the requested dropdown */
+        sheetPopTimer = setTimeout(() => {
+          if (!sheetOpen) return;
+          const btn = document.getElementById({
+            type: "sheetBtnType",
+            price: "sheetBtnPrice",
+            location: "sheetBtnLocation",
+            beds: "sheetBtnBeds",
+            more: "sheetBtnMore",
+          }[focusFilter]);
+          if (btn) openFilter(focusFilter, btn);
+        }, 260);
+      }
+    }
+
+    function closeSheet() {
+      clearTimeout(sheetPopTimer);
+      sheetOpen = false;
+      closePop();
+      filterSheet.classList.remove("is-open");
+      filterSheet.setAttribute("aria-hidden", "true");
+      body.classList.remove("is-sheet-open");
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (openPop) closePop();
+      else if (sheetOpen) closeSheet();
+    });
+
+    document.getElementById("filterSheetScrim").addEventListener("click", closeSheet);
+
+    document.querySelectorAll("[data-open-sheet]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        if (e.target.closest(".chip__x")) return;
+        if (!compact) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openSheet(el.dataset.filter || null);
+      });
+    });
+
+    /* ----- Compact chip clears ----- */
+    const clearQueryChip = document.getElementById("clearQueryChip");
+    if (clearQueryChip) {
+      clearQueryChip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        searchInput.value = "";
+        sheetSearchInput.value = "";
+        syncQuery("main");
+        syncClearVisibility();
+      });
+    }
+    document.getElementById("clearFeaturedChip")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (state.featured) document.getElementById("btnFeatured").click();
+    });
+
+    /* ----- Compact filter bar -----
+       The navbar itself stays put on this page (only the homepage hides it);
+       once the in-page form scrolls away, the filters move up into it. */
+    const NAV_H = 64;
+    const COMPACT_ON = NAV_H + 16;   // form top crosses this → compact
+    const COMPACT_OFF = NAV_H + 28;  // hysteresis so trackpad jitter can't flicker it
+
+    function setCompact(next) {
+      if (next === compact) return;
+      compact = next;
+      body.classList.toggle("is-compact", next);
+      compactBar.setAttribute("aria-hidden", String(!next));
+    }
+
+    function evaluateCompact() {
+      const top = filterForm.getBoundingClientRect().top;
+      if (window.innerWidth <= 1100) {
+        setCompact(false);
+        return;
+      }
+      if (!compact && top < COMPACT_ON) setCompact(true);
+      else if (compact && top > COMPACT_OFF) setCompact(false);
+    }
+
+    let scrollTicking = false;
+    window.addEventListener("scroll", () => {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      requestAnimationFrame(() => {
+        scrollTicking = false;
+        evaluateCompact();
+      });
+    }, { passive: true });
+
+    window.addEventListener("resize", evaluateCompact);
+    evaluateCompact();
+    updateLabels();
+    updateCount();
+
+    /* ----- Full-page circle menu (same as homepage) ----- */
+    const megaMenu = document.getElementById("megaMenu");
+    const xLines = Array.from(menuBtn.querySelectorAll(".menu-btn__x-line"));
+    let closingTimer;
+    let isAnimating = false;
+
+    function replayXDraw() {
+      xLines.forEach((line) => {
+        line.style.animation = "none";
+        line.style.strokeDashoffset = "100";
+      });
+      void menuBtn.offsetHeight;
+      xLines.forEach((line) => {
+        line.style.animation = "";
+        line.style.strokeDashoffset = "";
+      });
+    }
+
+    function placeCircleOrigin() {
+      const rect = menuBtn.getBoundingClientRect();
+      megaMenu.style.setProperty("--cx", `${rect.left + rect.width / 2}px`);
+      megaMenu.style.setProperty("--cy", `${rect.top + rect.height / 2}px`);
+    }
+
+    function openMenu() {
+      if (isAnimating) return;
+      isAnimating = true;
+      clearTimeout(closingTimer);
+      if (sheetOpen) closeSheet();
+      closePop();
+      megaMenu.classList.remove("is-closing");
+      megaMenu.style.clipPath = "";
+      placeCircleOrigin();
+      megaMenu.hidden = false;
+      megaMenu.offsetHeight;
+      megaMenu.classList.add("is-open");
+      menuBtn.classList.add("is-open");
+      replayXDraw();
+      menuBtn.setAttribute("aria-expanded", "true");
+      menuBtn.setAttribute("aria-label", "Close menu");
+      body.classList.add("is-menu-open");
+      setTimeout(() => { isAnimating = false; }, 1100);
+    }
+
+    function closeMenu() {
+      if (isAnimating && !megaMenu.classList.contains("is-open")) return;
+      isAnimating = true;
+      placeCircleOrigin();
+      megaMenu.style.clipPath = "";
+      megaMenu.classList.add("is-closing");
+      megaMenu.classList.remove("is-open");
+      menuBtn.classList.remove("is-open");
+      menuBtn.setAttribute("aria-expanded", "false");
+      menuBtn.setAttribute("aria-label", "Open menu");
+      body.classList.remove("is-menu-open");
+      clearTimeout(closingTimer);
+      closingTimer = setTimeout(() => {
+        megaMenu.classList.remove("is-closing");
+        megaMenu.hidden = true;
+        isAnimating = false;
+      }, 750);
+    }
+
+    menuBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (megaMenu.classList.contains("is-open")) closeMenu();
+      else openMenu();
+    });
+
+    menuBtn.addEventListener("mouseenter", () => {
+      if (menuBtn.classList.contains("is-open")) replayXDraw();
+    });
+
+    megaMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
+        e.preventDefault();
+        closeMenu();
+        const label = link.querySelector(".link-rise")?.dataset.text || link.textContent.trim();
+        toast(`Go to ${label || "page"}`);
+      });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && megaMenu.classList.contains("is-open")) closeMenu();
+    });
+
+    window.addEventListener("resize", () => {
+      if (megaMenu.classList.contains("is-open")) placeCircleOrigin();
+    });
+  </script>
+  <!-- DEV TOOL — "Dropdown tweaks". Hidden unless the URL has ?tweak=1.
+       Saved values (localStorage) always apply. Once final, paste the "Copy values"
+       output into :root and delete this whole block. -->
+  <script>
+    (function dropdownTweaks() {
+      /* The panel is hidden by default. Your saved values still apply; open
+         search.html?tweak=1 to bring the panel back. */
+      var SHOW_PANEL = /[?&]tweak(=1|=true)?(&|$)/.test(window.location.search);
+
+      var KEY = "havenlist.popTweaks.v1";
+      var root = document.documentElement;
+      var EASES = {
+        "Smooth": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "Out expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "Ease in-out": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "Soft": "cubic-bezier(0.33, 0.1, 0.25, 1)",
+        "Overshoot": "cubic-bezier(0.34, 1.4, 0.64, 1)",
+        "Linear": "linear"
+      };
+      var DEFAULTS = {
+        open: 550, close: 300, fade: 160,
+        easeOpen: "Smooth", easeClose: "Smooth",
+        rFrom: 40, rTo: 20, gap: 10, shadow: 12
+      };
+      var SLIDERS = [
+        ["open", "Open duration", 150, 1400, 10, "ms"],
+        ["close", "Close · shrink duration", 100, 1000, 10, "ms"],
+        ["fade", "Close · content dissolve", 0, 600, 10, "ms"],
+        ["rFrom", "Start radius (button)", 0, 40, 1, "px"],
+        ["rTo", "End radius (panel)", 0, 40, 1, "px"],
+        ["gap", "Gap below button", 0, 32, 1, "px"],
+        ["shadow", "Shadow strength", 0, 30, 1, "%"]
+      ];
+
+      var v = {};
+      Object.keys(DEFAULTS).forEach(function (k) { v[k] = DEFAULTS[k]; });
+      try {
+        var saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+        Object.keys(saved).forEach(function (k) { if (k in DEFAULTS) v[k] = saved[k]; });
+      } catch (e) {}
+
+      function vars() {
+        return {
+          "--pop-open": v.open + "ms",
+          "--pop-close": v.close + "ms",
+          "--pop-fade": v.fade + "ms",
+          "--pop-ease-open": EASES[v.easeOpen] || EASES.Smooth,
+          "--pop-ease-close": EASES[v.easeClose] || EASES.Smooth,
+          "--pop-r-from": v.rFrom + "px",
+          "--pop-r-to": v.rTo + "px",
+          "--pop-gap": v.gap + "px",
+          "--pop-shadow": String(v.shadow / 100)
+        };
+      }
+
+      function apply() {
+        var all = vars();
+        Object.keys(all).forEach(function (k) { root.style.setProperty(k, all[k]); });
+        try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {}
+      }
+      apply();
+      if (!SHOW_PANEL) return;
+
+      var css = document.createElement("style");
+      css.textContent =
+        ".tw{position:fixed;left:16px;bottom:16px;z-index:400;font:12px/1.3 var(--font-ui);color:var(--ink)}" +
+        ".tw__btn{height:36px;padding:0 14px;border-radius:36px;background:var(--ink);color:#fff;font-weight:500;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.18)}" +
+        ".tw__card{position:absolute;left:0;bottom:44px;width:296px;max-height:calc(100vh - 80px);overflow:auto;padding:14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none}" +
+        ".tw.is-open .tw__card{display:block}" +
+        ".tw__title{font:500 14px var(--font-display);margin-bottom:10px;letter-spacing:-.01em}" +
+        ".tw__row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-bottom:10px}" +
+        ".tw__row label{color:var(--ink-70)}" +
+        ".tw__row output{font-variant-numeric:tabular-nums;font-weight:500}" +
+        ".tw__row input[type=range]{grid-column:1/3;width:100%;margin:0;accent-color:#1e1e1e}" +
+        ".tw__row select{grid-column:1/3;height:30px;border:1px solid var(--ink-10);border-radius:8px;padding:0 8px;background:#fff;font:inherit}" +
+        ".tw__sec{margin:12px 0 8px;font-weight:500;color:var(--ink-40);letter-spacing:.02em;text-transform:uppercase;font-size:10px}" +
+        ".tw__tests,.tw__acts{display:flex;flex-wrap:wrap;gap:6px}" +
+        ".tw__tests button,.tw__acts button{height:28px;padding:0 10px;border:1px solid var(--ink-10);border-radius:28px;background:#fff;font:500 12px var(--font-ui)}" +
+        ".tw__tests button:hover,.tw__acts button:hover{background:var(--ink-07)}" +
+        ".tw__acts .is-primary{background:var(--ink);color:#fff;border-color:var(--ink)}";
+      document.head.appendChild(css);
+
+      var wrap = document.createElement("div");
+      wrap.className = "tw";
+      wrap.innerHTML =
+        '<div class="tw__card" role="group" aria-label="Dropdown tweaks"><div class="tw__title">Dropdown tweaks</div>' +
+        '<div class="tw__sec">Test (scrolls to top)</div><div class="tw__tests"></div>' +
+        '<div class="tw__sec">Timing &amp; shape</div><div class="tw__sliders"></div>' +
+        '<div class="tw__sec">Easing</div><div class="tw__eases"></div>' +
+        '<div class="tw__sec">&nbsp;</div><div class="tw__acts"></div></div>' +
+        '<button class="tw__btn" type="button" aria-expanded="false">Dropdown tweaks</button>';
+      document.body.appendChild(wrap);
+
+      /* Don't let clicks in the panel count as "outside" clicks that close the dropdown */
+      wrap.addEventListener("click", function (e) { e.stopPropagation(); });
+
+      var toggle = wrap.querySelector(".tw__btn");
+      toggle.addEventListener("click", function () {
+        var open = wrap.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+
+      var inputs = {};
+      function row(key, label, node) {
+        var r = document.createElement("div");
+        r.className = "tw__row";
+        var l = document.createElement("label");
+        l.textContent = label;
+        r.appendChild(l);
+        return r;
+      }
+      var slidersEl = wrap.querySelector(".tw__sliders");
+      SLIDERS.forEach(function (def) {
+        var key = def[0];
+        var r = row(key, def[1]);
+        var out = document.createElement("output");
+        var input = document.createElement("input");
+        input.type = "range";
+        input.min = def[2]; input.max = def[3]; input.step = def[4];
+        function paint() { out.textContent = v[key] + def[5]; input.value = v[key]; }
+        input.addEventListener("input", function () { v[key] = Number(input.value); paint(); apply(); });
+        r.appendChild(out); r.appendChild(input);
+        slidersEl.appendChild(r);
+        inputs[key] = paint;
+        paint();
+      });
+
+      var easesEl = wrap.querySelector(".tw__eases");
+      [["easeOpen", "Open easing"], ["easeClose", "Close easing"]].forEach(function (def) {
+        var key = def[0];
+        var r = row(key, def[1]);
+        var sel = document.createElement("select");
+        Object.keys(EASES).forEach(function (name) {
+          var o = document.createElement("option");
+          o.value = name; o.textContent = name + "  " + (EASES[name] === "linear" ? "" : EASES[name].replace("cubic-bezier", ""));
+          sel.appendChild(o);
+        });
+        function paint() { sel.value = v[key]; }
+        sel.addEventListener("change", function () { v[key] = sel.value; apply(); });
+        r.appendChild(sel);
+        easesEl.appendChild(r);
+        inputs[key] = paint;
+        paint();
+      });
+
+      var tests = wrap.querySelector(".tw__tests");
+      [["Price", "btnPrice"], ["Location", "btnLocation"], ["Beds", "btnBeds"], ["More", "btnMore"]].forEach(function (def) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = def[0];
+        b.addEventListener("click", function () {
+          var target = document.getElementById(def[1]);
+          if (!target) return;
+          if (window.scrollY > 0) { window.scrollTo(0, 0); setTimeout(function () { target.click(); }, 120); }
+          else target.click();
+        });
+        tests.appendChild(b);
+      });
+
+      var acts = wrap.querySelector(".tw__acts");
+      var reset = document.createElement("button");
+      reset.type = "button"; reset.textContent = "Reset";
+      reset.addEventListener("click", function () {
+        Object.keys(DEFAULTS).forEach(function (k) { v[k] = DEFAULTS[k]; if (inputs[k]) inputs[k](); });
+        apply();
+      });
+      var copy = document.createElement("button");
+      copy.type = "button"; copy.className = "is-primary"; copy.textContent = "Copy values";
+      copy.addEventListener("click", function () {
+        var all = vars();
+        var text = ":root {\n" + Object.keys(all).map(function (k) { return "  " + k + ": " + all[k] + ";"; }).join("\n") + "\n}";
+        function done() { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy values"; }, 1400); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { window.prompt("Copy:", text); });
+        else window.prompt("Copy:", text);
+      });
+      acts.appendChild(reset); acts.appendChild(copy);
+    })();
   </script>
 </body>
 </html>

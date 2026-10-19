@@ -2577,6 +2577,7 @@
 
         <nav class="nav-links" aria-label="Primary">
           <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+          <a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a>
           <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
           <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
         </nav>
@@ -2808,7 +2809,7 @@
               <div class="neighborhoods__count-wrap">
                 <span class="neighborhoods__count is-show" id="neighborhoodsCount">(32 Listings)</span>
               </div>
-              <a class="ui-btn neighborhoods__go" href="#listings" aria-label="View Pacific Heights listings">
+              <a class="ui-btn neighborhoods__go" href="neighborhood.html?id=pacific-heights" aria-label="View Pacific Heights listings">
                 <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </a>
             </div>
@@ -2826,7 +2827,7 @@
       </div>
 
       <div class="agents__row" id="agentsRow" role="list">
-        <article class="agents__card is-active" role="listitem" tabindex="0" data-agent="0" aria-label="Sarah Chen, Senior agent">
+        <article class="agents__card is-active" role="listitem" tabindex="0" data-agent="0" data-agent-id="sarah-chen" aria-label="Sarah Chen, Senior agent">
           <img src="assets/agent-sarah.webp" alt="Sarah Chen" width="598" height="800" decoding="async">
           <div class="agents__shade" aria-hidden="true"></div>
           <div class="agents__info">
@@ -2845,7 +2846,7 @@
           </div>
         </article>
 
-        <article class="agents__card" role="listitem" tabindex="0" data-agent="1" aria-label="Julian Vance, Lead agent">
+        <article class="agents__card" role="listitem" tabindex="0" data-agent="1" data-agent-id="julian-vance" aria-label="Julian Vance, Lead agent">
           <img src="assets/agent-julian.webp" alt="Julian Vance" width="598" height="800" decoding="async" loading="lazy">
           <div class="agents__shade" aria-hidden="true"></div>
           <div class="agents__info">
@@ -2864,7 +2865,7 @@
           </div>
         </article>
 
-        <article class="agents__card" role="listitem" tabindex="0" data-agent="2" aria-label="Maya Torres, Luxury specialist">
+        <article class="agents__card" role="listitem" tabindex="0" data-agent="2" data-agent-id="maya-torres" aria-label="Maya Torres, Luxury specialist">
           <img src="assets/agent-maya.webp" alt="Maya Torres" width="601" height="800" decoding="async" loading="lazy">
           <div class="agents__shade" aria-hidden="true"></div>
           <div class="agents__info">
@@ -2883,7 +2884,7 @@
           </div>
         </article>
 
-        <article class="agents__card" role="listitem" tabindex="0" data-agent="3" aria-label="Marcus Sterling, Senior agent">
+        <article class="agents__card" role="listitem" tabindex="0" data-agent="3" data-agent-id="marcus-sterling" aria-label="Marcus Sterling, Senior agent">
           <img src="assets/agent-marcus.webp" alt="Marcus Sterling" width="602" height="800" decoding="async" loading="lazy">
           <div class="agents__shade" aria-hidden="true"></div>
           <div class="agents__info">
@@ -2902,7 +2903,7 @@
           </div>
         </article>
 
-        <article class="agents__card" role="listitem" tabindex="0" data-agent="4" aria-label="Ethan Walsh, Buyer specialist">
+        <article class="agents__card" role="listitem" tabindex="0" data-agent="4" data-agent-id="ethan-walsh" aria-label="Ethan Walsh, Buyer specialist">
           <img src="assets/agent-ethan.webp" alt="Ethan Walsh" width="800" height="800" decoding="async" loading="lazy">
           <div class="agents__shade" aria-hidden="true"></div>
           <div class="agents__info">
@@ -3068,6 +3069,7 @@ said about us</h2>
             <ul class="mega-menu__links mega-menu__links--lg">
               <li><a href="#home"><span class="link-rise" data-text="Home">Home</span></a></li>
               <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a></li>
               <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
               <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
               <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
@@ -3763,10 +3765,11 @@ said about us</h2>
         const COUNTS = [
           "(32 Listings)",
           "(18 Listings)",
-          "(24 Listings)",
           "(14 Listings)",
+          "(10 Listings)",
           "(21 Listings)",
         ];
+        const IDS = ["pacific-heights", "noe-valley", "marina-district", "sausalito", "san-antonio"];
         const NAMES = [
           "Pacific Heights",
           "Noe Valley",
@@ -3790,6 +3793,7 @@ said about us</h2>
           const next = COUNTS[index] || COUNTS[0];
           if (goBtn) {
             goBtn.setAttribute("aria-label", `View ${NAMES[index] || NAMES[0]} listings`);
+            goBtn.setAttribute("href", "neighborhood.html?id=" + (IDS[index] || IDS[0]));
           }
           if (!animate || reduceMotion || countEl.textContent === next) {
             countEl.textContent = next;
@@ -4231,7 +4235,10 @@ said about us</h2>
 
           card.addEventListener("click", function (e) {
             if (e.target.closest(".agents__action")) return;
-            if (card.classList.contains("is-active")) return;
+            if (card.classList.contains("is-active")) {
+              window.location.href = "agent.html?id=" + encodeURIComponent(card.dataset.agentId);
+              return;
+            }
             setActive(index);
           });
 
@@ -4239,6 +4246,10 @@ said about us</h2>
             if (e.key !== "Enter" && e.key !== " ") return;
             if (e.target.closest(".agents__action")) return;
             e.preventDefault();
+            if (card.classList.contains("is-active")) {
+              window.location.href = "agent.html?id=" + encodeURIComponent(card.dataset.agentId);
+              return;
+            }
             setActive(index);
           });
         });

@@ -24,9 +24,6 @@
     n("russian-hill", "Russian Hill", "Northern SF", 2.2, 21, LST + "2.webp", F + "d.webp", [37.8011, -122.4194], 26, 96, 84, ["s2", "fd"],
       "Steep streets, Lombard's famous curves and some of the city's best views. A mix of Edwardian flats and boutique condos, minutes from North Beach and Fisherman's Wharf.",
       ["Lombard and Macondray Lane", "Polk Street dining", "Cable car lines", "Panoramic Bay views"]),
-    n("presidio-heights", "Presidio Heights", "Northern SF", 3.4, 9, LST + "3.webp", F + "a.webp", [37.7889, -122.4515], 31, 88, 68, ["s3"],
-      "Stately homes on quiet, tree-lined blocks beside the Presidio. Sacramento Street's boutiques are a short stroll away.",
-      ["Presidio trails and Crissy Field", "Sacramento Street boutiques", "Excellent schools", "Quiet residential streets"]),
     n("cole-valley", "Cole Valley", "Western SF", 1.5, 12, LST + "4.webp", F + "e.webp", [37.7653, -122.4505], 22, 91, 78, ["s4"],
       "A small, walkable village at the edge of Golden Gate Park, with cafés on Cole Street and the N Judah at the corner.",
       ["Golden Gate Park access", "Cole Street cafés", "N Judah to downtown", "Tiny Victorian streets"]),
@@ -44,9 +41,12 @@
       ["Golden Gate Park and Botanical Garden", "Irving Street dining", "UCSF Parnassus", "N Judah line"]),
     n("bernal-heights", "Bernal Heights", "Central SF", 1.7, 16, LST + "12.webp", F + "e.webp", [37.7388, -122.4151], 25, 85, 66, ["s12"],
       "A hilltop community with a village feel, Cortland Avenue's shops and the open slope of Bernal Hill for sunsets and dog walks.",
-      ["Bernal Hill park", "Cortland Avenue shops", "Community gardens", "Sunny microclimate"])
+      ["Bernal Hill park", "Cortland Avenue shops", "Community gardens", "Sunny microclimate"]),
+    n("san-antonio", "San Antonio", "Texas", 1.2, 21, "assets/neighborhood-san-antonio.webp", F + "a.webp", [29.4241, -98.4936], 41, 62, 30, [],
+      "A warm, historic Texas city of river walks, old missions and neighborhoods with generous lots, with homes that cost far less than the coast.",
+      ["The River Walk and the Alamo", "Five UNESCO-listed missions", "Quiet suburbs with large lots", "Lower cost of living"])
   ];
-  var AREAS = ["Northern SF", "Central SF", "Western SF", "Waterfront", "Marin County"];
+  var AREAS = ["Northern SF", "Central SF", "Western SF", "Waterfront", "Marin County", "Texas"];
 
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function href(g) { return "neighborhood.html?id=" + encodeURIComponent(g.id); }
@@ -65,6 +65,7 @@
     areas: AREAS,
     get: function (id) { return LIST.filter(function (g) { return g.id === id; })[0] || null; },
     href: href, price: price,
+    place: function (g) { return g.id === "sausalito" ? "Sausalito, CA" : g.id === "san-antonio" ? "San Antonio, TX" : g.name + ", San Francisco, CA"; },
     cardHTML: cardHTML,
     mount: function (el, list) { el.innerHTML = list.map(cardHTML).join(""); }
   };
