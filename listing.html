@@ -1098,7 +1098,7 @@
     }
     .map.is-pins .map__legend { opacity: 1; }
     .map__legend span { display: flex; align-items: center; gap: 8px; }
-    .map__legend i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+    .map .map__legend .pin { position: relative; flex: none; width: 18px; opacity: 1; scale: 1; transition: none; }
 
     .pin {
       position: absolute;
@@ -1923,6 +1923,7 @@
   <script src="assets/listings-store.js"></script>
   <script>window.HL_SMOOTH_TAU = 190; /* floatier glide on the long detail page */</script>
   <script src="assets/vendor/leaflet/leaflet.js"></script>
+  <script src="assets/sf-base.js"></script>
   <script src="assets/geo.js"></script>
   <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
@@ -2123,6 +2124,7 @@
       var canvas = $("mapCanvas");
       var lmap = L.map(canvas, { center: geo, zoom: 15, minZoom: 12, maxZoom: 18, zoomControl: false });
       lmap.attributionControl.setPrefix(false);
+      HLGeo.base(lmap, HLGeo.poly(item.place));
       L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
         subdomains: "abcd", maxZoom: 19, attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
       }).addTo(lmap);
@@ -2159,7 +2161,10 @@
             .addTo(group);
         });
         $("mapLegend").innerHTML = HLGeo.CATS.filter(function (c) { return used[c.key]; })
-          .map(function (c) { return '<span><i style="background:' + c.color + '"></i>' + esc(c.label) + "</span>"; }).join("");
+          .map(function (c) {
+            return '<span><span class="pin pin--legend"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg>' +
+              '<span class="pin__dot" style="background-color:' + c.color + '"><svg class="pin__icon" viewBox="' + VB[c.icon] + '" aria-hidden="true"><use href="#' + c.icon + '"/></svg></span></span>' + esc(c.label) + "</span>";
+          }).join("");
       });
 
       var map = $("map");

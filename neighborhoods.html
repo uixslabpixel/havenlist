@@ -1630,28 +1630,397 @@
     }
 
     /* ========== NEIGHBORHOODS PAGE ========== */
-    .nb-featured { margin-top: var(--nav-h); background: var(--white); padding-top: 16px; }
-    .nb-featured__title { text-align: center; font: 500 clamp(34px, 4vw, 48px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); padding: 0 16px 32px; }
-    .nb-stage { --mw: 800px; --sw: 400px; position: relative; overflow: hidden; background: var(--page-bg, #fafaf9); height: calc(var(--mw) * 0.6725 + 0px); }
-    .nb-track { position: absolute; left: 0; top: 0; height: 100%; display: flex; align-items: center; gap: 48px; transition: transform .7s var(--ease-soft); will-change: transform; }
-    .nb-slide { position: relative; flex: none; width: var(--sw); height: calc(var(--sw) * 0.8); border-radius: 16px; overflow: hidden; background: #fff; opacity: .4; display: block; transition: width .7s var(--ease-soft), height .7s var(--ease-soft), opacity .5s; cursor: pointer; }
-    .nb-slide img { position: absolute; left: 50%; top: 0; height: 100%; min-width: 100%; width: auto; transform: translateX(-50%); object-fit: cover; }
-    .nb-slide.is-current { width: var(--mw); height: calc(var(--mw) * 0.6725); opacity: 1; cursor: default; }
-    .nb-details { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: 64px; height: 64px; border-radius: 50%; background: #fff; border: 1px solid rgba(255,255,255,.5); display: grid; place-items: center; font: 500 14px/1 var(--font-ui); letter-spacing: -0.01em; color: var(--ink); text-decoration: none; opacity: 0; scale: .8; transition: opacity .3s, scale .3s var(--ease-soft); pointer-events: none; }
-    .nb-slide.is-current .nb-details { opacity: 1; scale: 1; pointer-events: auto; }
-    .nb-slide.is-current .nb-details:hover { scale: 1.08; }
-    .nb-fade { position: absolute; top: 0; bottom: 0; width: 200px; pointer-events: none; z-index: 2; }
-    .nb-fade--l { left: 0; background: linear-gradient(90deg, #fafaf9, transparent); }
-    .nb-fade--r { right: 0; background: linear-gradient(270deg, #fafaf9, transparent); }
-    .nb-arrow { position: absolute; z-index: 3; top: 50%; translate: 0 -50%; width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 1px solid rgba(30,30,30,.07); color: var(--ink); display: grid; place-items: center; cursor: pointer; transition: background .2s, opacity .2s; }
-    .nb-arrow:hover { background: var(--ink-07); }
-    .nb-arrow:hover svg path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .nb-arrow[disabled] { opacity: .35; pointer-events: none; }
-    .nb-arrow--prev { left: calc(50% - var(--mw) / 2 - var(--sw) * 0.5 - 24px); }
-    .nb-arrow--next { right: calc(50% - var(--mw) / 2 - var(--sw) * 0.5 - 24px); }
-    .nb-caption { background: var(--page-bg, #fafaf9); text-align: center; padding: 32px 24px 24px; }
-    .nb-caption__name { font: 500 32px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
-    .nb-caption__meta { margin-top: 12px; font: 400 20px/1.4 var(--font-ui); letter-spacing: -0.01em; color: rgba(30,30,30,.8); }
+        /* ========== SHARED ICON BUTTON + ARROW ========== */
+    .ui-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+      transition: box-shadow 0.35s var(--ease);
+    }
+
+    .ui-btn:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .ui-btn:disabled,
+    .ui-btn[aria-disabled="true"] {
+      opacity: 0.35;
+      cursor: default;
+      pointer-events: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .ui-arrow {
+      position: relative;
+      display: block;
+      width: 16px;
+      height: 12px;
+      overflow: hidden;
+    }
+
+    /* Raised variant (section-header arrows): inner white rim over a soft
+       top shade, gradient-filled arrow — from the "Logo Arrow" spec */
+    .ui-btn--raised {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 48px;
+    }
+
+    .ui-btn--raised::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--white);
+      border-radius: 44px;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, transparent 100%),
+        var(--white);
+      pointer-events: none;
+    }
+
+    .ui-btn--raised .ui-arrow {
+      z-index: 1;
+    }
+
+    .featured {
+      --featured-card-w: 720px;
+      --featured-card-h: 480px;
+      --featured-gap: 32px;
+      position: relative;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      height: auto;
+      background: var(--paper);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .featured__head {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 40px 32px;
+      flex-shrink: 0;
+    }
+
+    .featured__title-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .featured__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(32px, 4vw, 40px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .featured__all {
+      flex-shrink: 0;
+    }
+
+    .featured__stage {
+      position: relative;
+      height: var(--featured-card-h);
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    .featured__viewport {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .featured__track {
+      display: flex;
+      align-items: center;
+      gap: var(--featured-gap);
+      height: 100%;
+      width: max-content;
+      will-change: transform;
+      transition: transform var(--dur-featured) var(--ease-featured);
+    }
+
+    .featured__track.is-instant,
+    .featured.is-jumping .featured__track {
+      transition: none !important;
+    }
+
+    .featured-card {
+      position: relative;
+      flex: 0 0 var(--featured-card-w);
+      width: var(--featured-card-w);
+      height: var(--featured-card-h);
+      border-radius: 16px;
+      overflow: hidden;
+      background: transparent;
+      cursor: pointer;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      isolation: isolate;
+      opacity: 1;
+      border: 0;
+      outline: none;
+      box-shadow: none;
+    }
+
+    .featured-card.is-active {
+      cursor: none;
+      z-index: 1;
+    }
+
+    .featured-card:focus,
+    .featured-card:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
+    .featured-card__frame {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      overflow: hidden;
+      transform: translateZ(0);
+      background: transparent;
+      border: 0;
+      outline: none;
+    }
+
+    /* Height-locked to frame; only L/R overflow for equal parallax travel */
+    .featured-card__media {
+      position: absolute;
+      top: 0;
+      left: -64px;
+      width: calc(100% + 128px);
+      height: 100%;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      opacity: 1;
+    }
+
+    .featured-card__media img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      opacity: 1;
+      border: 0;
+      outline: none;
+    }
+
+    .featured-card__details {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 2;
+      width: 64px;
+      height: 64px;
+      margin: 0;
+      border-radius: 72px;
+      background: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(-100px, -100px, 0);
+      will-change: transform, opacity;
+      transition: opacity 0.2s var(--ease);
+    }
+
+    .featured-card.is-active.is-hovering .featured-card__details {
+      opacity: 1;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .featured-card.is-active.is-hovering {
+      cursor: none;
+    }
+
+    .featured__fade {
+      position: absolute;
+      top: 0;
+      z-index: 3;
+      width: 160px;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .featured__fade--left {
+      left: 0;
+      background: linear-gradient(90deg, var(--paper) 0%, transparent 100%);
+    }
+
+    .featured__fade--right {
+      right: 0;
+      background: linear-gradient(270deg, var(--paper) 0%, transparent 100%);
+    }
+
+    .featured__nav {
+      position: absolute;
+      top: 50%;
+      z-index: 5;
+      transform: translateY(-50%);
+    }
+
+    .featured__nav--prev {
+      left: max(24px, calc((100% - 1440px) / 2 + 64px));
+    }
+
+    .featured__nav--next {
+      right: max(24px, calc((100% - 1440px) / 2 + 64px));
+    }
+
+    .featured__nav--prev .ui-arrow {
+      transform: scaleX(-1);
+    }
+
+    .featured__meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 32px 24px 48px;
+      text-align: center;
+      min-height: 148px;
+    }
+
+    .featured__meta-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .featured__name {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(24px, 3vw, 32px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .featured__address {
+      font-family: var(--font-ui);
+      font-size: 16px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: rgba(30, 30, 30, 0.8);
+    }
+
+    .featured__stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .featured__stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-ui);
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: rgba(30, 30, 30, 0.8);
+      white-space: nowrap;
+    }
+
+    .featured__stat--price {
+      letter-spacing: -0.01em;
+    }
+
+    .featured__stat-icon {
+      display: block;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: rgba(30, 30, 30, 0.8);
+    }
+
+    .featured__stat-value {
+      font-weight: 400;
+      color: rgba(30, 30, 30, 0.8);
+    }
+
+    @media (max-width: 1100px) {
+      .featured {
+        --featured-card-w: 640px;
+        --featured-card-h: 400px;
+        --featured-gap: 28px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .featured {
+        --featured-card-w: min(86vw, 420px);
+        --featured-card-h: 280px;
+        --featured-gap: 16px;
+        height: auto;
+        min-height: 100vh;
+        padding: 48px 0 32px;
+      }
+
+      .featured__head { padding: 0 24px 24px; }
+      .featured__fade { width: 72px; }
+      .featured__nav--prev { left: 12px; }
+      .featured__nav--next { right: 12px; }
+      .featured-card__details {
+        width: 52px;
+        height: 52px;
+        font-size: 12px;
+      }
+      .featured__meta { padding: 24px 16px 40px; }
+    }
+
+
+    .nbf { height: auto; min-height: 0; margin-top: var(--nav-h); padding: 16px 0 0; }
+    .nbf .featured__head { padding-bottom: 32px; }
+    .nbf .featured__title { font-size: clamp(34px, 4vw, 48px); }
+    .nbf .featured__meta { min-height: 0; padding: 32px 24px 24px; }
+    .nbf .featured__address { font-size: 20px; }
+    /* The navbar filter bar is not used on this page (it lives on the neighborhood detail page) */
+    .compact-bar, .filter-sheet { display: none !important; }
     .nb-more { margin-top: 0; background: transparent; box-shadow: none; padding-top: 32px; }
     .nb-more .search-title { font-size: 32px; }
     .nbs { padding: 16px var(--page-pad) 64px; }
@@ -1710,15 +2079,16 @@
     </div>
   </header>
 
-  <section class="nb-featured" aria-label="Featured neighborhoods">
-    <h1 class="nb-featured__title">Featured Neighborhoods</h1>
-    <div class="nb-stage" id="nbStage">
-      <div class="nb-track" id="nbTrack"></div>
-      <span class="nb-fade nb-fade--l" aria-hidden="true"></span><span class="nb-fade nb-fade--r" aria-hidden="true"></span>
-      <button class="nb-arrow nb-arrow--prev" id="nbPrev" type="button" aria-label="Previous neighborhood"><svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path class="ui-arrow-path" pathLength="100" d="M15 6H1.4M5.6 1.4L1 6l4.6 4.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <button class="nb-arrow nb-arrow--next" id="nbNext" type="button" aria-label="Next neighborhood"><svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path class="ui-arrow-path" pathLength="100" d="M1 6h13.6M10.4 1.4L15 6l-4.6 4.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <section class="featured nbf" aria-label="Featured neighborhoods">
+    <div class="featured__head"><div class="featured__title-row"><h1 class="featured__title">Featured Neighborhoods</h1></div></div>
+    <div class="featured__stage">
+      <div class="featured__fade featured__fade--left" aria-hidden="true"></div>
+      <div class="featured__fade featured__fade--right" aria-hidden="true"></div>
+      <button class="ui-btn featured__nav featured__nav--prev" type="button" id="featuredPrev" aria-label="Previous neighborhood"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+      <button class="ui-btn featured__nav featured__nav--next" type="button" id="featuredNext" aria-label="Next neighborhood"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+      <div class="featured__viewport" id="featuredViewport"><div class="featured__track" id="featuredTrack" aria-live="polite"></div></div>
     </div>
-    <div class="nb-caption" aria-live="polite"><h2 class="nb-caption__name" id="nbName"></h2><p class="nb-caption__meta" id="nbMeta"></p></div>
+    <div class="featured__meta"><div class="featured__meta-copy"><h2 class="featured__name" id="featuredName"></h2><p class="featured__address" id="featuredAddress"></p></div></div>
   </section>
 
   <section class="search-header nb-more" aria-label="Neighborhood filters">
@@ -1960,6 +2330,7 @@
 
   <script src="assets/listings-store.js"></script>
   <script src="assets/neighborhoods.js"></script>
+  <script src="parallax.js"></script>
   <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
@@ -2286,6 +2657,7 @@
     }
 
     function evaluateCompact() {
+      return; /* navbar filter bar is not used on this page */
       const top = filterForm.getBoundingClientRect().top;
       if (window.innerWidth <= 1100) {
         setCompact(false);
@@ -2311,35 +2683,157 @@
     render();
 
 
-    /* ----- Featured carousel ----- */
-    (function () {
-      const feat = HLNeighborhoods.featured();
-      const track = document.getElementById("nbTrack"), stage = document.getElementById("nbStage");
-      const prev = document.getElementById("nbPrev"), next = document.getElementById("nbNext");
-      track.innerHTML = feat.map((g) => `<div class="nb-slide" data-id="${g.id}"><img src="${g.hero}" alt="${esc(g.name)}"><a class="nb-details" href="${HLNeighborhoods.href(g)}" aria-label="Details: ${esc(g.name)}">Details</a></div>`).join("");
-      const slides = Array.from(track.children);
-      let cur = 0;
-      function layout() {
-        const mw = Math.min(800, window.innerWidth - 96);
-        stage.style.setProperty("--mw", mw + "px");
-        stage.style.setProperty("--sw", mw / 2 + "px");
-        const x = stage.clientWidth / 2 - mw / 2 - cur * (mw / 2 + 48);
-        track.style.transform = `translateX(${x}px)`;
+    /* ----- Featured carousel: same treatment as the homepage's Featured Listings ----- */
+    (function initFeatured() {
+      const LISTINGS = HLNeighborhoods.featured().map(function (g) {
+        return { id: g.id, name: g.name, address: HLNeighborhoods.price(g) + " Average Prices (" + g.count + " Listings)", image: g.hero, alt: g.name };
+      });
+      const FX = { dur: 1000, parallax: 36, ease: "Featured", imgEase: "Lag" };
+      function cubicBezier(x1, y1, x2, y2) {
+        const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+        const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+        const sampleX = (t) => ((ax * t + bx) * t + cx) * t;
+        const sampleY = (t) => ((ay * t + by) * t + cy) * t;
+        return function (x) { let lo = 0, hi = 1, t = x; for (let i = 0; i < 24; i++) { if (sampleX(t) < x) lo = t; else hi = t; t = (lo + hi) / 2; } return sampleY(t); };
       }
-      function go(i, instant) {
-        cur = Math.max(0, Math.min(feat.length - 1, i));
-        slides.forEach((s, k) => s.classList.toggle("is-current", k === cur));
-        const g = feat[cur];
-        document.getElementById("nbName").textContent = g.name;
-        document.getElementById("nbMeta").textContent = `${HLNeighborhoods.price(g)} Average Prices (${g.count} Listings)`;
-        prev.disabled = cur === 0; next.disabled = cur === feat.length - 1;
-        if (instant) { track.style.transition = "none"; layout(); void track.offsetWidth; track.style.transition = ""; } else layout();
+      const EASE_FN = { Featured: cubicBezier(0.38, 0, 0, 1), Lag: cubicBezier(0.5, 0, 0.2, 1) };
+      const easeOf = (name) => EASE_FN[name] || ((t) => t);
+      const COPIES = 3, N = LISTINGS.length, PLAY_PAD = 2, midCopy = Math.floor(COPIES / 2);
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const root = document.querySelector(".featured");
+      const track = document.getElementById("featuredTrack");
+      const viewport = document.getElementById("featuredViewport");
+      const nameEl = document.getElementById("featuredName");
+      const addressEl = document.getElementById("featuredAddress");
+      let logical = 0, visual = midCopy * N, animating = false, animTimer = 0, cursorRaf = 0, cursorActive = false;
+      const cursorTarget = { x: 0, y: 0 }, cursorPos = { x: 0, y: 0 };
+
+      function cssPx(varName, fallback) {
+        const raw = getComputedStyle(root).getPropertyValue(varName).trim();
+        if (!raw) return fallback;
+        if (raw.endsWith("px")) return parseFloat(raw);
+        const probe = document.createElement("div");
+        probe.style.cssText = "position:absolute;visibility:hidden;width:" + raw;
+        document.body.appendChild(probe);
+        const w = probe.getBoundingClientRect().width; probe.remove();
+        return w || fallback;
       }
-      prev.addEventListener("click", () => go(cur - 1));
-      next.addEventListener("click", () => go(cur + 1));
-      slides.forEach((s, k) => s.addEventListener("click", (e) => { if (k !== cur && !e.target.closest(".nb-details")) go(k); }));
-      window.addEventListener("resize", () => go(cur, true));
-      go(0, true);
+      function cardSize() { return { w: cssPx("--featured-card-w", 720), gap: parseFloat(getComputedStyle(track).gap) || 32 }; }
+
+      function startCursorLoop() {
+        if (cursorRaf) return;
+        const tick = function () {
+          const active = track.querySelector(".featured-card.is-active");
+          const details = active && active.querySelector(".featured-card__details");
+          if (!active || !details || !cursorActive) { cursorRaf = 0; return; }
+          cursorPos.x += (cursorTarget.x - cursorPos.x) * 0.18;
+          cursorPos.y += (cursorTarget.y - cursorPos.y) * 0.18;
+          details.style.transform = "translate3d(" + cursorPos.x + "px, " + cursorPos.y + "px, 0)";
+          cursorRaf = requestAnimationFrame(tick);
+        };
+        cursorRaf = requestAnimationFrame(tick);
+      }
+      function bindCursor(card) {
+        const details = card.querySelector(".featured-card__details");
+        const half = () => (details.offsetWidth || 64) / 2;
+        function setFromEvent(e, jump) {
+          const rect = card.getBoundingClientRect(), h = half();
+          cursorTarget.x = e.clientX - rect.left - h; cursorTarget.y = e.clientY - rect.top - h;
+          if (jump) { cursorPos.x = cursorTarget.x; cursorPos.y = cursorTarget.y; details.style.transform = "translate3d(" + cursorPos.x + "px, " + cursorPos.y + "px, 0)"; }
+        }
+        card.addEventListener("pointerenter", function (e) { if (!card.classList.contains("is-active")) return; setFromEvent(e, true); cursorActive = true; card.classList.add("is-hovering"); startCursorLoop(); });
+        card.addEventListener("pointermove", function (e) { if (!card.classList.contains("is-active")) return; setFromEvent(e, !cursorActive); cursorActive = true; card.classList.add("is-hovering"); startCursorLoop(); });
+        card.addEventListener("pointerleave", function () { cursorActive = false; card.classList.remove("is-hovering"); });
+      }
+      function buildCard(item, logicalIndex, copyIndex) {
+        const card = document.createElement("article");
+        card.className = "featured-card"; card.dataset.logical = String(logicalIndex);
+        card.setAttribute("role", "group"); card.setAttribute("aria-label", item.name);
+        const frame = document.createElement("div"); frame.className = "featured-card__frame";
+        const media = document.createElement("div"); media.className = "featured-card__media";
+        const img = document.createElement("img");
+        img.src = item.image; img.alt = item.alt; img.draggable = false; img.decoding = "async";
+        img.loading = copyIndex === midCopy ? "eager" : "lazy"; img.width = 720; img.height = 480;
+        media.appendChild(img); frame.appendChild(media); card.appendChild(frame);
+        const details = document.createElement("a");
+        details.className = "featured-card__details"; details.href = HLNeighborhoods.href(item);
+        details.textContent = "Details"; details.setAttribute("aria-label", "View details for " + item.name);
+        details.tabIndex = -1; details.setAttribute("aria-hidden", "true");
+        details.addEventListener("click", function (e) { e.stopPropagation(); });
+        card.appendChild(details);
+        card.addEventListener("click", function (e) { if (e.target.closest(".featured-card__details")) return; if (animating) return; goToNearestLogical(Number(card.dataset.logical)); });
+        bindCursor(card);
+        return card;
+      }
+      function renderTrack() {
+        track.replaceChildren();
+        for (let c = 0; c < COPIES; c++) LISTINGS.forEach(function (item, i) { track.appendChild(buildCard(item, i, c)); });
+        syncActiveClass();
+      }
+      function syncActiveClass() {
+        Array.from(track.children).forEach(function (card, i) {
+          const on = i === visual;
+          card.classList.toggle("is-active", on); card.setAttribute("aria-current", on ? "true" : "false");
+          if (!on) card.classList.remove("is-hovering");
+          const details = card.querySelector(".featured-card__details");
+          if (details) { details.tabIndex = on ? 0 : -1; details.setAttribute("aria-hidden", on ? "false" : "true"); }
+        });
+      }
+      function computeTranslate(activeIndex) { const s = cardSize(); return viewport.clientWidth / 2 - (activeIndex * (s.w + s.gap) + s.w / 2); }
+      function position(instant) {
+        const tx = computeTranslate(visual);
+        if (instant) { root.classList.add("is-jumping"); track.classList.add("is-instant"); }
+        track.style.transform = "translate3d(" + tx + "px, 0, 0)";
+        if (instant) { void track.offsetHeight; track.classList.remove("is-instant"); root.classList.remove("is-jumping"); }
+      }
+      function isInPlay(index, a, b) { return index >= Math.min(a, b) - PLAY_PAD && index <= Math.max(a, b) + PLAY_PAD; }
+      function lagShape() {
+        const frame = easeOf(FX.ease), image = easeOf(FX.imgEase), samples = []; let peak = 0;
+        for (let i = 0; i <= 48; i++) { const d = frame(i / 48) - image(i / 48); samples.push(d); peak = Math.max(peak, Math.abs(d)); }
+        return samples.map((d) => (peak ? d / peak : 0));
+      }
+      function driveImageParallax(direction, fromVisual, toVisual) {
+        if (reduceMotion || typeof Element.prototype.animate !== "function") return;
+        const frames = lagShape().map((v) => ({ transform: "translate3d(" + (direction * FX.parallax * v).toFixed(2) + "px, 0, 0)" }));
+        Array.from(track.children).forEach(function (card, i) {
+          if (!isInPlay(i, fromVisual, toVisual)) return;
+          const media = card.querySelector(".featured-card__media"); if (!media) return;
+          media.getAnimations().forEach((anim) => anim.cancel());
+          media.animate(frames, { duration: FX.dur, easing: "linear" });
+        });
+      }
+      function updateMeta(item) { nameEl.textContent = item.name; addressEl.textContent = item.address; }
+      function normalizeIfNeeded() {
+        const midStart = midCopy * N, midEnd = midStart + N - 1;
+        if (visual >= midStart && visual <= midEnd) return;
+        root.classList.add("is-jumping"); track.classList.add("is-instant");
+        visual = midStart + logical; syncActiveClass();
+        track.style.transform = "translate3d(" + computeTranslate(visual) + "px, 0, 0)"; void track.offsetHeight;
+        requestAnimationFrame(function () { track.classList.remove("is-instant"); root.classList.remove("is-jumping"); });
+      }
+      function finishAnim() { requestAnimationFrame(function () { normalizeIfNeeded(); animating = false; }); }
+      function goToVisual(nextVisual) {
+        if (animating) return;
+        if (nextVisual < 0 || nextVisual >= track.children.length || nextVisual === visual) return;
+        const fromVisual = visual, direction = nextVisual > visual ? 1 : -1;
+        animating = true; cursorActive = false; clearTimeout(animTimer);
+        visual = nextVisual; logical = Number(track.children[visual].dataset.logical);
+        syncActiveClass(); updateMeta(LISTINGS[logical]); driveImageParallax(direction, fromVisual, nextVisual); position(false);
+        const onEnd = function (e) { if (e.target !== track || e.propertyName !== "transform") return; track.removeEventListener("transitionend", onEnd); clearTimeout(animTimer); finishAnim(); };
+        track.addEventListener("transitionend", onEnd);
+        animTimer = setTimeout(function () { track.removeEventListener("transitionend", onEnd); if (animating) finishAnim(); }, FX.dur + 80);
+      }
+      function goToNearestLogical(target) {
+        if (animating) return;
+        let best = -1, bestDist = 1e9;
+        Array.from(track.children).forEach(function (card, i) { if (Number(card.dataset.logical) === target && Math.abs(i - visual) < bestDist) { best = i; bestDist = Math.abs(i - visual); } });
+        if (best >= 0) goToVisual(best);
+      }
+      document.getElementById("featuredPrev").addEventListener("click", () => goToVisual(visual - 1));
+      document.getElementById("featuredNext").addEventListener("click", () => goToVisual(visual + 1));
+      renderTrack(); updateMeta(LISTINGS[logical]); position(true);
+      let resizeTimer = 0;
+      window.addEventListener("resize", function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(function () { if (!animating) position(true); }, 120); });
     })();
 
     /* ----- Full-page circle menu (same as homepage) ----- */

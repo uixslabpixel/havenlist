@@ -1810,13 +1810,9 @@
         <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         Back to wishlist
       </a>
-      <h1 class="wl__title" id="wlName">Wishlist</h1>
-      <p class="wl__sub" id="wlCount"></p>
+      <h1 class="wl__title" id="wlName">My wishlist</h1>
     </div>
-    <section class="wl__sec wl__sec--first">
-      <h2 class="wl__h2" id="wlHead">Listings you saved</h2>
-      <div class="wl__grid" id="wlItems"></div>
-    </section>
+    <div class="wl__grid" id="wlItems"></div>
   </main>
 
   <footer class="site-footer">
@@ -2059,12 +2055,10 @@
     var rendered = "";
     function render() {
       var d = W.data(), list = d.lists.filter(function (l) { return l.id === id; })[0];
-      if (!list) { $("wlName").textContent = "Wishlist not found"; $("wlCount").textContent = ""; $("wlHead").hidden = true; $("wlItems").innerHTML = '<p class="wl__empty">This wishlist no longer exists. <a href="wishlist.html" style="text-decoration:underline">Back to your wishlists</a></p>'; return; }
+      if (!list) { $("wlName").textContent = "Wishlist not found"; $("wlItems").innerHTML = '<p class="wl__empty">This wishlist no longer exists. <a href="wishlist.html" style="text-decoration:underline">Back to your wishlists</a></p>'; return; }
       var items = list.items.map(W.listing).filter(Boolean), key = items.map(function (l) { return l.id; }).join();
       document.title = list.name + " — Havenlist";
       $("wlName").textContent = list.name;
-      $("wlCount").textContent = items.length + " Listing" + (items.length === 1 ? "" : "s") + " added";
-      $("wlHead").textContent = list.name;
       if (key !== rendered) {
         rendered = key;
         if (items.length) HLCard.mount($("wlItems"), items);

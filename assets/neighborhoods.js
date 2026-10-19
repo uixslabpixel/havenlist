@@ -3,10 +3,11 @@
 (function () {
   var NB = "assets/neighborhoods/", LST = "assets/listings/listing-";
   function n(id, name, area, avg, count, image, hero, ll, days, walk, transit, listings, about, highlights) {
-    return { id: id, name: name, area: area, avg: avg, count: count, image: image, hero: hero, ll: ll, days: days, walk: walk, transit: transit,
+    return { poly: POLY[id] || [], id: id, name: name, area: area, avg: avg, count: count, image: image, hero: hero, ll: ll, days: days, walk: walk, transit: transit,
       listings: listings, about: about, highlights: highlights };
   }
   var F = "assets/featured-";
+  var POLY = {"pacific-heights": ["Pacific Heights"], "noe-valley": ["Noe Valley"], "marina-district": ["Marina"], "sausalito": [], "russian-hill": ["Russian Hill"], "presidio-heights": ["Presidio Heights"], "cole-valley": ["Haight Ashbury"], "nob-hill": ["Nob Hill"], "south-beach": ["South of Market"], "sea-cliff": ["Seacliff"], "inner-sunset": ["Inner Sunset"], "bernal-heights": ["Bernal Heights"]};
   var LIST = [
     n("pacific-heights", "Pacific Heights", "Northern SF", 2.1, 32, NB + "n-pacific-heights.webp", NB + "hero-pacific-heights.webp", [37.7925, -122.4372], 24, 94, 82, ["s1", "fa"],
       "Grand Victorians and Edwardians along Broadway and Pacific Avenue, with sweeping views of the Bay and the Golden Gate. Quiet, leafy and walkable, it is one of the city's most established addresses.",

@@ -1,4 +1,4 @@
-/* Havenlist card parallax — shared by search.html and listing.html (similar listings).
+/* Havenlist card parallax — shared by search.html, listing.html (similar listings) and the neighborhood cards.
    Each listing image is taller than its frame and drifts inside it as the card
    scrolls through the viewport (CSS var --py, consumed by `translate`).
 
@@ -26,7 +26,7 @@ window.HLParallax = (function () {
 
   /* Pick up cards that were rendered (or re-rendered) since the last scan */
   function scan() {
-    var frames = document.querySelectorAll(".card__media");
+    var frames = document.querySelectorAll(".card__media, .nb-card__media");
     for (var i = 0; i < frames.length; i++) {
       var f = frames[i];
       if (known.has(f)) continue;

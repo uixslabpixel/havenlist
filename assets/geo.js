@@ -103,7 +103,38 @@
     }).catch(function () { clearTimeout(t); fallback(); });
   }
 
+
+  /* Offline base map: San Francisco neighbourhood outlines drawn under the tiles, so the map is
+     never blank when tiles can't be loaded. Real tiles (when reachable) simply cover it. */
+  function base(map, highlight) {
+    var L = window.L, data = window.HL_SF_BASE;
+    if (!L || !data) return;
+    var el = map.getContainer();
+    el.style.background = "#cfdde8";
+    map.createPane("hlbase").style.zIndex = 150;
+    var hl = {}; (highlight || []).forEach(function (n) { hl[n] = 1; });
+    var labels = L.layerGroup().addTo(map);
+    data.forEach(function (n) {
+      var park = n.n === "Golden Gate Park" || n.n === "Presidio";
+      var on = hl[n.n];
+      var poly = L.polygon(n.r, { pane: "hlbase", interactive: false, weight: on ? 2 : 1, color: on ? "#1e1e1e" : "#d6d1c6",
+        fillColor: on ? "#ece4d3" : park ? "#dce8d0" : "#f4f2ed", fillOpacity: 1 }).addTo(map);
+      var c = poly.getBounds().getCenter();
+      L.marker(c, { interactive: false, keyboard: false, icon: L.divIcon({ className: "hl-nblabel" + (on ? " is-on" : ""), html: n.n, iconSize: [90, 14], iconAnchor: [45, 7] }) }).addTo(labels);
+    });
+    function toggle() { el.classList.toggle("hl-nolabels", map.getZoom() < 13); }
+    map.on("zoomend", toggle); toggle();
+  }
+
   window.HLGeo = {
+    base: base,
+    poly: function (place) {
+      var m = { "Pacific Heights": "Pacific Heights", "Russian Hill": "Russian Hill", "Russian Hill Terrace": "Russian Hill", "Presidio Heights": "Presidio Heights",
+        "Cole Valley": "Haight Ashbury", "Noe Valley": "Noe Valley", "Noe Valley Loft": "Noe Valley", "Nob Hill": "Nob Hill", "South Beach": "South of Market",
+        "Rincon Hill": "South of Market", "Sea Cliff": "Seacliff", "Marina District": "Marina", "Marina Vista": "Marina", "Inner Sunset": "Inner Sunset",
+        "Bernal Heights": "Bernal Heights", "Mission Modern": "Mission" };
+      return m[place] ? [m[place]] : [];
+    },
     CATS: CATS,
     center: function (item) { return COORDS[item && item.id] || CENTER; },
     pois: pois

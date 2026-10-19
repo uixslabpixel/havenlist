@@ -1764,11 +1764,24 @@
     .nbd__sec { max-width: 1312px; margin: 64px auto 0; }
     .nbd__map { position: relative; height: 420px; border-radius: 24px; overflow: hidden; background: #e8e8e6; isolation: isolate; }
     .nbd__legend { position: absolute; left: 16px; bottom: 16px; z-index: 500; display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.94); font: 400 13px/1.2 var(--font-ui); color: var(--ink); }
-    .nbd__legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
     .nbd__map .leaflet-control-attribution { font-size: 10px; }
     .nbd__grid, .nbd__more { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
     .nbd__grid .card__media img { top: 0; height: 100%; translate: none; will-change: auto; }
     .nbd__empty { grid-column: 1 / -1; padding: 32px; border-radius: 16px; background: #fff; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .hl-mk { background: none; border: 0; }
+    .hl-mk .pin__shape { z-index: 0; }
+    .hl-mk .pin__dot { z-index: 1; }
+    .hl-mk .pin { width: 100%; }
+    .pin { position: relative; display: block; width: 30px; aspect-ratio: 48.55 / 64; cursor: pointer; }
+    .pin__shape { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+    .pin__dot { position: absolute; z-index: 1; left: 9.09%; top: 6.9%; width: 81.82%; height: 62.07%; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-image: linear-gradient(180deg, rgba(0,0,0,.05), transparent); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+    .pin--main .pin__dot { background-color: var(--ink); background-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent); }
+    .pin__icon { height: 44%; width: auto; display: block; }
+    .pin--main .pin__icon { height: 60%; }
+    .nbd__legend .pin { width: 18px; flex: none; }
+    .nbd__legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .leaflet-tooltip.hl-tip { padding: 6px 10px; border: 0; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.16); font: 500 13px/1.2 var(--font-ui); color: var(--ink); }
+    .leaflet-tooltip.hl-tip::before { display: none; }
     .hl-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
     @media (max-width: 1100px) { .nbd__grid, .nbd__more { grid-template-columns: repeat(2, 1fr); } .nbd__stats { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 900px) { .nbd { padding: 32px 24px 72px; } .nbd__about { grid-template-columns: 1fr; gap: 32px; } }
@@ -1776,6 +1789,14 @@
   </style>
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="p-main" viewBox="0 0 15 21"><path d="M0 7.38281C0 3.28125 3.35938 0 7.5 0C11.6406 0 15 3.28125 15 7.38281C15 12.0312 10.3125 17.6172 8.35938 19.7266C7.89062 20.2344 7.10938 20.2344 6.64062 19.7266C4.6875 17.6172 0 12.0312 0 7.38281ZM7.5 10C8.86719 10 10 8.86719 10 7.5C10 6.13281 8.86719 5 7.5 5C6.13281 5 5 6.13281 5 7.5C5 8.86719 6.13281 10 7.5 10Z" fill="#fff"/></symbol>
+<symbol id="p-0" viewBox="0 0 10 10"><path d="M0.9375 0.273438L1.21094 2.92969C1.21094 3.04688 1.30859 3.125 1.42578 3.125C1.52344 3.125 1.62109 3.04688 1.64062 2.92969L1.875 0.292969C1.89453 0.117188 2.03125 0 2.1875 0C2.34375 0 2.48047 0.117188 2.5 0.292969L2.73438 2.92969C2.75391 3.04688 2.85156 3.125 2.94922 3.125C3.06641 3.125 3.16406 3.04688 3.18359 2.92969L3.4375 0.273438C3.45703 0.117188 3.59375 0 3.75 0C3.90625 0 4.04297 0.117188 4.0625 0.273438L4.33594 2.92969C4.35547 3.04688 4.375 3.16406 4.375 3.28125C4.375 4.17969 3.69141 4.92188 2.8125 5V9.375C2.8125 9.72656 2.53906 10 2.1875 10C1.83594 10 1.5625 9.72656 1.5625 9.375V5C0.683594 4.92188 0 4.17969 0 3.28125C0 3.16406 0.0195312 3.04688 0.0390625 2.92969L0.3125 0.273438C0.332031 0.117188 0.46875 0 0.625 0C0.78125 0 0.917969 0.117188 0.9375 0.273438ZM8.4375 0C8.78906 0 9.0625 0.273438 9.0625 0.625V9.375C9.0625 9.72656 8.78906 10 8.4375 10C8.08594 10 7.8125 9.72656 7.8125 9.375V6.875H7.1875C6.50391 6.875 5.9375 6.30859 5.9375 5.625V3.4375C5.9375 0.625 8.125 0 8.4375 0Z" fill="#fff"/></symbol>
+<symbol id="p-1" viewBox="0 0 12 10"><path d="M2.5 1.25C2.5 0.566406 3.06641 0 3.75 0H7.5C8.18359 0 8.75 0.566406 8.75 1.25V2.5H10C10.6836 2.5 11.25 3.06641 11.25 3.75V8.75C11.25 9.43359 10.6836 10 10 10H1.25C0.566406 10 0 9.43359 0 8.75V3.75C0 3.06641 0.566406 2.5 1.25 2.5H2.5V1.25ZM5.3125 6.875C4.96094 6.875 4.6875 7.14844 4.6875 7.5V9.0625H6.5625V7.5C6.5625 7.14844 6.28906 6.875 5.9375 6.875H5.3125ZM2.5 7.1875V6.5625C2.5 6.38672 2.36328 6.25 2.1875 6.25H1.5625C1.38672 6.25 1.25 6.38672 1.25 6.5625V7.1875C1.25 7.36328 1.38672 7.5 1.5625 7.5H2.1875C2.36328 7.5 2.5 7.36328 2.5 7.1875ZM2.1875 5C2.36328 5 2.5 4.86328 2.5 4.6875V4.0625C2.5 3.88672 2.36328 3.75 2.1875 3.75H1.5625C1.38672 3.75 1.25 3.88672 1.25 4.0625V4.6875C1.25 4.86328 1.38672 5 1.5625 5H2.1875ZM10 7.1875V6.5625C10 6.38672 9.86328 6.25 9.6875 6.25H9.0625C8.88672 6.25 8.75 6.38672 8.75 6.5625V7.1875C8.75 7.36328 8.88672 7.5 9.0625 7.5H9.6875C9.86328 7.5 10 7.36328 10 7.1875ZM9.6875 5C9.86328 5 10 4.86328 10 4.6875V4.0625C10 3.88672 9.86328 3.75 9.6875 3.75H9.0625C8.88672 3.75 8.75 3.88672 8.75 4.0625V4.6875C8.75 4.86328 8.88672 5 9.0625 5H9.6875ZM5.15625 2.03125V2.65625H4.53125C4.35547 2.65625 4.21875 2.79297 4.21875 2.96875V3.28125C4.21875 3.45703 4.35547 3.59375 4.53125 3.59375H5.15625V4.21875C5.15625 4.39453 5.29297 4.53125 5.46875 4.53125H5.78125C5.95703 4.53125 6.09375 4.39453 6.09375 4.21875V3.59375H6.71875C6.89453 3.59375 7.03125 3.45703 7.03125 3.28125V2.96875C7.03125 2.79297 6.89453 2.65625 6.71875 2.65625H6.09375V2.03125C6.09375 1.85547 5.95703 1.71875 5.78125 1.71875H5.46875C5.29297 1.71875 5.15625 1.85547 5.15625 2.03125Z" fill="#fff"/></symbol>
+<symbol id="p-2" viewBox="0 0 12 11"><path d="M0.46875 0H1.34766C1.875 0 2.34375 0.371094 2.42188 0.898438L2.44141 0.9375H10.4883C10.8984 0.9375 11.1914 1.28906 11.1133 1.67969L10.5078 4.92188C10.3906 5.50781 9.88281 5.9375 9.27734 5.9375H3.33984L3.45703 6.48438C3.49609 6.71875 3.69141 6.875 3.90625 6.875H8.90625C9.16016 6.875 9.375 7.08984 9.375 7.34375C9.375 7.59766 9.16016 7.8125 8.90625 7.8125H3.90625C3.22266 7.8125 2.65625 7.32422 2.51953 6.66016L1.50391 1.07422C1.50391 0.996094 1.42578 0.9375 1.34766 0.9375H0.46875C0.214844 0.9375 0 0.722656 0 0.46875C0 0.214844 0.214844 0 0.46875 0ZM4.0625 10.3125C3.53516 10.3125 3.125 9.90234 3.125 9.375C3.125 8.84766 3.53516 8.4375 4.0625 8.4375C4.58984 8.4375 5 8.84766 5 9.375C5 9.90234 4.58984 10.3125 4.0625 10.3125ZM8.4375 10.3125C7.91016 10.3125 7.5 9.90234 7.5 9.375C7.5 8.84766 7.91016 8.4375 8.4375 8.4375C8.96484 8.4375 9.375 8.84766 9.375 9.375C9.375 9.90234 8.96484 10.3125 8.4375 10.3125Z" fill="#fff"/></symbol>
+<symbol id="p-3" viewBox="0 0 8 11"><path d="M0 1.875C0 0.839844 0.839844 0 1.875 0H5.625C6.66016 0 7.5 0.839844 7.5 1.875V6.875C7.5 7.65625 7.01172 8.33984 6.34766 8.61328L7.38281 9.86328C7.55859 10.0586 7.53906 10.3516 7.34375 10.5078C7.14844 10.6836 6.83594 10.6641 6.67969 10.4688L5.23438 8.75H2.28516L0.839844 10.4688C0.664062 10.6641 0.371094 10.6836 0.175781 10.5078C-0.0195312 10.3516 -0.0585938 10.0586 0.117188 9.86328L1.17188 8.61328C0.488281 8.33984 0 7.65625 0 6.875V1.875ZM1.25 2.5V4.375C1.25 4.72656 1.52344 5 1.875 5H5.625C5.97656 5 6.25 4.72656 6.25 4.375V2.5C6.25 2.14844 5.97656 1.875 5.625 1.875H1.875C1.52344 1.875 1.25 2.14844 1.25 2.5ZM3.75 7.5C4.10156 7.5 4.375 7.22656 4.375 6.875C4.375 6.52344 4.10156 6.25 3.75 6.25C3.39844 6.25 3.125 6.52344 3.125 6.875C3.125 7.22656 3.39844 7.5 3.75 7.5Z" fill="#fff"/></symbol>
+<symbol id="pin-shape" viewBox="0 0 48.55 64"><path transform="translate(1.24 1.21)" d="M23.947 61.1626L41.4402 35.3615C45.1597 29.8756 46.2351 22.9583 44.408 16.5873C42.7801 10.9111 38.9283 6.06817 33.7433 3.24255C27.079 -0.389227 19.0156 -0.339927 12.3962 3.37306L11.6203 3.8083C6.50239 6.67906 2.76795 11.5031 1.27118 17.1771C-0.325691 23.2305 0.774188 29.6788 4.28745 34.8605L22.1204 61.1626C22.5581 61.8083 23.5093 61.8083 23.947 61.1626Z" fill="#D9D9D9" stroke="#1E1E1E" stroke-opacity="0.1" stroke-width="1.1"/><path transform="translate(1.8 1.77)" d="M12.1113 3.2998C18.5652 -0.320314 26.4272 -0.36906 32.9248 3.17188C37.9788 5.92609 41.7357 10.6489 43.3232 16.1846C45.1058 22.4001 44.0554 29.148 40.4287 34.4971L22.9355 60.2979C22.7167 60.6207 22.2413 60.6207 22.0225 60.2979L4.18945 33.9961C0.76571 28.9463 -0.306195 22.6619 1.25 16.7627C2.70873 11.2334 6.3485 6.53195 11.3359 3.73438L12.1113 3.2998Z" fill="#fff"/></symbol>
+</defs></svg>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
 <symbol id="i-tree" viewBox="0 0 13 16"><path d="M6.13594 0C6.32734 0 6.49141 0.0820312 6.62813 0.21875L10.3469 4.62109C10.5109 4.8125 10.5383 5.08594 10.4289 5.30469C10.3195 5.55078 10.1008 5.6875 9.85469 5.6875H9.17109L11.2219 8.12109C11.3859 8.3125 11.4133 8.58594 11.3039 8.80469C11.1945 9.05078 10.9758 9.1875 10.7297 9.1875H9.66328L12.0969 12.0586C12.2609 12.25 12.2883 12.5234 12.1789 12.7422C12.0695 12.9883 11.8508 13.125 11.6047 13.125H6.79219V15.0938C6.79219 15.4492 6.49141 15.75 6.13594 15.75C5.75313 15.75 5.47969 15.4492 5.47969 15.0938V13.125H0.667188C0.39375 13.125 0.175 12.9883 0.065625 12.7422C-0.04375 12.5234 -0.0164063 12.25 0.147656 12.0586L2.58125 9.1875H1.54219C1.26875 9.1875 1.05 9.05078 0.940625 8.80469C0.83125 8.58594 0.858594 8.3125 1.02266 8.12109L3.07344 5.6875H2.41719C2.14375 5.6875 1.925 5.55078 1.81562 5.30469C1.70625 5.08594 1.73359 4.8125 1.89766 4.62109L5.61641 0.21875L5.67109 0.191406C5.78047 0.0546875 5.94453 0 6.13594 0ZM3.81172 4.375H4.49531C4.76875 4.375 4.9875 4.53906 5.09688 4.75781C5.20625 4.97656 5.17891 5.25 5.01484 5.46875L2.93672 7.875H4.00313C4.24922 7.875 4.49531 8.01172 4.60469 8.25781C4.71406 8.47656 4.65938 8.75 4.49531 8.96875L2.06172 11.8125H10.1828L7.74922 8.96875C7.58516 8.75 7.53047 8.47656 7.63984 8.25781C7.74922 8.01172 7.99531 7.875 8.24141 7.875H9.30781L7.22969 5.46875C7.06563 5.25 7.03828 4.97656 7.14766 4.75781C7.25703 4.51172 7.47578 4.375 7.74922 4.375H8.43281L6.13594 1.66797L3.81172 4.375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
 <symbol id="i-key" viewBox="0 0 14 14"><path d="M7.81348 5.30469L8.68848 6.17969C8.96191 6.42578 9.29004 6.5625 9.61816 6.5625C10.1924 6.5625 10.958 6.20703 11.6143 5.38672C12.2705 4.62109 12.6807 3.58203 12.6807 2.625C12.6807 1.91406 12.1064 1.3125 11.3682 1.3125C10.4111 1.3125 9.37207 1.72266 8.60645 2.37891C7.78613 3.03516 7.43066 3.80078 7.43066 4.375C7.43066 4.70312 7.56738 5.05859 7.81348 5.30469ZM6.85645 6.20703C6.36426 5.6875 6.11816 5.03125 6.11816 4.375C6.11816 2.1875 8.74316 0 11.3682 0C12.8174 0 13.9932 1.17578 13.9932 2.625C13.9932 5.25 11.8057 7.875 9.61816 7.875C8.96191 7.875 8.30566 7.62891 7.78613 7.13672L1.11426 13.8086C0.868164 14.0547 0.430664 14.0547 0.18457 13.8086C-0.0615234 13.5625 -0.0615234 13.125 0.18457 12.8789L6.85645 6.20703Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
@@ -1996,8 +2017,10 @@
   <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
   <script src="assets/neighborhoods.js"></script>
+  <script src="assets/sf-base.js"></script>
   <script src="assets/geo.js"></script>
   <script src="assets/vendor/leaflet/leaflet.js"></script>
+  <script src="parallax.js"></script>
   <script src="smooth-scroll.js"></script>
   <script>
     (function () {
@@ -2122,22 +2145,31 @@
     else $("nbdGrid").innerHTML = '<div class="nbd__empty"><span>New homes in ' + N.name + ' are added every week.</span><a class="btn-sell hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">Browse all listings</span></a></div>';
     HLNeighborhoods.mount($("nbdMore"), all.filter(function (g) { return g.id !== N.id; }).slice(0, 4));
 
-    /* Real map: OpenStreetMap tiles, the area's centre, its listings and real places nearby */
+    /* Real map: OpenStreetMap tiles over an offline SF base, the area's centre, its listings and real places nearby */
     (function () {
       if (!window.L) return;
       var c = N.ll, el = $("nbdMap");
-      var m = L.map(el, { center: c, zoom: 14, minZoom: 10, maxZoom: 18, scrollWheelZoom: false });
+      var VB = { "p-main": "0 0 15 21", "p-0": "0 0 10 10", "p-1": "0 0 12 10", "p-2": "0 0 12 11", "p-3": "0 0 8 11" };
+      var m = L.map(el, { center: c, zoom: 14, minZoom: 11, maxZoom: 18, scrollWheelZoom: false });
       m.attributionControl.setPrefix(false);
+      HLGeo.base(m, N.poly);
       L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", { subdomains: "abcd", maxZoom: 19, attribution: "&copy; OpenStreetMap contributors &copy; CARTO" }).addTo(m);
-      var dot = function (color) { return L.divIcon({ className: "", html: '<div class="hl-dot" style="background:' + color + '"></div>', iconSize: [14, 14], iconAnchor: [7, 7] }); };
+      function pin(icon, color, main) {
+        var html = '<span class="pin' + (main ? " pin--main" : "") + '"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg><span class="pin__dot"' + (main ? "" : ' style="background-color:' + color + '"') + '><svg class="pin__icon" viewBox="' + VB[icon] + '" aria-hidden="true"><use href="#' + icon + '"/></svg></span></span>';
+        return L.divIcon({ className: "hl-mk", html: html, iconSize: main ? [36, 48] : [26, 34], iconAnchor: main ? [18, 48] : [13, 34] });
+      }
       var group = L.featureGroup().addTo(m);
-      L.circleMarker(c, { radius: 9, color: "#fff", weight: 3, fillColor: "#1e1e1e", fillOpacity: 1 }).bindTooltip(N.name, { permanent: false }).addTo(group);
-      items.forEach(function (l) { L.marker(HLGeo.center(l), { icon: dot("#1e1e1e") }).bindTooltip(l.place + " · " + l.price).addTo(group); });
-      $("nbdLegend").innerHTML = '<span><i style="background:#1e1e1e"></i>' + N.name + " / listings</span>" + HLGeo.CATS.map(function (k) { return '<span><i style="background:' + k.color + '"></i>' + k.label + "</span>"; }).join("");
+      L.marker(c, { icon: pin("p-main", "", true), zIndexOffset: 1000, keyboard: false }).bindTooltip(N.name, { direction: "top", offset: [0, -48], className: "hl-tip" }).addTo(group);
+      items.forEach(function (l) { L.circleMarker(HLGeo.center(l), { radius: 6, color: "#fff", weight: 2, fillColor: "#1e1e1e", fillOpacity: 1 }).bindTooltip(l.place + " · " + l.price, { className: "hl-tip" }).addTo(group); });
+      $("nbdLegend").innerHTML = HLGeo.CATS.map(function (k) {
+        return '<span><span class="pin"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg><span class="pin__dot" style="background-color:' + k.color + '"><svg class="pin__icon" viewBox="' + VB[k.icon] + '" aria-hidden="true"><use href="#' + k.icon + '"/></svg></span></span>' + k.label + "</span>";
+      }).join("");
       m.fitBounds(group.getBounds().pad(0.5), { maxZoom: 15 });
       HLGeo.pois(c, "nb-" + N.id, function (list) {
-        var col = {}; HLGeo.CATS.forEach(function (k) { col[k.key] = k.color; });
-        list.forEach(function (p) { L.marker([p.lat, p.lng], { icon: dot(col[p.cat]) }).bindTooltip(p.name).addTo(m); });
+        list.forEach(function (p) {
+          var k = HLGeo.CATS.filter(function (x) { return x.key === p.cat; })[0];
+          L.marker([p.lat, p.lng], { icon: pin(k.icon, k.color, false), keyboard: false }).bindTooltip(p.name, { direction: "top", offset: [0, -34], className: "hl-tip" }).addTo(m);
+        });
       });
       el.addEventListener("click", function () { m.scrollWheelZoom.enable(); }, { once: true });
       setTimeout(function () { m.invalidateSize(); }, 300);
