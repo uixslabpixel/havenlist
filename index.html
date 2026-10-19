@@ -1389,7 +1389,9 @@
       object-fit: cover;
       object-position: center;
       opacity: 0;
-      filter: blur(16px);
+      /* Uses the pre-blurred thumbnail (-blur.webp): scaling it up gives the soft
+         backdrop for free, where a live blur(16px) on five viewport-sized
+         layers made scrolling through this section stutter. */
       transform: translateZ(0) scale(1.02);
       /* Opacity follows the same scroll progress as the slides (set in JS) */
       will-change: opacity;
@@ -2762,11 +2764,11 @@
     >
       <div class="neighborhoods__pin">
         <div class="neighborhoods__bgs" id="neighborhoodsBgs" aria-hidden="true">
-          <img class="neighborhoods__bg is-active" src="assets/neighborhood-pacific-heights.webp" alt="" data-index="0" width="400" height="530" decoding="async">
-          <img class="neighborhoods__bg" src="assets/neighborhood-noe-valley.webp" alt="" data-index="1" width="400" height="530" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-marina.webp" alt="" data-index="2" width="400" height="530" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-sausalito.webp" alt="" data-index="3" width="400" height="530" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-san-antonio.webp" alt="" data-index="4" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg is-active" src="assets/neighborhood-pacific-heights-blur.webp" alt="" data-index="0" width="400" height="530" decoding="async">
+          <img class="neighborhoods__bg" src="assets/neighborhood-noe-valley-blur.webp" alt="" data-index="1" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-marina-blur.webp" alt="" data-index="2" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-sausalito-blur.webp" alt="" data-index="3" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-san-antonio-blur.webp" alt="" data-index="4" width="400" height="530" decoding="async" loading="lazy">
         </div>
         <div class="neighborhoods__scrim" aria-hidden="true"></div>
 
