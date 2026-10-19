@@ -1630,18 +1630,21 @@
     }
 
     /* ========== AGENT DETAIL ========== */
+    .search-header { background: var(--paper); box-shadow: none; padding-top: 32px; }
+    .filter-form { width: min(812px, 100%); justify-content: flex-start; }
+    .filter-form .filter-query { flex: 1 1 auto; width: auto; min-width: 0; }
     .filter-form .filter-anchor:has([data-filter="location"]), .compact-select[data-filter="location"], .chip--type { display: none !important; }
     .filter-form [hidden] { display: none !important; }
     .agent-profile { width: 100%; display: flex; justify-content: center; margin: 4px 0 24px; }
     .nbp { display: flex; align-items: center; gap: 16px; width: min(812px, 100%); background: #fff; border-radius: 16px; padding: 16px; text-align: left; }
-    .nbp__thumb { flex: none; width: 120px; height: 120px; border-radius: 16px; background: #ddd; overflow: hidden; }
+    .nbp__thumb { flex: none; width: 120px; height: 120px; border-radius: 16px; background: transparent; overflow: hidden; }
     .nbp__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .nbp__main { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 8px 0; }
     .nbp__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .nbp__name { margin: 0; font: 500 20px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .nbp__addr { margin: 4px 0 0; font: 400 16px/1.4 var(--font-ui); letter-spacing: -0.01em; color: rgba(30,30,30,.8); }
     .nbp__dir { flex: none; display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 46px; border: 1px solid rgba(30,30,30,.07); background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.03); font: 400 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; transition: background .2s; }
-    .nbp__dir:hover { background: var(--ink-07, rgba(0,0,0,.05)); }
+    .nbp__dir:hover { background: var(--paper); }
     .nbp__stats { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; font: 400 16px/1.4 var(--font-ui); color: rgba(30,30,30,.9); }
     .chip--agent { gap: 8px; padding-left: 4px; }
     .chip__avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: top; background: #f2f1ee; }
@@ -1734,12 +1737,7 @@
 
   <section class="search-header" aria-label="Search filters">
     <div class="search-header__inner">
-      <div class="search-meta">
-        <a class="back-link" href="neighborhoods.html">
-          <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
-          Back to neighborhoods
-        </a>
-      </div>
+      <div class="search-meta" hidden></div>
 
       <h1 class="search-title" id="agentTitle" hidden><span id="titlePrefix"></span><q id="titleQuery"></q></h1>
       <div class="agent-profile" id="agentProfile"></div>
@@ -2296,9 +2294,6 @@
       const q = source.value.trim();
       state.query = q;
       if (other.value !== source.value) other.value = source.value;
-      titlePrefix.textContent = q ? "Search result for " : "All listings";
-      titleQuery.textContent = q;
-      titleQuery.hidden = !q;
       compactQueryLabel.textContent = q;
       if (compactQueryChip) compactQueryChip.hidden = !q;
       

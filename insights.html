@@ -3,10 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Insights — Havenlist</title>
+  <title>Market insights — Havenlist</title>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
   <link rel="stylesheet" href="icons.css">
+  <link rel="stylesheet" href="components.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -1666,44 +1667,63 @@
   </style>
   <style>
     /* Placeholder page — real content is not ready yet */
-    .soon {
-      min-height: calc(100vh - 64px);
-      padding: 160px var(--page-pad) 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 20px;
-      background: var(--paper);
-    }
-    .soon__tag {
-      font-family: var(--font-ui);
-      font-weight: 500;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      color: var(--ink-70);
-      padding: 6px 14px;
-      border: 1px solid var(--ink-10);
-      border-radius: 56px;
-    }
-    .soon__title {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: clamp(44px, 6vw, 84px);
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-    }
-    .soon__lead {
-      max-width: 520px;
-      font-family: var(--font-ui);
-      font-size: 16px;
-      line-height: 1.5;
-      color: var(--ink-70);
-    }
-    .soon .btn-sell { margin-top: 12px; }
-    @media (max-width: 700px) { .soon { padding-top: 120px; } }
+    /* ========== MARKET INSIGHTS ========== */
+    .ins { background: var(--paper); padding-top: var(--nav-h); }
+    .ins-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 72px var(--page-pad) 40px; }
+    .ins-title { margin: 0; font: 500 clamp(44px, 5vw, 64px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .ins-lead { margin: 0; max-width: 612px; font: 400 16px/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
+    .ins-cta { display: flex; gap: 12px; margin-top: 16px; }
+
+    .ins-feature { position: relative; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 40px; max-width: 1440px; margin: 0 auto; }
+    .ins-nav--prev .ui-arrow { transform: scaleX(-1); }
+    .ins-slides { position: relative; width: min(1016px, 100%); height: 400px; }
+    .ins-slide { position: absolute; inset: 0; display: flex; gap: 8px; padding: 8px; background: var(--white); border-radius: 24px; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02); opacity: 0; visibility: hidden; transform: translate3d(24px, 0, 0); transition: opacity var(--dur-slide) var(--ease-slide), transform var(--dur-slide) var(--ease-slide), visibility 0s linear var(--dur-slide); }
+    .ins-slide.is-active { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+    .ins-slide.is-before { transform: translate3d(-24px, 0, 0); }
+    .ins-slide__media { flex: none; width: 440px; border-radius: 16px; overflow: hidden; background: transparent; }
+    .ins-slide__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ins-slide__body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; padding: 16px; }
+    .ins-meta { display: flex; align-items: center; gap: 10px; font: 400 16px/1.2 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
+    .ins-meta span { display: inline-flex; align-items: center; gap: 4px; }
+    .ins-cal { flex: none; color: rgba(30, 30, 30, 0.8); }
+    .ins-slide__text { display: flex; flex-direction: column; gap: 16px; }
+    .ins-slide__title { margin: 0; font: 500 32px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .ins-slide__desc { margin: 0; font: 400 16px/1.4 var(--font-ui); letter-spacing: -0.01em; color: rgba(30, 30, 30, 0.7); }
+    .ins-slide__foot { display: flex; align-items: center; justify-content: space-between; }
+    .ins-dots { display: flex; gap: 6px; }
+    .ins-dot { width: 12px; height: 6px; border-radius: 24px; background: rgba(30, 30, 30, 0.1); transition: width 0.45s var(--ease-slide), background 0.45s var(--ease-slide); padding: 0; }
+    .ins-dot.is-active { width: 32px; background: var(--ink); }
+    .ins-read { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border: 1px solid var(--ink-07); border-radius: 36px; background: transparent; font: 400 16px/1 var(--font-ui); color: var(--ink); transition: background 0.2s var(--ease); }
+    .ins-read:hover { background: var(--paper); }
+
+    .ins-more { max-width: 1440px; margin: 0 auto; padding: 72px var(--page-pad) 96px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+    .ins-more__title { margin: 0; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); text-align: center; }
+    .ins-form { display: flex; align-items: center; gap: 10px; width: min(640px, 100%); }
+    .ins-search { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; height: 40px; padding: 4px 16px 4px 12px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02); color: var(--ink-70); }
+    .ins-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 400 16px/1.4 var(--font-ui); letter-spacing: -0.01em; color: var(--ink); }
+    .ins-search input::placeholder { color: var(--ink-70); }
+    .ins-form .filter-select { width: 160px; }
+    .ins-form .filter-more { transition: background 0.2s var(--ease); }
+    .ins-form .filter-more:hover { background: var(--paper); }
+    .ins-dd { position: relative; flex: none; }
+    .ins-dd__menu { position: absolute; z-index: 5; top: calc(100% + 8px); right: 0; width: 200px; padding: 8px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0s linear 0.3s; }
+    .ins-dd.is-open .ins-dd__menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+    .ins-dd .chev { transition: transform 0.3s var(--ease); }
+    .ins-dd.is-open .chev { transform: rotate(180deg); }
+    .filter-select { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; height: 40px; padding: 0 12px 0 16px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 40px; font: 400 16px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; transition: background 0.2s var(--ease); }
+    .filter-select:hover { background: var(--paper); }
+    .filter-more { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; color: var(--ink); flex-shrink: 0; }
+    .loc-item { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: 40px; padding: 0 14px; border-radius: 10px; font: 400 14px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); text-align: left; }
+    .loc-item:hover, .loc-item.is-active { background: var(--ink-07); }
+    .ins-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 16px; }
+    .ins-card { display: flex; flex-direction: column; gap: 16px; min-width: 0; color: inherit; text-decoration: none; }
+    .ins-card .nb-card__media { height: auto; aspect-ratio: 1 / 1; }
+    .ins-tag { position: absolute; z-index: 2; left: 16px; top: 16px; display: inline-flex; align-items: center; height: 32px; padding: 0 10px; background: var(--white); border: 1px solid var(--ink-10); border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); font: 400 14px/1.2 var(--font-ui); color: rgba(30, 30, 30, 0.9); }
+    .ins-card__body { display: flex; flex-direction: column; gap: 12px; }
+    .ins-card__title { margin: 0; font: 500 20px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); }
+    .ins-empty { margin: 0; padding: 48px 0; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
+    @media (max-width: 1100px) { .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ins-nav { display: none; } .ins-slide__media { width: 40%; } }
+    @media (max-width: 720px) { .ins-hero, .ins-more { padding-left: 24px; padding-right: 24px; } .ins-feature { padding: 0 24px; } .ins-slides { height: auto; min-height: 560px; } .ins-slide { flex-direction: column; } .ins-slide__media { width: 100%; height: 220px; } .ins-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -1767,11 +1787,41 @@
     </div>
   </header>
 
-  <main class="soon">
-    <span class="soon__tag">Coming soon</span>
-    <h1 class="soon__title">Insights</h1>
-    <p class="soon__lead">Market reports, buying and renting guides and local stories from the Havenlist team are on their way.</p>
-    <a class="btn-sell hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">Browse all listings</span></a>
+  <main class="ins">
+    <section class="ins-hero">
+      <h1 class="ins-title">Market Insights</h1>
+      <p class="ins-lead">Expert analysis, buyer guides, and neighborhood spotlights from the Havenlist team.</p>
+      <div class="ins-cta">
+        <a class="hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">View listings</span></a>
+        <a class="hl-btn hl-btn--white" href="index.html"><span class="hl-btn__inner">Learn about us</span></a>
+      </div>
+    </section>
+
+    <section class="ins-feature" aria-label="Featured insights">
+      <button class="ui-btn ins-nav ins-nav--prev" type="button" id="insPrev" aria-label="Previous insight"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+      <div class="ins-slides" id="insSlides"></div>
+      <button class="ui-btn ins-nav ins-nav--next" type="button" id="insNext" aria-label="Next insight"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+    </section>
+
+    <section class="ins-more" aria-label="Other insights">
+      <h2 class="ins-more__title">Other insights</h2>
+      <form class="ins-form" id="insForm" onsubmit="return false">
+        <label class="ins-search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><input type="search" id="insQuery" placeholder="Search insights here" aria-label="Search insights" autocomplete="off"></label>
+        <div class="ins-dd" id="insDd">
+          <button class="filter-select ins-type" type="button" id="insTypeBtn" aria-haspopup="listbox" aria-expanded="false"><span id="insTypeLabel">Type</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="ins-dd__menu" id="insTypeMenu" role="listbox" aria-label="Type">
+            <button class="loc-item is-active" type="button" role="option" data-type="">All types</button>
+            <button class="loc-item" type="button" role="option" data-type="Report">Report</button>
+            <button class="loc-item" type="button" role="option" data-type="Guide">Guide</button>
+            <button class="loc-item" type="button" role="option" data-type="Spotlight">Spotlight</button>
+            <button class="loc-item" type="button" role="option" data-type="Tips">Tips</button>
+          </div>
+        </div>
+        <button class="filter-more" type="button" id="insReset" aria-label="Reset filters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 4.5h12M4 8h8M6 11.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
+      </form>
+      <div class="ins-grid" id="insGrid"></div>
+      <p class="ins-empty" id="insEmpty" hidden>No insights match your search.</p>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -1906,11 +1956,80 @@
   <script src="assets/listings-store.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
+  <script src="parallax.js"></script>
   <script>
     (function () {
       "use strict";
       var $ = function (id) { return document.getElementById(id); };
       function toast() {}
+
+    /* ---------- Market insights ---------- */
+    var DATE = "March 12, 2026";
+    var IMG = { Report: "assets/insights/insight-report.webp", Guide: "assets/insights/insight-guide.webp", Spotlight: "assets/insights/insight-spotlight.webp", Tips: "assets/insights/insight-tips.webp" };
+    var CARDS = [
+      ["Report", "Bay Area housing trends Q1 2026"], ["Guide", "5 things to know before buying in Noe Valley"],
+      ["Spotlight", "Pacific Heights: A neighborhood guide"], ["Tips", "How to prepare your home for a spring listing"]
+    ];
+    var ALL = []; for (var r = 0; r < 3; r++) CARDS.forEach(function (c) { ALL.push({ type: c[0], title: c[1], date: DATE, img: IMG[c[0]] }); });
+    var SLIDES = [
+      { tag: "Market Report", title: "Bay Area housing trends Q1 2026", desc: "Inventory has increased by 8% compared to last year, while median prices remain stable in key neighborhoods.", img: "assets/insights/insight-featured.webp" },
+      { tag: "Buyer Guide", title: "5 things to know before buying in Noe Valley", desc: "Parking, schools, microclimates and more: what local agents tell every buyer who tours Noe Valley.", img: IMG.Guide },
+      { tag: "Neighborhood Spotlight", title: "Pacific Heights: A neighborhood guide", desc: "Views, Victorians and a walkable village feel: how Pacific Heights lives and what homes cost today.", img: IMG.Spotlight },
+      { tag: "Seller Tips", title: "How to prepare your home for a spring listing", desc: "The small updates that photograph well, from staging to light, and the timeline to work back from.", img: IMG.Tips },
+      { tag: "Market Report", title: "What rates mean for buyers this spring", desc: "A plain-language look at how mortgage rates are shaping offers, inventory and negotiation room.", img: IMG.Report }
+    ];
+    function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+    var CAL = '<svg class="ins-cal" width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>';
+    var slidesEl = $("insSlides"), cur = 0;
+    slidesEl.innerHTML = SLIDES.map(function (sl, i) {
+      return '<article class="ins-slide' + (i === 0 ? " is-active" : "") + '" aria-hidden="' + (i !== 0) + '">' +
+        '<div class="ins-slide__media"><img src="' + sl.img + '" alt="" ' + (i === 0 ? "" : 'loading="lazy"') + '></div>' +
+        '<div class="ins-slide__body"><div class="ins-meta"><span>' + CAL + DATE + '</span><span>' + esc(sl.tag) + '</span></div>' +
+        '<div class="ins-slide__text"><h2 class="ins-slide__title">' + esc(sl.title) + '</h2><p class="ins-slide__desc">' + esc(sl.desc) + '</p></div>' +
+        '<div class="ins-slide__foot"><div class="ins-dots">' + SLIDES.map(function (_, j) { return '<button class="ins-dot' + (j === i ? " is-active" : "") + '" type="button" data-go="' + j + '" aria-label="Show insight ' + (j + 1) + '"></button>'; }).join("") + '</div>' +
+        '<a class="ins-read" href="#">Read more</a></div></div></article>';
+    }).join("");
+    function showSlide(n) {
+      n = (n + SLIDES.length) % SLIDES.length; if (n === cur) return;
+      var els = slidesEl.querySelectorAll(".ins-slide");
+      els.forEach(function (el, i) { el.classList.toggle("is-active", i === n); el.classList.toggle("is-before", i < n); el.setAttribute("aria-hidden", String(i !== n)); });
+      slidesEl.querySelectorAll(".ins-dot").forEach(function (d) { d.classList.toggle("is-active", Number(d.dataset.go) === n); });
+      cur = n;
+    }
+    $("insPrev").addEventListener("click", function () { showSlide(cur - 1); });
+    $("insNext").addEventListener("click", function () { showSlide(cur + 1); });
+    slidesEl.addEventListener("click", function (e) {
+      var d = e.target.closest(".ins-dot"); if (d) showSlide(Number(d.dataset.go));
+      if (e.target.closest(".ins-read")) e.preventDefault();
+    });
+
+    var gridEl = $("insGrid"), q = "", type = "", lastKey = "";
+    function renderGrid() {
+      var list = ALL.filter(function (c) { return (!type || c.type === type) && (!q || (c.title + " " + c.type).toLowerCase().indexOf(q) !== -1); });
+      var key = list.map(function (c, i) { return c.title + i; }).join("|");
+      $("insEmpty").hidden = list.length > 0;
+      if (key === lastKey) return; lastKey = key;
+      gridEl.innerHTML = list.map(function (c) {
+        return '<a class="ins-card nb-card" href="#"><div class="nb-card__media"><img src="' + c.img + '" alt="" loading="lazy"><span class="ins-tag">' + c.type + '</span></div>' +
+          '<div class="ins-card__body"><h3 class="ins-card__title">' + esc(c.title) + '</h3><div class="ins-meta"><span>' + CAL + c.date + '</span></div></div></a>';
+      }).join("");
+    }
+    gridEl.addEventListener("click", function (e) { if (e.target.closest(".ins-card")) e.preventDefault(); });
+    $("insQuery").addEventListener("input", function (e) { q = e.target.value.trim().toLowerCase(); renderGrid(); });
+    var dd = $("insDd");
+    function setDd(open) { dd.classList.toggle("is-open", open); $("insTypeBtn").setAttribute("aria-expanded", String(open)); }
+    $("insTypeBtn").addEventListener("click", function (e) { e.stopPropagation(); setDd(!dd.classList.contains("is-open")); });
+    document.addEventListener("click", function (e) { if (!dd.contains(e.target)) setDd(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") setDd(false); });
+    function pickType(t) {
+      type = t; $("insTypeLabel").textContent = t || "Type";
+      $("insTypeMenu").querySelectorAll(".loc-item").forEach(function (b) { b.classList.toggle("is-active", b.dataset.type === t); });
+      setDd(false); renderGrid();
+    }
+    $("insTypeMenu").addEventListener("click", function (e) { var b = e.target.closest(".loc-item"); if (b) pickType(b.dataset.type); });
+    $("insReset").addEventListener("click", function () { $("insQuery").value = ""; q = ""; pickType(""); });
+    renderGrid();
+
       function closeMap() {}
 
       /* ---------- full-page circle menu (same as the other pages) ---------- */

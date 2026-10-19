@@ -1630,7 +1630,8 @@
     }
 
     /* ========== NEIGHBORHOODS PAGE ========== */
-        /* ========== SHARED ICON BUTTON + ARROW ========== */
+        :root { --dur-featured: 1000ms; --ease-featured: cubic-bezier(0.38, 0, 0, 1); }
+    /* ========== SHARED ICON BUTTON + ARROW ========== */
     .ui-btn {
       display: inline-flex;
       align-items: center;
@@ -2081,7 +2082,7 @@
 
   <section class="featured nbf" aria-label="Featured neighborhoods">
     <div class="featured__head"><div class="featured__title-row"><h1 class="featured__title">Featured Neighborhoods</h1>
-      <a class="ui-btn ui-btn--raised featured__all" href="#more" id="nbMoreLink" aria-label="See more neighborhoods"><span class="ui-arrow" aria-hidden="true" style="transform:rotate(90deg)"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a></div></div>
+      <a class="ui-btn ui-btn--raised featured__all" href="#more" id="nbMoreLink" aria-label="See more neighborhoods"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a></div></div>
     <div class="featured__stage">
       <div class="featured__fade featured__fade--left" aria-hidden="true"></div>
       <div class="featured__fade featured__fade--right" aria-hidden="true"></div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Search result for “Modern house” — Havenlist</title>
+  <title>All listings — Havenlist</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
@@ -1721,7 +1721,7 @@
         </a>
       </div>
 
-      <h1 class="search-title"><span id="titlePrefix">Search result for </span><q id="titleQuery">Modern house</q></h1>
+      <h1 class="search-title"><span id="titlePrefix">All listings</span><q id="titleQuery" hidden></q></h1>
 
       <div class="tabs" role="tablist" aria-label="Listing type">
         <span class="tabs__pill" id="tabsPill" aria-hidden="true"></span>
@@ -2233,12 +2233,9 @@
       const q = source.value.trim();
       state.query = q;
       if (other.value !== source.value) other.value = source.value;
-      titlePrefix.textContent = q ? "Search result for " : "All listings";
-      titleQuery.textContent = q;
-      titleQuery.hidden = !q;
       compactQueryLabel.textContent = q;
       if (compactQueryChip) compactQueryChip.hidden = !q;
-      document.title = q ? `Search result for “${q}” — Havenlist` : "All listings — Havenlist";
+      
       updateCount();
     }
     searchInput.addEventListener("input", () => syncQuery("main"));

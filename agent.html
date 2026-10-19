@@ -1630,21 +1630,24 @@
     }
 
     /* ========== AGENT DETAIL ========== */
+    .search-header { background: var(--paper); box-shadow: none; padding-top: 32px; }
+    .filter-form { width: min(812px, 100%); justify-content: flex-start; }
+    .filter-form .filter-query { flex: 1 1 auto; width: auto; min-width: 0; }
     .filter-form .filter-anchor:has([data-filter="location"]), .compact-select[data-filter="location"], .chip--type { display: none !important; }
     .filter-form [hidden] { display: none !important; }
     .agent-profile { width: 100%; display: flex; justify-content: center; margin: 4px 0 24px; }
-    .agent-profile__card { display: flex; align-items: center; gap: 24px; width: min(812px, 100%); background: #fff; border-radius: 24px; padding: 16px; text-align: left; border: 1px solid rgba(0,0,0,.08); }
-    .agent-profile__photo { flex: none; width: 120px; height: 120px; border-radius: 16px; background: #f2f1ee; overflow: hidden; }
+    .agent-profile__card { display: flex; align-items: center; gap: 16px; width: min(812px, 100%); background: #fff; border-radius: 16px; padding: 16px; text-align: left; }
+    .agent-profile__photo { flex: none; width: 120px; height: 120px; border-radius: 16px; background: transparent; overflow: hidden; }
     .agent-profile__photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
     .agent-profile__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-    .agent-profile__name { margin: 0; font: 400 28px/1.15 var(--font-ui); letter-spacing: -0.02em; color: var(--ink); }
-    .agent-profile__role { margin: 4px 0 0; font: 400 14px/1.3 var(--font-ui); color: var(--ink-70); }
-    .agent-profile__stats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; padding: 0; list-style: none; font: 400 14px/1.4 var(--font-ui); color: var(--ink-70); }
+    .agent-profile__name { margin: 0; font: 500 20px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .agent-profile__role { margin: 4px 0 0; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
+    .agent-profile__stats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; padding: 0; list-style: none; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
     .agent-profile__stats li + li::before { content: "·"; margin-right: 10px; }
     .agent-profile__side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-    .agent-profile__phone { display: inline-flex; align-items: center; gap: 8px; font: 400 14px/1 var(--font-ui); color: var(--ink); text-decoration: none; }
-    .agent-profile__mail { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 14px/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
-    .agent-profile__mail:hover { background: var(--ink-07, rgba(0,0,0,.05)); }
+    .agent-profile__phone { display: inline-flex; align-items: center; gap: 8px; font: 400 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; }
+    .agent-profile__mail { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
+    .agent-profile__mail:hover { background: var(--paper); }
     .chip--agent { gap: 8px; padding-left: 4px; }
     .chip__avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: top; background: #f2f1ee; }
     .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
@@ -1736,12 +1739,7 @@
 
   <section class="search-header" aria-label="Search filters">
     <div class="search-header__inner">
-      <div class="search-meta">
-        <a class="back-link" href="agents.html">
-          <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
-          Back to agents
-        </a>
-      </div>
+      <div class="search-meta" hidden></div>
 
       <h1 class="search-title" id="agentTitle" hidden><span id="titlePrefix"></span><q id="titleQuery"></q></h1>
       <div class="agent-profile" id="agentProfile"></div>
@@ -2292,9 +2290,6 @@
       const q = source.value.trim();
       state.query = q;
       if (other.value !== source.value) other.value = source.value;
-      titlePrefix.textContent = q ? "Search result for " : "All listings";
-      titleQuery.textContent = q;
-      titleQuery.hidden = !q;
       compactQueryLabel.textContent = q;
       if (compactQueryChip) compactQueryChip.hidden = !q;
       

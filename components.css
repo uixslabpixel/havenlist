@@ -39,7 +39,7 @@
       background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(8px);
       font-family: var(--font-ui);
-      font-size: 13px;
+      font-size: 14px;
       letter-spacing: -0.01em;
       color: var(--ink);
     }
@@ -192,7 +192,7 @@
   height: 240px;
   border-radius: 16px;
   overflow: hidden;
-  background: #f2f1ee;
+  background: transparent;
 }
 .agent-card__media img {
   position: absolute;
@@ -229,10 +229,8 @@
   justify-content: center;
   border-radius: 58px;
   color: var(--ink);
-  transition: background 0.2s var(--ease);
   flex: none;
 }
-.agent-card__icon:hover { background: var(--ink-07); }
 .agent-card__phone {
   position: relative;
   z-index: 1;
