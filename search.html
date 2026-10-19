@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="icons.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -151,7 +152,7 @@
     .nav-links a {
       transform: translateY(0);
       /* Returning: drop back in (all together) as the frame closes */
-      transition: transform 0.4s var(--ease-morph) 0.12s;
+      transition: transform 0.3s var(--ease-morph) 0.12s;
     }
 
     body.is-compact .nav-links {
@@ -451,7 +452,7 @@
       /* Negative inset keeps the soft shadow visible once open */
       clip-path: inset(-8px -8px -8px -8px round 54px);
       transition:
-        clip-path 0.4s var(--ease-morph) 0.06s,
+        clip-path 0.26s var(--ease-morph) 0.06s,
         visibility 0s;
     }
 
@@ -462,7 +463,7 @@
 
     body.is-compact .compact-bar > * {
       opacity: 1;
-      transition: opacity 0.16s var(--ease) 0.22s;
+      transition: opacity 0.16s var(--ease) 0.2s;
     }
 
     .chip {
@@ -609,22 +610,6 @@
       transform: scaleX(-1);
     }
 
-    .back-link__arrow svg {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 16px;
-      height: 12px;
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .back-link__arrow svg:first-child { transform: translateX(0); }
-    .back-link__arrow svg:last-child { transform: translateX(-120%); }
-    .back-link:hover .back-link__arrow svg:first-child,
-    .back-link:focus-visible .back-link__arrow svg:first-child { transform: translateX(120%); }
-    .back-link:hover .back-link__arrow svg:last-child,
-    .back-link:focus-visible .back-link__arrow svg:last-child { transform: translateX(0); }
-
     .search-title {
       width: 100%;
       text-align: center;
@@ -708,7 +693,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      width: 200px;
+      width: 250px;
       height: 40px;
       padding: 0 10px 0 10px;
       background: var(--white);
@@ -1311,7 +1296,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 0 0 40px;
       height: 40px;
+      min-height: 40px;
+      box-sizing: border-box;
       padding: 0 14px;
       border: 1px solid var(--ink-07);
       border-radius: 40px;
@@ -1823,34 +1811,28 @@
     <a class="logo" href="index.html">Havenlist.</a>
 
     <nav class="nav-links" aria-label="Primary">
-      <a href="index.html#listings"><span class="link-rise" data-text="Listings">Listings</span></a>
-      <a href="index.html#neighborhoods"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
-      <a href="index.html#insights"><span class="link-rise" data-text="Insights">Insights</span></a>
+      <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+      <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
     </nav>
 
     <div class="compact-bar" id="compactBar" aria-hidden="true">
       <div class="chip chip--query" data-open-sheet>
         <span class="chip__label" id="compactQueryLabel">Modern house</span>
         <button class="chip__x" type="button" aria-label="Clear search" id="clearQueryChip">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-            <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
         </button>
       </div>
       <div class="chip chip--type" data-open-sheet>
         <span class="chip__label" id="compactTypeLabel">Rent</span>
         <button class="chip__x" type="button" aria-label="Clear type">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-            <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
         </button>
       </div>
       <div class="chip chip--featured" data-open-sheet hidden>
         <span class="chip__label">Featured</span>
         <button class="chip__x" type="button" aria-label="Clear featured" id="clearFeaturedChip">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-            <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-          </svg>
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
         </button>
       </div>
       <div class="compact-selects">
@@ -1861,7 +1843,7 @@
           </svg>
         </button>
         <button class="compact-select" type="button" data-open-sheet data-filter="location" aria-expanded="false">
-          <span id="compactLocationLabel">San Fierro</span>
+          <span id="compactLocationLabel">All neighborhoods</span>
           <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
             <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -1897,10 +1879,7 @@
     <div class="search-header__inner">
       <div class="search-meta">
         <a class="back-link" href="index.html">
-          <span class="back-link__arrow" aria-hidden="true">
-            <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="currentColor"/></svg>
-            <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="currentColor"/></svg>
-          </span>
+          <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
           Back to home
         </a>
       </div>
@@ -1922,11 +1901,9 @@
               <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </span>
-          <input class="filter-query__input" id="searchInput" type="search" value="Modern house" aria-label="Search">
+          <input class="filter-query__input" id="searchInput" type="search" value="Modern house" placeholder="Search your listings here..." aria-label="Search">
           <button class="filter-query__clear" type="button" id="searchClearBtn" aria-label="Clear search">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            </svg>
+            <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
           </button>
         </label>
 
@@ -1943,7 +1920,7 @@
 
         <div class="filter-anchor" id="anchorLocation">
           <button class="filter-select" type="button" data-filter="location" id="btnLocation" aria-expanded="false">
-            <span data-expanded-label="location" id="labelLocation">Location</span>
+            <span data-expanded-label="location" id="labelLocation">All neighborhoods</span>
             <svg width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
               <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -1975,7 +1952,7 @@
       <div class="filter-pop__head">
         <h3 class="filter-pop__title">Price range</h3>
         <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
         </button>
       </div>
       <div class="filter-pop__body">
@@ -2007,7 +1984,7 @@
       <div class="filter-pop__head">
         <h3 class="filter-pop__title">Select location</h3>
         <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
         </button>
       </div>
       <div class="filter-pop__body">
@@ -2024,6 +2001,7 @@
         </div>
         <button class="filter-clear" type="button" id="useCurrentLoc" style="align-self:flex-start">Use current location</button>
         <div class="loc-list" id="locList">
+          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (226)</button>
           <button class="loc-item" type="button" data-loc="New York">New york (32)</button>
           <button class="loc-item" type="button" data-loc="Los Angeles">Los angeles (48)</button>
           <button class="loc-item" type="button" data-loc="Texas">Texas (40)</button>
@@ -2038,7 +2016,7 @@
       <div class="filter-pop__head">
         <h3 class="filter-pop__title">Beds &amp; baths</h3>
         <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
         </button>
       </div>
       <div class="filter-pop__body">
@@ -2071,7 +2049,7 @@
       <div class="filter-pop__head" style="padding-top:16px">
         <h3 class="filter-pop__title">Filter</h3>
         <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
         </button>
       </div>
       <div class="filter-pop__body">
@@ -2144,11 +2122,9 @@
             <span class="filter-query__icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </span>
-            <input class="filter-query__input" id="sheetSearchInput" type="search" placeholder="Search here" aria-label="Search">
+            <input class="filter-query__input" id="sheetSearchInput" type="search" placeholder="Search your listings here..." aria-label="Search">
             <button class="filter-query__clear" type="button" id="sheetSearchClearBtn" aria-label="Clear search">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-                <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-              </svg>
+              <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
             </button>
           </label>
           <button class="filter-pill" type="button" id="sheetFeatured" aria-pressed="false">Featured</button>
@@ -2157,7 +2133,7 @@
             <svg width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button></div>
           <div class="filter-anchor"><button class="filter-select" type="button" data-filter="location" id="sheetBtnLocation" aria-expanded="false">
-            <span id="sheetLabelLocation">Location</span>
+            <span id="sheetLabelLocation">All neighborhoods</span>
             <svg width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button></div>
           <div class="filter-anchor"><button class="filter-select" type="button" data-filter="beds" id="sheetBtnBeds" aria-expanded="false">
@@ -2212,9 +2188,9 @@
         <div class="site-footer__cols">
           <div class="site-footer__col">
             <h3>Discover</h3>
-            <a href="#">Listings</a>
+            <a href="search.html?q=">Listings</a>
             <a href="#">Agents</a>
-            <a href="#">Neighborhoods</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
             <a href="#">About</a>
           </div>
           <div class="site-footer__col">
@@ -2225,7 +2201,7 @@
           </div>
           <div class="site-footer__col">
             <h3>Resources</h3>
-            <a href="#">Insights</a>
+            <a href="insights.html">Insights</a>
             <a href="#">Sell with Us</a>
           </div>
           <div class="site-footer__col">
@@ -2261,10 +2237,10 @@
             <p class="mega-menu__group-label">Our pages</p>
             <ul class="mega-menu__links mega-menu__links--lg">
               <li><a href="#home"><span class="link-rise" data-text="Home">Home</span></a></li>
-              <li><a href="#listings"><span class="link-rise" data-text="Listings">Listings</span></a></li>
-              <li><a href="#neighborhoods"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
               <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
-              <li><a href="#insights"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
             </ul>
           </div>
 
@@ -2367,7 +2343,8 @@
 
     /* ----- Apply URL params from homepage search ----- */
     const params = new URLSearchParams(window.location.search);
-    const initialQuery = params.get("q")?.trim() || "Modern house";
+    /* ?q= (even empty) = all listings; no q at all keeps the demo query */
+    const initialQuery = params.has("q") ? params.get("q").trim() : "Modern house";
     const initialType = params.get("type")?.trim() || "Rent";
 
     const state = {
@@ -2559,10 +2536,10 @@
       document.getElementById("compactPriceLabel").textContent =
         priceDefault ? "$1000-10000" : `$${state.priceMin}-${state.priceMax >= 100000 ? "100000+" : state.priceMax}`;
 
-      const locationText = state.location || "Location";
+      const locationText = state.location || "All neighborhoods";
       document.getElementById("labelLocation").textContent = locationText;
       document.getElementById("sheetLabelLocation").textContent = locationText;
-      document.getElementById("compactLocationLabel").textContent = state.location || "San Fierro";
+      document.getElementById("compactLocationLabel").textContent = state.location || "All neighborhoods";
 
       const anyBeds = state.beds <= 0 && state.baths <= 0;
       const part = (n) => (bedsLabel(n) === "All" ? "Any" : bedsLabel(n));
@@ -2648,7 +2625,7 @@
     document.getElementById("locSearch").addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase();
       document.querySelectorAll("#locList .loc-item").forEach((item) => {
-        item.style.display = item.dataset.loc.toLowerCase().includes(q) ? "" : "none";
+        item.style.display = item.textContent.toLowerCase().includes(q) ? "" : "none";
       });
     });
     document.getElementById("useCurrentLoc").addEventListener("click", () => selectLocation("San Francisco"));
@@ -3022,6 +2999,7 @@
 
     megaMenu.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", (e) => {
+        if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
         e.preventDefault();
         closeMenu();
         const label = link.querySelector(".link-rise")?.dataset.text || link.textContent.trim();

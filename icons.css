@@ -1,0 +1,64 @@
+/* Havenlist icon motion — shared by index, search and listing.
+   One language for every clickable icon: the strokes are DRAWN on hover
+   (same easing / stagger as the navbar close X), never slid in from a side. */
+
+@keyframes hl-draw {
+  0%   { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* ----- Arrows (.ui-arrow, .back-link__arrow): shaft + head are one path ----- */
+.ui-arrow svg,
+.back-link__arrow svg {
+  display: block;
+  width: 16px;
+  height: 12px;
+  overflow: visible;
+}
+
+.ui-arrow path,
+.back-link__arrow path {
+  fill: none;
+  stroke: rgba(30, 30, 30, 0.7);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+}
+
+.back-link__arrow path { stroke: currentColor; }
+.ui-btn--raised .ui-arrow path { stroke: url(#hlArrowGradient); }
+
+.ui-btn:hover .ui-arrow path,
+.ui-btn:focus-visible .ui-arrow path,
+.back-link:hover .back-link__arrow path,
+.back-link:focus-visible .back-link__arrow path {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ----- Close X (.x-icon): two strokes, each drawn from its bottom end ----- */
+.x-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+}
+
+button:hover > .x-icon .x-icon__a,
+button:focus-visible > .x-icon .x-icon__a {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+button:hover > .x-icon .x-icon__b,
+button:focus-visible > .x-icon .x-icon__b {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) 0.14s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-arrow path,
+  .back-link__arrow path,
+  .x-icon path { animation: none !important; }
+}

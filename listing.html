@@ -8,6 +8,7 @@
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/detail/main.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="icons.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -894,22 +895,6 @@
           overflow: hidden;
         }
     
-        .ui-arrow svg {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 16px;
-          height: 12px;
-          display: block;
-          transition: transform var(--dur) var(--ease-soft);
-        }
-    
-        .ui-arrow svg:first-child { transform: translateX(0); }
-        .ui-arrow svg:last-child { transform: translateX(-120%); }
-    
-        .ui-btn:hover .ui-arrow svg:first-child { transform: translateX(120%); }
-        .ui-btn:hover .ui-arrow svg:last-child { transform: translateX(0); }
-    
         /* Raised variant (section-header arrows): inner white rim over a soft
            top shade, gradient-filled arrow — from the "Logo Arrow" spec */
         .ui-btn--raised {
@@ -933,11 +918,6 @@
     
         .ui-btn--raised .ui-arrow {
           z-index: 1;
-        }
-    
-        .ui-btn--raised .ui-arrow path {
-          fill: url(#hlArrowGradient);
-          fill-opacity: 1;
         }
 
     /* ========== DETAIL PAGE ========== */
@@ -1734,9 +1714,9 @@
     </nav>
 
     <nav class="nav-links" aria-label="Primary">
-      <a href="index.html#listings"><span class="link-rise" data-text="Listings">Listings</span></a>
-      <a href="index.html#neighborhoods"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
-      <a href="index.html#insights"><span class="link-rise" data-text="Insights">Insights</span></a>
+      <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+      <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
     </nav>
 
     <!-- Takes the middle once the inquiry card has scrolled away -->
@@ -1765,10 +1745,7 @@
       <div class="detail__top">
         <div class="detail__head">
           <a class="ui-btn ui-btn--raised detail__back" id="backBtn" href="search.html" aria-label="Back to results">
-            <span class="ui-arrow" aria-hidden="true">
-              <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-              <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-            </span>
+            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
           </a>
           <div class="detail__titles">
             <h1 class="detail__title" id="detailTitle"></h1>
@@ -1898,9 +1875,9 @@
         <div class="site-footer__cols">
           <div class="site-footer__col">
             <h3>Discover</h3>
-            <a href="index.html#listings">Listings</a>
+            <a href="search.html?q=">Listings</a>
             <a href="index.html#agents">Agents</a>
-            <a href="index.html#neighborhoods">Neighborhoods</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
             <a href="#">About</a>
           </div>
           <div class="site-footer__col">
@@ -1911,7 +1888,7 @@
           </div>
           <div class="site-footer__col">
             <h3>Resources</h3>
-            <a href="#">Insights</a>
+            <a href="insights.html">Insights</a>
             <a href="#">Sell with Us</a>
           </div>
           <div class="site-footer__col">
@@ -1947,10 +1924,10 @@
             <p class="mega-menu__group-label">Our pages</p>
             <ul class="mega-menu__links mega-menu__links--lg">
               <li><a href="index.html"><span class="link-rise" data-text="Home">Home</span></a></li>
-              <li><a href="index.html#listings"><span class="link-rise" data-text="Listings">Listings</span></a></li>
-              <li><a href="index.html#neighborhoods"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
               <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
-              <li><a href="#insights"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
             </ul>
           </div>
 

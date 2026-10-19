@@ -9,6 +9,7 @@
   <link rel="preload" href="assets/hero-front.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/InterDisplay-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="icons.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -1113,22 +1114,6 @@
       overflow: hidden;
     }
 
-    .ui-arrow svg {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 16px;
-      height: 12px;
-      display: block;
-      transition: transform var(--dur) var(--ease-soft);
-    }
-
-    .ui-arrow svg:first-child { transform: translateX(0); }
-    .ui-arrow svg:last-child { transform: translateX(-120%); }
-
-    .ui-btn:hover .ui-arrow svg:first-child { transform: translateX(120%); }
-    .ui-btn:hover .ui-arrow svg:last-child { transform: translateX(0); }
-
     /* Raised variant (section-header arrows): inner white rim over a soft
        top shade, gradient-filled arrow — from the "Logo Arrow" spec */
     .ui-btn--raised {
@@ -1152,11 +1137,6 @@
 
     .ui-btn--raised .ui-arrow {
       z-index: 1;
-    }
-
-    .ui-btn--raised .ui-arrow path {
-      fill: url(#hlArrowGradient);
-      fill-opacity: 1;
     }
 
     /* ========== CATEGORIES (pinned scroll) ========== */
@@ -2594,9 +2574,9 @@
         <a class="logo" href="index.html">Havenlist.</a>
 
         <nav class="nav-links" aria-label="Primary">
-          <a href="#listings"><span class="link-rise" data-text="Listings">Listings</span></a>
-          <a href="#neighborhoods"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
-          <a href="#insights"><span class="link-rise" data-text="Insights">Insights</span></a>
+          <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+          <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+          <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
         </nav>
 
         <div class="nav-actions">
@@ -2691,14 +2671,7 @@
         <div class="featured__title-row">
           <h2 class="featured__title">Featured Listings</h2>
           <a class="ui-btn ui-btn--raised featured__all" href="#" aria-label="View all listings">
-            <span class="ui-arrow" aria-hidden="true">
-              <svg viewBox="0 0 17 12" fill="none">
-                <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
-              </svg>
-              <svg viewBox="0 0 17 12" fill="none">
-                <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
-              </svg>
-            </span>
+            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
           </a>
         </div>
       </div>
@@ -2708,24 +2681,10 @@
         <div class="featured__fade featured__fade--right" aria-hidden="true"></div>
 
         <button class="ui-btn featured__nav featured__nav--prev" type="button" id="featuredPrev" aria-label="Previous listing">
-          <span class="ui-arrow" aria-hidden="true">
-            <svg viewBox="0 0 17 12" fill="none">
-              <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
-            </svg>
-            <svg viewBox="0 0 17 12" fill="none">
-              <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
-            </svg>
-          </span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </button>
         <button class="ui-btn featured__nav featured__nav--next" type="button" id="featuredNext" aria-label="Next listing">
-          <span class="ui-arrow" aria-hidden="true">
-            <svg viewBox="0 0 17 12" fill="none">
-              <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
-            </svg>
-            <svg viewBox="0 0 17 12" fill="none">
-              <path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/>
-            </svg>
-          </span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </button>
 
         <div class="featured__viewport" id="featuredViewport">
@@ -2760,10 +2719,7 @@
               >
                 <span class="categories__label">Rent (142)</span>
                 <span class="ui-btn categories__go" aria-hidden="true">
-                  <span class="ui-arrow">
-                    <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                    <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                  </span>
+                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
                 </span>
               </div>
               <div
@@ -2772,10 +2728,7 @@
               >
                 <span class="categories__label">Buy (38)</span>
                 <span class="ui-btn categories__go" aria-hidden="true">
-                  <span class="ui-arrow">
-                    <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                    <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                  </span>
+                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
                 </span>
               </div>
               <div
@@ -2784,10 +2737,7 @@
               >
                 <span class="categories__label">Commercial (12)</span>
                 <span class="ui-btn categories__go" aria-hidden="true">
-                  <span class="ui-arrow">
-                    <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                    <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                  </span>
+                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
                 </span>
               </div>
             </nav>
@@ -2857,10 +2807,7 @@
                 <span class="neighborhoods__count is-show" id="neighborhoodsCount">(32 Listings)</span>
               </div>
               <a class="ui-btn neighborhoods__go" href="#listings" aria-label="View Pacific Heights listings">
-                <span class="ui-arrow" aria-hidden="true">
-                  <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                  <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                </span>
+                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </a>
             </div>
           </div>
@@ -2872,10 +2819,7 @@
       <div class="agents__head">
         <h2 class="agents__title">Meet our agents</h2>
         <a class="ui-btn ui-btn--raised agents__all" href="#agents" aria-label="View all agents">
-          <span class="ui-arrow" aria-hidden="true">
-            <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-            <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-          </span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </a>
       </div>
 
@@ -3024,16 +2968,10 @@ said about us</h2>
 
             <div class="testimonials__arrows">
               <button class="ui-btn testimonials__nav testimonials__nav--prev" type="button" id="testimonialsPrev" aria-label="Previous testimonial" disabled>
-                <span class="ui-arrow" aria-hidden="true">
-                  <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                  <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                </span>
+                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </button>
               <button class="ui-btn testimonials__nav testimonials__nav--next" type="button" id="testimonialsNext" aria-label="Next testimonial">
-                <span class="ui-arrow" aria-hidden="true">
-                  <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                  <svg viewBox="0 0 17 12" fill="none"><path d="M15.802 6.532L10.545 11.789a.75.75 0 0 1-1.064-1.064L13.455 6.751H.751a.75.75 0 1 1 0-1.502h12.704L9.481 1.275A.75.75 0 1 1 10.545.211l5.257 5.257a.75.75 0 0 1 0 1.064Z" fill="#1E1E1E" fill-opacity="0.7"/></svg>
-                </span>
+                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </button>
             </div>
           </div>
@@ -3078,9 +3016,9 @@ said about us</h2>
         <div class="site-footer__cols">
           <div class="site-footer__col">
             <h3>Discover</h3>
-            <a href="#listings">Listings</a>
+            <a href="search.html?q=">Listings</a>
             <a href="#agents">Agents</a>
-            <a href="#neighborhoods">Neighborhoods</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
             <a href="#about">About</a>
           </div>
           <div class="site-footer__col">
@@ -3091,7 +3029,7 @@ said about us</h2>
           </div>
           <div class="site-footer__col">
             <h3>Resources</h3>
-            <a href="#insights">Insights</a>
+            <a href="insights.html">Insights</a>
             <a href="#sell-with-us">Sell with Us</a>
           </div>
           <div class="site-footer__col">
@@ -3127,10 +3065,10 @@ said about us</h2>
             <p class="mega-menu__group-label">Our pages</p>
             <ul class="mega-menu__links mega-menu__links--lg">
               <li><a href="#home"><span class="link-rise" data-text="Home">Home</span></a></li>
-              <li><a href="#listings"><span class="link-rise" data-text="Listings">Listings</span></a></li>
-              <li><a href="#neighborhoods"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
               <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
-              <li><a href="#insights"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
             </ul>
           </div>
 
@@ -3603,6 +3541,8 @@ said about us</h2>
 
       megaMenu.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", (e) => {
+          /* Real pages just navigate; only "#" targets glide / toast */
+          if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
           e.preventDefault();
           closeMenu();
           goToLink(link, true);
@@ -3611,6 +3551,7 @@ said about us</h2>
 
       document.querySelectorAll(".nav-links a").forEach((link) => {
         link.addEventListener("click", (e) => {
+          if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
           e.preventDefault();
           goToLink(link, false);
         });

@@ -1,0 +1,2006 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Insights — Havenlist</title>
+  <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="icons.css">
+  <style>
+    @font-face {
+      font-family: "Inter Display";
+      src: url("assets/InterDisplay-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Inter Display";
+      src: url("assets/InterDisplay-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --ink: #1e1e1e;
+      --ink-70: rgba(30, 30, 30, 0.7);
+      --ink-40: rgba(30, 30, 30, 0.4);
+      --ink-10: rgba(30, 30, 30, 0.1);
+      --ink-07: rgba(30, 30, 30, 0.07);
+      --paper: #fafaf9;
+      --white: #ffffff;
+      --chip: #f4f4f4;
+      --page-pad: 64px;
+      --nav-h: 64px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-morph: cubic-bezier(0.32, 0.72, 0, 1);
+      --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
+      --dur: 0.7s;
+      --font-display: "Inter Display", "Inter", system-ui, sans-serif;
+      --font-ui: "Geist", system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: auto; }
+
+    html, body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      /* No rubber-band past the top/bottom edge */
+      overscroll-behavior-y: none;
+    }
+
+    /* Body copy runs at 140% everywhere unless a heading sets its own */
+    body { overflow-x: hidden; line-height: 1.4; }
+
+    button, a, input { font: inherit; color: inherit; }
+
+    button { border: none; background: none; cursor: pointer; }
+
+    a { text-decoration: none; }
+
+    img { display: block; max-width: 100%; }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--nav-h);
+      padding: 0 var(--page-pad);
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: none;
+      transform: translateY(0);
+      transition:
+        transform 0.45s var(--ease-out),
+        box-shadow 0.35s var(--ease);
+    }
+
+    .logo {
+      position: relative;
+      z-index: 2;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: currentColor;
+      width: 100px;
+      flex-shrink: 0;
+      transition: opacity 0.25s var(--ease);
+    }
+
+    .logo:hover { opacity: 0.85; }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      z-index: 1;
+      /* Clip so links can rise out of view — movement, not a dissolve */
+      overflow: hidden;
+      visibility: visible;
+      transition: visibility 0s linear 0s;
+    }
+
+    .nav-links a {
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: currentColor;
+      height: 1.4em;
+      line-height: 1.4;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .link-rise {
+      display: block;
+      position: relative;
+      transition: none;
+    }
+
+    .link-rise::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 100%;
+      white-space: nowrap;
+    }
+
+    a:hover > .link-rise,
+    a:focus-visible > .link-rise {
+      transform: translateY(-100%);
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    /* Text rise for buttons & links: the label slides up while an identical
+       copy (its own text-shadow, 1.4em below) rises into place. Spans are
+       added in JS (addRise), so live-updating labels keep working. */
+    .rise {
+      display: inline-block;
+      vertical-align: top;
+      height: 1.4em;
+      line-height: 1.4;
+      overflow: hidden;
+    }
+
+    .rise__t {
+      display: block;
+      text-shadow: 0 1.4em 0 currentColor;
+      transition: none;
+    }
+
+    a:hover .rise__t,
+    button:hover .rise__t,
+    a:focus-visible .rise__t,
+    button:focus-visible .rise__t {
+      transform: translateY(-1.4em);
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    .nav-actions {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 56px;
+      border: 1px solid var(--ink-10);
+      color: currentColor;
+      transition: background 0.25s var(--ease), border-color 0.25s var(--ease);
+    }
+
+    .icon-btn:hover {
+      background: var(--ink-07);
+      border-color: rgba(30, 30, 30, 0.18);
+    }
+
+    .icon-btn--fav .heart-outline {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 0;
+    }
+
+    .icon-btn--fav.is-drawing .heart-outline {
+      animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .icon-btn--fav.is-active .heart-outline {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+
+    /* Share: arrow then tray draw themselves on hover — same line language
+       as the heart */
+    .share-icon .share-line {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 0;
+    }
+
+    .icon-btn.is-drawing .share-line {
+      animation: draw-heart-outline 1.1s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+
+    .icon-btn.is-drawing .share-line--tray { animation-delay: 0.18s; }
+
+    @keyframes draw-heart-outline {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .btn-sell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 8px 16px;
+      border-radius: 56px;
+      background: var(--ink);
+      color: var(--white);
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      transition: background 0.35s var(--ease);
+    }
+
+    .btn-sell:hover { background: #2a2a2a; }
+
+    .menu-btn {
+      position: fixed;
+      top: 12px;
+      right: var(--page-pad);
+      z-index: 220;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink);
+      transition: transform 0.45s var(--ease-out), opacity 0.35s var(--ease);
+    }
+
+    .menu-btn-spacer {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .menu-btn__burger {
+      position: relative;
+      width: 24px;
+      height: 9px;
+    }
+
+    .menu-btn__line {
+      position: absolute;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: currentColor;
+      border-radius: 1px;
+      transform-origin: left center;
+    }
+
+    .menu-btn__line--top { top: 0; }
+
+    .menu-btn__line--bot { top: 8px; }
+
+    .menu-btn:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+
+    .menu-btn__burger { transition: opacity 0.2s var(--ease), transform 0.2s var(--ease); }
+
+    .menu-btn:not(.is-open):hover .menu-btn__line--top {
+      animation: draw-line 0.7s var(--ease-out) forwards;
+    }
+
+    .menu-btn:not(.is-open):hover .menu-btn__line--bot {
+      animation: draw-line 0.7s var(--ease-out) 0.22s forwards;
+    }
+
+    .menu-btn:not(.is-open):not(:hover) .menu-btn__line { animation: none; }
+
+    @keyframes draw-line {
+      0% { transform: scaleX(0); transform-origin: left center; }
+      100% { transform: scaleX(1); transform-origin: left center; }
+    }
+
+    /* X — each stroke draws from the bottom end upward */
+    .menu-btn__x {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      opacity: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .menu-btn__x-line {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
+
+    .menu-btn.is-open {
+      color: var(--ink);
+      transform: none !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .menu-btn.is-open .menu-btn__burger {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+
+    .menu-btn.is-open .menu-btn__x { opacity: 1; }
+
+    .menu-btn.is-open .menu-btn__x-line--a {
+      animation: draw-x-stroke 0.72s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .menu-btn.is-open .menu-btn__x-line--b {
+      animation: draw-x-stroke 0.72s cubic-bezier(0.4, 0, 0.2, 1) 0.14s forwards;
+    }
+
+    @keyframes draw-x-stroke {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    body.is-menu-open { overflow: hidden; }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 0;
+    }
+
+    .card__media {
+      position: relative;
+      aspect-ratio: 1 / 1.01;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #e8e8e6;
+    }
+
+    .card__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card__badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .card__fav {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 36px;
+      background: rgba(0, 0, 0, 0.1);
+      border: 0.7px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      color: var(--white);
+      transition: background 0.25s var(--ease);
+    }
+
+    .card__fav:hover { background: rgba(0, 0, 0, 0.22); }
+
+    /* Heart outline draws from the top cleft on hover — as in the navbar */
+    .card__fav .heart-outline {
+      fill: none;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 0;
+    }
+
+    .card__fav:hover .heart-outline {
+      animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .card__body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 16px;
+    }
+
+    .card__place {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+
+    .card__addr {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      color: var(--ink-70);
+      letter-spacing: -0.01em;
+    }
+
+    .card__meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      color: rgba(30, 30, 30, 0.8);
+      font-family: var(--font-ui);
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+
+    .card__meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .card__meta svg { opacity: 0.7; }
+
+    .card__price {
+      font-family: var(--font-ui);
+      font-weight: 400;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+      color: rgba(30, 30, 30, 0.8);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ========== HL BUTTON (Figma decoration) ========== */
+    .hl-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: stretch;
+      height: 40px;
+      border-radius: 80px;
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: filter 0.3s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .hl-btn__inner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 100%;
+      padding: 0 14px;
+      border-radius: inherit;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .hl-btn__icon {
+      position: relative;
+      display: inline-flex;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    /* Arrow swap, in step with the label's rise (same duration + easing):
+       the current arrow leaves right, a fresh one slides in from the left */
+    .hl-btn__icon svg {
+      position: absolute;
+      inset: 0;
+      width: 16px;
+      height: 16px;
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    .hl-btn__icon svg:first-child { transform: translateX(0); }
+
+    .hl-btn__icon svg:last-child { transform: translateX(-120%); }
+
+    .hl-btn:hover .hl-btn__icon svg:first-child,
+    .hl-btn:focus-visible .hl-btn__icon svg:first-child { transform: translateX(120%); }
+
+    .hl-btn:hover .hl-btn__icon svg:last-child,
+    .hl-btn:focus-visible .hl-btn__icon svg:last-child { transform: translateX(0); }
+
+    .hl-btn--black {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .hl-btn--black .hl-btn__inner {
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      color: #fff;
+    }
+
+    .hl-btn--black:hover { filter: brightness(1.12); }
+
+    .hl-btn--black:active { transform: scale(0.97); filter: brightness(0.92); }
+
+    .hl-btn--white {
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    .hl-btn--white .hl-btn__inner {
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 100px;
+    }
+
+    .hl-btn--white:hover { filter: brightness(0.98); }
+
+    .hl-btn--white:active { transform: scale(0.97); }
+
+    .hl-btn--sm { height: 36px; }
+
+    .hl-btn--sm .hl-btn__inner { font-size: 14px; padding: 0 12px; }
+
+    .btn-sell.hl-btn--black {
+      height: 40px;
+      padding: 0;
+      background: transparent;
+      border-radius: 80px;
+    }
+
+    .btn-sell.hl-btn--black .hl-btn__inner {
+      padding: 0 16px;
+      font-size: 14px;
+    }
+
+    /* ========== FULL-PAGE MENU (circle expand, no margin) ========== */
+    .mega-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+      visibility: hidden;
+      background: var(--white);
+      --cx: calc(100% - 84px);
+      --cy: 32px;
+      clip-path: circle(0px at var(--cx) var(--cy));
+      transition:
+        clip-path 1.37s var(--ease-out),
+        visibility 0s linear 1.37s;
+    }
+
+    .mega-menu.is-open {
+      pointer-events: auto;
+      visibility: visible;
+      clip-path: circle(3000px at var(--cx) var(--cy));
+      transition:
+        clip-path 1.37s var(--ease-out),
+        visibility 0s linear 0s;
+    }
+
+    .mega-menu.is-closing {
+      clip-path: circle(0px at var(--cx) var(--cy));
+      transition:
+        clip-path 0.72s var(--ease),
+        visibility 0s linear 0.72s;
+    }
+
+    .mega-menu__panel {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) 1.15fr;
+      gap: 64px;
+      padding: 40px 64px 48px;
+    }
+
+    .mega-menu__media {
+      border-radius: 28px;
+      overflow: hidden;
+      min-height: 0;
+      height: 100%;
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity 0.94s var(--ease-out) 0.75s,
+        transform 0.94s var(--ease-out) 0.75s;
+    }
+
+    .mega-menu.is-open .mega-menu__media {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mega-menu__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      transform: translateZ(0);
+    }
+
+    .mega-menu__body {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 16px 48px 8px 0;
+    }
+
+    .mega-menu__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 56px;
+      row-gap: 48px;
+      margin-top: 24px;
+      flex: 1;
+    }
+
+    .mega-menu__group-label {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      color: var(--ink-40);
+      margin-bottom: 18px;
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.85s var(--ease-out),
+        transform 0.85s var(--ease-out);
+    }
+
+    .mega-menu.is-open .mega-menu__group-label {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mega-menu__links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mega-menu__links a {
+      display: inline-block;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      height: 1.2em;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(22px);
+      transition:
+        opacity 0.94s var(--ease-out),
+        transform 0.94s var(--ease-out);
+    }
+
+    .mega-menu.is-open .mega-menu__links a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Mega menu link hover = same rise as navbar — open stagger 30% slower */
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) .mega-menu__group-label { transition-delay: 0.81s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) .mega-menu__group-label { transition-delay: 0.88s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) .mega-menu__group-label { transition-delay: 0.95s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(4) .mega-menu__group-label { transition-delay: 1.01s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(1) a { transition-delay: 0.88s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(2) a { transition-delay: 0.95s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(3) a { transition-delay: 1.01s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(4) a { transition-delay: 1.08s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(5) a { transition-delay: 1.14s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(1) a { transition-delay: 0.95s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(2) a { transition-delay: 1.01s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(3) a { transition-delay: 1.08s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(1) a { transition-delay: 1.12s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(2) a { transition-delay: 1.18s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(3) a { transition-delay: 1.25s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(1) a { transition-delay: 1.18s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(2) a { transition-delay: 1.25s; }
+
+    .mega-menu__contact {
+      margin-top: auto;
+      padding-top: 28px;
+    }
+
+    .mega-menu__contact .mega-menu__group-label {
+      margin-bottom: 10px;
+    }
+
+    .mega-menu.is-open .mega-menu__contact .mega-menu__group-label {
+      transition-delay: 1.22s;
+    }
+
+    .mega-menu__contact > a {
+      display: inline-block;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      opacity: 0;
+      transform: translateY(22px);
+      overflow: hidden;
+      height: 1.2em;
+      transition:
+        opacity 0.94s var(--ease-out) 1.29s,
+        transform 0.94s var(--ease-out) 1.29s;
+    }
+
+    .mega-menu.is-open .mega-menu__contact > a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 140;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #1e1e1e;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ========== SHARED ICON BUTTON + ARROW ========== */
+        .ui-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 40px;
+          background: var(--white);
+          border: 1px solid var(--ink-07);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+          overflow: hidden;
+          transition: box-shadow 0.35s var(--ease);
+        }
+    
+        .ui-btn:hover {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        .ui-btn:disabled,
+        .ui-btn[aria-disabled="true"] {
+          opacity: 0.35;
+          cursor: default;
+          pointer-events: none;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+    
+        .ui-arrow {
+          position: relative;
+          display: block;
+          width: 16px;
+          height: 12px;
+          overflow: hidden;
+        }
+    
+        /* Raised variant (section-header arrows): inner white rim over a soft
+           top shade, gradient-filled arrow — from the "Logo Arrow" spec */
+        .ui-btn--raised {
+          position: relative;
+          width: 48px;
+          height: 48px;
+          border-radius: 48px;
+        }
+    
+        .ui-btn--raised::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border: 1px solid var(--white);
+          border-radius: 44px;
+          background:
+            linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, transparent 100%),
+            var(--white);
+          pointer-events: none;
+        }
+    
+        .ui-btn--raised .ui-arrow {
+          z-index: 1;
+        }
+
+    /* ========== DETAIL PAGE ========== */
+    .detail {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 80px var(--page-pad) 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 392px;
+      column-gap: 24px;
+      align-items: start;
+    }
+
+    .detail__main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      padding-bottom: 24px;
+    }
+
+    .detail__top {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .detail__head {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .detail__back.ui-btn--raised {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      flex-shrink: 0;
+    }
+
+    .detail__back.ui-btn--raised::before { border-radius: 36px; }
+    .detail__back .ui-arrow { transform: scaleX(-1); }
+
+    .detail__titles {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .detail__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .detail__addr {
+      font-size: 16px;
+      line-height: 1.4;
+      color: rgba(30, 30, 30, 0.8);
+    }
+
+    .detail__actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Same 40px round button as the navbar's, in the page-card look */
+    .detail__actions .icon-btn {
+      background: var(--white);
+      border-color: var(--ink-07);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+
+    .detail__actions .icon-btn:hover { background: var(--paper); }
+
+    .detail__actions .icon-btn svg { fill: currentColor; }
+    .detail__actions .icon-btn--fav svg { fill: none; }
+
+    /* Gallery */
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .gallery__main,
+    .gallery__thumb {
+      position: relative;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #dddddd;
+      cursor: pointer;
+    }
+
+    .gallery__main { height: 500px; }
+
+    .gallery__row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .gallery__thumb {
+      flex: 1 1 0;
+      min-width: 0;
+      width: auto;
+      height: 200px;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery__more {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(30, 30, 30, 0.2);
+      color: var(--white);
+      pointer-events: none;
+    }
+
+    .gallery__more strong {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .gallery__more span { font-size: 14px; line-height: 1.4; }
+
+    .detail__desc {
+      font-size: 16px;
+      line-height: 1.4;
+      color: rgba(30, 30, 30, 0.9);
+    }
+
+    .detail__h2 {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    /* Features */
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .features__card {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(4, auto);
+      grid-auto-flow: column;
+      gap: 16px 8px;
+      padding: 16px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 22px;
+      font-size: 16px;
+      line-height: 1.4;
+      color: rgba(30, 30, 30, 0.9);
+    }
+
+    .feature svg { width: 16px; height: 16px; flex: none; }
+    .feature span { min-width: 0; }
+
+    /* Location + map */
+    .location {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .location__head {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .map-slot {
+      position: relative;
+      height: 400px;
+    }
+
+    /* The map is one element: in the page it fills its slot; opening lifts it to
+       a fixed box at the same spot and the box grows to the viewport (below the
+       navbar). container-type lets the artwork keep "cover" sizing at any size. */
+    .map {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--white);
+      container-type: size;
+      cursor: pointer;
+    }
+
+    .map.is-lifted {
+      position: fixed;
+      inset: auto;
+      z-index: 90;
+      transition:
+        top 0.7s var(--ease-morph),
+        left 0.7s var(--ease-morph),
+        width 0.7s var(--ease-morph),
+        height 0.7s var(--ease-morph),
+        border-radius 0.7s var(--ease-morph);
+    }
+
+    .map.is-expanded { cursor: default; }
+
+    .map__canvas {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: max(100cqw, 224cqh);
+      aspect-ratio: 1792 / 800;
+      transform: translate(-50%, -50%) scale(var(--zoom, 1));
+      transition: transform 0.5s var(--ease-morph);
+    }
+
+    .map__img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .pin {
+      position: absolute;
+      display: block;
+      width: 3.386%;
+      aspect-ratio: 48.55 / 64;
+    }
+
+    .pin--main { width: 5.419%; z-index: 2; }
+
+    .pin__shape {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .pin__dot {
+      position: absolute;
+      left: 9.09%;
+      top: 6.9%;
+      width: 81.82%;
+      height: 62.07%;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.05), transparent);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .pin--main .pin__dot {
+      background-color: var(--ink);
+      background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent);
+    }
+
+    .pin__icon { height: 44%; width: auto; display: block; }
+    .pin--main .pin__icon { height: 60%; }
+
+    .map__zoom,
+    .map__expand {
+      position: absolute;
+      right: 16px;
+      z-index: 4;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)),
+        var(--white);
+      border: 1px solid rgba(30, 30, 30, 0.1);
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+
+    .map__expand {
+      top: 16px;
+      width: 32px;
+      height: 32px;
+      border-radius: 200px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .map__expand svg { width: 13px; height: 13px; fill: currentColor; }
+    .map__expand .icon-collapse,
+    .map.is-expanded .map__expand .icon-expand { display: none; }
+    .map.is-expanded .map__expand .icon-collapse { display: block; }
+
+    .map__zoom {
+      bottom: 16px;
+      width: 32px;
+      border-radius: 200px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .map__zoom button {
+      width: 100%;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s var(--ease);
+    }
+
+    .map__zoom button:hover { background: var(--ink-07); }
+    .map__zoom button:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+    .map__zoom svg { width: 12px; fill: currentColor; }
+    .map__zoom button + button { border-top: 1px solid var(--ink-07); }
+
+    body.is-map-open { overflow: hidden; }
+
+    /* Sticky inquiry card */
+    .detail__aside {
+      position: sticky;
+      top: 80px;
+      align-self: start;
+      padding-bottom: 24px;
+    }
+
+    .inquiry {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 24px;
+      background: var(--white);
+      border: 1px solid rgba(30, 30, 30, 0.05);
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .inquiry__top {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--ink-07);
+    }
+
+    .inquiry__price {
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .inquiry__specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+    }
+
+    .spec {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      line-height: 1.4;
+      color: rgba(30, 30, 30, 0.8);
+    }
+
+    .spec svg { height: 14px; width: auto; flex: none; }
+
+    .agent {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px 8px 8px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .agent__photo {
+      width: 48px;
+      height: 48px;
+      flex: none;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .agent__name {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .agent__role {
+      font-size: 16px;
+      line-height: 1.4;
+      color: rgba(18, 18, 18, 0.6);
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form__row {
+      display: flex;
+      gap: 16px;
+    }
+
+    .field {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      height: 40px;
+      padding: 4px 14px;
+      background: var(--white);
+      border: 1px solid rgba(30, 30, 30, 0.13);
+      border-radius: 46px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.25s var(--ease);
+    }
+
+    .field textarea {
+      height: 100px;
+      padding: 14px;
+      border-radius: 14px;
+      resize: none;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder { color: rgba(30, 30, 30, 0.7); }
+
+    .field input:focus,
+    .field textarea:focus { border-color: var(--ink); }
+
+    .form .hl-btn { width: 100%; }
+    .form .hl-btn__inner { flex: 1; }
+
+    /* ========== NAVBAR: SECTION TABS + LISTING PILL ========== */
+    /* Tabs: each one rises into place beside the logo when its section has been
+       scrolled through (no fade — it moves in from below its own clip). */
+    .sec-tabs {
+      position: absolute;
+      left: calc(var(--page-pad) + 132px);
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      align-items: center;
+      gap: 16px;
+      z-index: 1;
+    }
+
+    .sec-tab {
+      display: inline-block;
+      height: 1.4em;
+      overflow: hidden;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      color: var(--ink-70);
+      visibility: hidden;
+      pointer-events: none;
+      transition: color 0.25s var(--ease), visibility 0s linear 0.5s;
+    }
+
+    .sec-tab.is-active { color: var(--ink); }
+
+    .sec-tab.is-shown {
+      visibility: visible;
+      pointer-events: auto;
+      transition: color 0.25s var(--ease), visibility 0s;
+    }
+
+    .sec-tab__in {
+      display: block;
+      transform: translateY(115%);
+      transition: transform 0.5s var(--ease-morph);
+    }
+
+    .sec-tab.is-shown .sec-tab__in { transform: none; }
+
+    /* Pill: the inquiry card's essentials, in the navbar. Unfolds from the
+       centre as the primary links rise out of the way (same moves as the
+       search page's filter bar). */
+    .nav-pill {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 1;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      height: 48px;
+      padding: 0 6px 0 16px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      clip-path: inset(0 50% 0 50% round 46px);
+      transition:
+        clip-path 0.26s var(--ease-morph),
+        visibility 0s linear 0.26s;
+    }
+
+    .nav-pill > * {
+      opacity: 0;
+      transition: opacity 0.08s var(--ease);
+    }
+
+    .nav-pill__price { font-weight: 500; }
+
+    .nav-pill__specs {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(30, 30, 30, 0.8);
+    }
+
+    .nav-pill__spec {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-pill__spec svg { height: 14px; width: auto; flex: none; }
+
+    .nav-pill__agent {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-weight: 500;
+    }
+
+    .nav-pill__photo {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      object-fit: cover;
+      object-position: center top;
+    }
+
+    .nav-pill__btn {
+      height: 36px;
+      padding: 0 16px;
+      border: 1px solid rgba(30, 30, 30, 0.1);
+      border-radius: 40px;
+      background: var(--white);
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      transition: background 0.2s var(--ease);
+    }
+
+    .nav-pill__btn:hover { background: var(--paper); }
+
+    .nav-links a { transition: transform 0.4s var(--ease-morph) 0.12s; }
+
+    /* Links drop back in one after another as the pill folds away */
+    .nav-links a:nth-child(2) { transition-delay: 0.2s; }
+    .nav-links a:nth-child(3) { transition-delay: 0.28s; }
+
+    @media (min-width: 1280px) {
+      .sec-tabs { display: flex; }
+      .nav-pill { display: flex; }
+
+      /* Closing (default): content lets go first, then the frame folds shut */
+      .nav-pill {
+        transition:
+          clip-path 0.45s var(--ease-morph) 0.08s,
+          visibility 0s linear 0.53s;
+      }
+
+      .nav-pill > * {
+        transform: translateY(6px);
+        transition: opacity 0.14s var(--ease), transform 0.14s var(--ease);
+      }
+
+      body.is-pill .nav-links {
+        visibility: hidden;
+        pointer-events: none;
+        transition: visibility 0s linear 0.45s;
+      }
+
+      /* Opening: links rise out in a short cascade, the frame unfolds
+         from the centre while they go, then the content settles in */
+      body.is-pill .nav-links a {
+        transform: translateY(-110%);
+        transition: transform 0.4s var(--ease-morph);
+      }
+
+      body.is-pill .nav-links a:nth-child(2) { transition-delay: 0.05s; }
+      body.is-pill .nav-links a:nth-child(3) { transition-delay: 0.1s; }
+
+      body.is-pill .nav-pill {
+        visibility: visible;
+        pointer-events: auto;
+        clip-path: inset(-8px -8px -8px -8px round 54px);
+        transition:
+          clip-path 0.6s var(--ease-morph) 0.12s,
+          visibility 0s;
+      }
+
+      body.is-pill .nav-pill > * {
+        opacity: 1;
+        transform: none;
+        transition: opacity 0.3s var(--ease) 0.38s, transform 0.5s var(--ease-morph) 0.38s;
+      }
+
+      body.is-pill .nav-pill > :nth-child(2) { transition-delay: 0.44s; }
+      body.is-pill .nav-pill > :nth-child(3) { transition-delay: 0.5s; }
+      body.is-pill .nav-pill > :nth-child(4) { transition-delay: 0.56s; }
+    }
+
+    /* Similar properties */
+    .similar {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px var(--page-pad) 48px;
+    }
+
+    .similar__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 24px;
+    }
+
+    .similar__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px 16px;
+    }
+
+    /* Whole card is the link (the title's anchor stretches over it) */
+    .card { position: relative; }
+
+    .card__link::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .card__badge { pointer-events: none; }
+
+    @media (max-width: 1100px) {
+      .detail {
+        grid-template-columns: minmax(0, 1fr);
+        padding-inline: 32px;
+      }
+
+      .detail__aside { position: static; padding-bottom: 0; }
+      .similar { padding-inline: 32px; }
+      .similar__grid { grid-template-columns: repeat(2, 1fr); }
+
+      .mega-menu__panel {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 88px 32px 40px;
+        overflow: auto;
+      }
+
+      .mega-menu__media { height: 260px; }
+    }
+
+    @media (max-width: 700px) {
+      :root { --page-pad: 24px; }
+      .detail { padding-inline: 24px; }
+      .similar { padding-inline: 24px; }
+      .nav-links { display: none; }
+      .detail__title { font-size: 26px; }
+      .gallery__main { height: 280px; }
+      .gallery__row { flex-wrap: wrap; }
+      .gallery__thumb { flex: 1 1 calc(50% - 6px); height: 140px; }
+      .features__card { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
+      .form__row { flex-direction: column; }
+      .similar__grid { grid-template-columns: 1fr; }
+    }
+
+  </style>
+  <style>
+    /* Placeholder page — real content is not ready yet */
+    .soon {
+      min-height: calc(100vh - 64px);
+      padding: 160px var(--page-pad) 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 20px;
+      background: var(--paper);
+    }
+    .soon__tag {
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink-70);
+      padding: 6px 14px;
+      border: 1px solid var(--ink-10);
+      border-radius: 56px;
+    }
+    .soon__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(44px, 6vw, 84px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .soon__lead {
+      max-width: 520px;
+      font-family: var(--font-ui);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--ink-70);
+    }
+    .soon .btn-sell { margin-top: 12px; }
+    @media (max-width: 700px) { .soon { padding-top: 120px; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-tree" viewBox="0 0 13 16"><path d="M6.13594 0C6.32734 0 6.49141 0.0820312 6.62813 0.21875L10.3469 4.62109C10.5109 4.8125 10.5383 5.08594 10.4289 5.30469C10.3195 5.55078 10.1008 5.6875 9.85469 5.6875H9.17109L11.2219 8.12109C11.3859 8.3125 11.4133 8.58594 11.3039 8.80469C11.1945 9.05078 10.9758 9.1875 10.7297 9.1875H9.66328L12.0969 12.0586C12.2609 12.25 12.2883 12.5234 12.1789 12.7422C12.0695 12.9883 11.8508 13.125 11.6047 13.125H6.79219V15.0938C6.79219 15.4492 6.49141 15.75 6.13594 15.75C5.75313 15.75 5.47969 15.4492 5.47969 15.0938V13.125H0.667188C0.39375 13.125 0.175 12.9883 0.065625 12.7422C-0.04375 12.5234 -0.0164063 12.25 0.147656 12.0586L2.58125 9.1875H1.54219C1.26875 9.1875 1.05 9.05078 0.940625 8.80469C0.83125 8.58594 0.858594 8.3125 1.02266 8.12109L3.07344 5.6875H2.41719C2.14375 5.6875 1.925 5.55078 1.81562 5.30469C1.70625 5.08594 1.73359 4.8125 1.89766 4.62109L5.61641 0.21875L5.67109 0.191406C5.78047 0.0546875 5.94453 0 6.13594 0ZM3.81172 4.375H4.49531C4.76875 4.375 4.9875 4.53906 5.09688 4.75781C5.20625 4.97656 5.17891 5.25 5.01484 5.46875L2.93672 7.875H4.00313C4.24922 7.875 4.49531 8.01172 4.60469 8.25781C4.71406 8.47656 4.65938 8.75 4.49531 8.96875L2.06172 11.8125H10.1828L7.74922 8.96875C7.58516 8.75 7.53047 8.47656 7.63984 8.25781C7.74922 8.01172 7.99531 7.875 8.24141 7.875H9.30781L7.22969 5.46875C7.06563 5.25 7.03828 4.97656 7.14766 4.75781C7.25703 4.51172 7.47578 4.375 7.74922 4.375H8.43281L6.13594 1.66797L3.81172 4.375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-key" viewBox="0 0 14 14"><path d="M7.81348 5.30469L8.68848 6.17969C8.96191 6.42578 9.29004 6.5625 9.61816 6.5625C10.1924 6.5625 10.958 6.20703 11.6143 5.38672C12.2705 4.62109 12.6807 3.58203 12.6807 2.625C12.6807 1.91406 12.1064 1.3125 11.3682 1.3125C10.4111 1.3125 9.37207 1.72266 8.60645 2.37891C7.78613 3.03516 7.43066 3.80078 7.43066 4.375C7.43066 4.70312 7.56738 5.05859 7.81348 5.30469ZM6.85645 6.20703C6.36426 5.6875 6.11816 5.03125 6.11816 4.375C6.11816 2.1875 8.74316 0 11.3682 0C12.8174 0 13.9932 1.17578 13.9932 2.625C13.9932 5.25 11.8057 7.875 9.61816 7.875C8.96191 7.875 8.30566 7.62891 7.78613 7.13672L1.11426 13.8086C0.868164 14.0547 0.430664 14.0547 0.18457 13.8086C-0.0615234 13.5625 -0.0615234 13.125 0.18457 12.8789L6.85645 6.20703Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-shower" viewBox="0 0 14 14"><path d="M12.8789 0.196244C13.0703 0.0321813 13.3164 -0.04985 13.5625 0.0321813C13.8086 0.141556 14 0.38765 14 0.661088V5.77437C14 9.3564 11.0469 12.2548 7.46484 12.2548C5.25 12.2548 3.33594 10.7236 2.78906 8.67281C1.88672 9.49312 1.3125 10.6962 1.3125 12.0361V12.4736C1.3125 12.8291 1.01172 13.1298 0.65625 13.1298C0.300781 13.1298 0 12.8291 0 12.4736V12.0361C0 9.98531 1.03906 8.18062 2.625 7.11421C2.81641 4.59859 4.89453 2.62984 7.4375 2.62984C9.24219 2.62984 10.6094 2.02828 11.5117 1.42671C12.0312 1.07124 12.4688 0.661088 12.8789 0.196244ZM12.6875 2.19234C11.6484 2.98531 9.89844 3.94234 7.4375 3.94234C5.85156 3.94234 4.53906 4.9814 4.10156 6.40328C4.67578 6.23921 5.27734 6.12984 5.90625 6.12984H8.09375C8.44922 6.12984 8.75 6.43062 8.75 6.78609C8.75 7.14156 8.44922 7.44234 8.09375 7.44234H5.90625C5.22266 7.44234 4.56641 7.6064 3.96484 7.87984C4.18359 9.60249 5.6875 10.9423 7.46484 10.9423C10.3359 10.9423 12.6875 8.61812 12.6875 5.77437V2.19234Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-window" viewBox="0 0 13 14"><path d="M10.5 1.3125H1.75C1.50391 1.3125 1.3125 1.50391 1.3125 1.75V12.25C1.3125 12.4961 1.50391 12.6875 1.75 12.6875H10.5C10.7461 12.6875 10.9375 12.4961 10.9375 12.25V1.75C10.9375 1.50391 10.7461 1.3125 10.5 1.3125ZM1.75 0H10.5C11.457 0 12.25 0.792969 12.25 1.75V12.25C12.25 13.207 11.457 14 10.5 14H1.75C0.792969 14 0 13.207 0 12.25V1.75C0 0.792969 0.792969 0 1.75 0ZM3.5 2.84375C3.5 3.19922 3.19922 3.5 2.84375 3.5C2.48828 3.5 2.1875 3.19922 2.1875 2.84375C2.1875 2.48828 2.48828 2.1875 2.84375 2.1875C3.19922 2.1875 3.5 2.48828 3.5 2.84375ZM5.03125 3.5C4.67578 3.5 4.375 3.19922 4.375 2.84375C4.375 2.48828 4.67578 2.1875 5.03125 2.1875C5.38672 2.1875 5.6875 2.48828 5.6875 2.84375C5.6875 3.19922 5.38672 3.5 5.03125 3.5ZM8.61328 8.75C8.69531 8.47656 8.75 8.17578 8.75 7.875C8.75 6.42578 7.57422 5.25 6.125 5.25C4.97656 5.25 3.99219 5.98828 3.63672 7C3.74609 7 3.85547 7 3.9375 7C5.6875 7 6.5625 8.75 8.3125 8.75C8.42188 8.75 8.50391 8.75 8.61328 8.75ZM10.0625 7.875C10.0625 10.0625 8.3125 11.8125 6.125 11.8125C3.9375 11.8125 2.1875 10.0625 2.1875 7.875C2.1875 5.6875 3.9375 3.9375 6.125 3.9375C8.3125 3.9375 10.0625 5.6875 10.0625 7.875Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-car" viewBox="0 0 14 13"><path d="M3.22656 2.21484L2.51562 4.375H11.4844L10.7734 2.21484C10.582 1.66797 10.0898 1.3125 9.51562 1.3125H4.48438C3.91016 1.3125 3.41797 1.66797 3.22656 2.21484ZM1.09375 4.51172L1.99609 1.80469C2.35156 0.710938 3.36328 0 4.48438 0H9.51562C10.6367 0 11.6484 0.710938 12.0039 1.80469L12.9062 4.51172C13.5625 4.75781 14 5.38672 14 6.125V11.5938C14 11.9492 13.6992 12.25 13.3438 12.25C12.9883 12.25 12.6875 11.9492 12.6875 11.5938V10.5H1.3125V11.5938C1.3125 11.9492 1.01172 12.25 0.65625 12.25C0.300781 12.25 0 11.9492 0 11.5938V6.125C0 5.38672 0.4375 4.75781 1.09375 4.51172ZM1.75 5.6875C1.50391 5.6875 1.3125 5.87891 1.3125 6.125V9.1875H12.6875V6.125C12.6875 5.87891 12.4961 5.6875 12.25 5.6875H1.75ZM3.0625 6.5625C3.55469 6.5625 3.9375 6.94531 3.9375 7.4375C3.9375 7.92969 3.55469 8.3125 3.0625 8.3125C2.57031 8.3125 2.1875 7.92969 2.1875 7.4375C2.1875 6.94531 2.57031 6.5625 3.0625 6.5625ZM10.0625 7.4375C10.0625 6.94531 10.4453 6.5625 10.9375 6.5625C11.4297 6.5625 11.8125 6.94531 11.8125 7.4375C11.8125 7.92969 11.4297 8.3125 10.9375 8.3125C10.4453 8.3125 10.0625 7.92969 10.0625 7.4375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-home" viewBox="0 0 13 14"><path d="M1.53676 5.6875H10.7243L8.89223 1.3125H3.36879L1.53676 5.6875ZM3.94301 7H0.880507C0.579726 7 0.306288 6.86328 0.142226 6.61719C-0.021837 6.37109 -0.0491807 6.07031 0.087538 5.79688L2.27504 0.546875C2.38441 0.21875 2.71254 0 3.06801 0H9.19301C9.54848 0 9.8766 0.21875 10.0133 0.546875L12.2008 5.79688C12.3102 6.07031 12.2829 6.37109 12.1188 6.61719C11.9547 6.86328 11.6813 7 11.3805 7H8.31801V7.76562C9.11098 8.42188 9.63051 9.40625 9.63051 10.5C9.63051 11.5391 9.16566 12.4961 8.45473 13.125H3.80629C3.09535 12.4961 2.63051 11.5391 2.63051 10.5C2.63051 9.40625 3.15004 8.42188 3.94301 7.76562V7ZM7.00551 7H5.25551V8.39453L4.76332 8.80469C4.27113 9.1875 3.94301 9.81641 3.94301 10.5C3.94301 10.9922 4.10707 11.457 4.38051 11.8125H7.88051C8.15394 11.457 8.31801 10.9922 8.31801 10.5C8.31801 9.81641 7.98988 9.1875 7.49769 8.80469L7.00551 8.39453V7Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 13 15"><path d="M9.32422 0.107727C9.57031 0.271789 9.67969 0.57257 9.59766 0.873352L7.98438 5.68585H11.293C11.8125 5.68585 12.25 6.12335 12.25 6.64288C12.25 6.91632 12.1406 7.18976 11.9219 7.35382L3.71875 14.7093C3.5 14.9007 3.17188 14.928 2.92578 14.764C2.67969 14.5999 2.57031 14.2991 2.65234 14.0257L4.26562 9.18585H0.957031C0.4375 9.18585 0 8.74835 0 8.22882C0 7.95538 0.109375 7.70929 0.328125 7.51788L8.53125 0.162414C8.75 -0.0289922 9.07812 -0.056336 9.32422 0.107727ZM1.88672 7.87335H5.16797C5.38672 7.87335 5.57812 7.98273 5.71484 8.14679C5.82422 8.31085 5.87891 8.5296 5.79688 8.74835L4.67578 12.0843L10.3633 6.99835H7.08203C6.86328 6.99835 6.67188 6.88898 6.53516 6.72491C6.42578 6.56085 6.39844 6.3421 6.45312 6.12335L7.57422 2.78741L1.88672 7.87335Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-bed" viewBox="0 0 18 14"><path d="M1.5 0.75V9.5H8.5V5.25C8.5 4.28125 9.28125 3.5 10.25 3.5H14.25C16.3125 3.5 18 5.1875 18 7.25V13.25C18 13.6562 17.6562 14 17.25 14C16.8438 14 16.5 13.6562 16.5 13.25V11H1.5V13.25C1.5 13.6562 1.15625 14 0.75 14C0.34375 14 0 13.6562 0 13.25V0.75C0 0.34375 0.34375 0 0.75 0C1.15625 0 1.5 0.34375 1.5 0.75ZM16.5 7.25C16.5 6 15.5 5 14.25 5H10.25C10.125 5 10 5.125 10 5.25V9.5H16.5V7.25ZM4 6C4 6.5625 4.4375 7 5 7C5.5625 7 6 6.5625 6 6C6 5.4375 5.5625 5 5 5C4.4375 5 4 5.4375 4 6ZM7.5 6C7.5 7.375 6.375 8.5 5 8.5C3.625 8.5 2.5 7.375 2.5 6C2.5 4.625 3.625 3.5 5 3.5C6.375 3.5 7.5 4.625 7.5 6Z" fill="#1E1E1E" fill-opacity="0.8"/></symbol>
+<symbol id="i-bath" viewBox="0 0 16 16"><path d="M2.5 2.15625V8H15.25C15.6562 8 16 8.34375 16 8.75C16 9.15625 15.6562 9.5 15.25 9.5H15V11.5C15 12.4062 14.625 13.1875 14 13.75V15.25C14 15.6562 13.6562 16 13.25 16C12.8438 16 12.5 15.6562 12.5 15.25V14.4688C12.3438 14.5 12.1875 14.5 12 14.5H4C3.84375 14.5 3.65625 14.5 3.5 14.4688V15.25C3.5 15.6562 3.15625 16 2.75 16C2.34375 16 2 15.6562 2 15.25V13.75C1.375 13.1875 1 12.375 1 11.5V9.5H0.75C0.34375 9.5 0 9.15625 0 8.75C0 8.34375 0.34375 8 0.75 8H1V2.15625C1 0.96875 1.96875 0 3.15625 0C3.75 0 4.28125 0.21875 4.6875 0.625L4.84375 0.78125C5.1875 0.59375 5.59375 0.5 6 0.5C6.75 0.5 7.40625 0.84375 7.875 1.34375C8.15625 1.1875 8.53125 1.21875 8.78125 1.46875C9.0625 1.75 9.0625 2.25 8.78125 2.53125L5.53125 5.78125C5.25 6.0625 4.78125 6.0625 4.46875 5.78125C4.21875 5.53125 4.1875 5.15625 4.34375 4.875C3.84375 4.40625 3.5 3.75 3.5 3C3.5 2.59375 3.59375 2.1875 3.78125 1.84375L3.625 1.6875C3.5 1.5625 3.34375 1.5 3.15625 1.5C2.8125 1.5 2.5 1.8125 2.5 2.15625ZM6.8125 2.40625C6.625 2.15625 6.34375 2 6 2C5.4375 2 5 2.4375 5 3C5 3.3125 5.15625 3.625 5.40625 3.78125L6.8125 2.40625ZM2.5 9.5V11.5C2.5 12.3438 3.1875 13 4 13H12C12.8438 13 13.5 12.3438 13.5 11.5V9.5H2.5Z" fill="#1E1E1E" fill-opacity="0.8"/></symbol>
+<symbol id="i-area" viewBox="0 0 18 18"><path d="M5.03906 15.6328L15.6641 5.03906L12.1016 1.50781L11.0703 2.57031L12.6328 4.16406C12.9453 4.44531 12.9453 4.91406 12.6328 5.22656C12.3516 5.50781 11.8828 5.50781 11.6016 5.22656L10.0078 3.63281L8.57031 5.03906L9.47656 5.91406C9.75781 6.22656 9.75781 6.69531 9.47656 6.97656C9.16406 7.25781 8.69531 7.28906 8.41406 6.97656L7.50781 6.10156L6.10156 7.50781L7.69531 9.10156C7.97656 9.38281 7.97656 9.88281 7.69531 10.1641C7.41406 10.4453 6.91406 10.4453 6.63281 10.1641L5.03906 8.57031L3.63281 9.97656L4.50781 10.8828C4.82031 11.1641 4.82031 11.6328 4.50781 11.9453C4.22656 12.2266 3.75781 12.2266 3.44531 11.9453L2.57031 11.0391L1.50781 12.1016L5.03906 15.6328ZM6.10156 16.6953C5.50781 17.2891 4.57031 17.2891 3.97656 16.6953L0.445312 13.1641C-0.148438 12.5703 -0.148438 11.6328 0.445312 11.0391L11.0703 0.445312C11.6328 -0.148438 12.6016 -0.148438 13.1641 0.445312L16.7266 3.97656C17.2891 4.57031 17.2891 5.50781 16.7266 6.10156L6.10156 16.6953Z" fill="#1E1E1E" fill-opacity="0.8"/></symbol>
+<symbol id="i-expand" viewBox="0 0 13 13"><path d="M8.09375 0H11.5938C11.9492 0 12.25 0.300781 12.25 0.65625V4.15625C12.25 4.51172 11.9492 4.8125 11.5938 4.8125C11.2383 4.8125 10.9375 4.51172 10.9375 4.15625V2.24219L7.05469 6.125L10.9375 10.0078V8.09375C10.9375 7.73828 11.2383 7.4375 11.5938 7.4375C11.9492 7.4375 12.25 7.73828 12.25 8.09375V11.5938C12.25 11.9492 11.9492 12.25 11.5938 12.25H8.09375C7.73828 12.25 7.4375 11.9492 7.4375 11.5938C7.4375 11.2383 7.73828 10.9375 8.09375 10.9375H10.0078L6.125 7.05469L2.24219 10.9375H4.15625C4.51172 10.9375 4.8125 11.2383 4.8125 11.5938C4.8125 11.9492 4.51172 12.25 4.15625 12.25H0.65625C0.300781 12.25 0 11.9492 0 11.5938V8.09375C0 7.73828 0.300781 7.4375 0.65625 7.4375C1.01172 7.4375 1.3125 7.73828 1.3125 8.09375V10.0078L5.19531 6.125L1.3125 2.24219V4.15625C1.3125 4.51172 1.01172 4.8125 0.65625 4.8125C0.300781 4.8125 0 4.51172 0 4.15625V0.65625C0 0.300781 0.300781 0 0.65625 0H4.15625C4.51172 0 4.8125 0.300781 4.8125 0.65625C4.8125 1.01172 4.51172 1.3125 4.15625 1.3125H2.24219L6.125 5.19531L10.0078 1.3125H8.09375C7.73828 1.3125 7.4375 1.01172 7.4375 0.65625C7.4375 0.300781 7.73828 0 8.09375 0Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-plus" viewBox="0 0 13 13"><path d="M6.78125 0.65625V5.46875H11.5938C11.9492 5.46875 12.25 5.76953 12.25 6.125C12.25 6.48047 11.9492 6.78125 11.5938 6.78125H6.78125V11.5938C6.78125 11.9492 6.48047 12.25 6.125 12.25C5.76953 12.25 5.46875 11.9492 5.46875 11.5938V6.78125H0.65625C0.300781 6.78125 0 6.48047 0 6.125C0 5.76953 0.300781 5.46875 0.65625 5.46875H5.46875V0.65625C5.46875 0.300781 5.76953 0 6.125 0C6.48047 0 6.78125 0.300781 6.78125 0.65625Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="i-minus" viewBox="0 0 13 2"><path d="M0 0.65625C0 0.300781 0.300781 0 0.65625 0H11.5938C11.9492 0 12.25 0.300781 12.25 0.65625C12.25 1.01172 11.9492 1.3125 11.5938 1.3125H0.65625C0.300781 1.3125 0 1.01172 0 0.65625Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<symbol id="p-main" viewBox="0 0 15 21"><path d="M0 7.38281C0 3.28125 3.35938 0 7.5 0C11.6406 0 15 3.28125 15 7.38281C15 12.0312 10.3125 17.6172 8.35938 19.7266C7.89062 20.2344 7.10938 20.2344 6.64062 19.7266C4.6875 17.6172 0 12.0312 0 7.38281ZM7.5 10C8.86719 10 10 8.86719 10 7.5C10 6.13281 8.86719 5 7.5 5C6.13281 5 5 6.13281 5 7.5C5 8.86719 6.13281 10 7.5 10Z" fill="#fff"/></symbol>
+<symbol id="p-0" viewBox="0 0 10 10"><path d="M0.9375 0.273438L1.21094 2.92969C1.21094 3.04688 1.30859 3.125 1.42578 3.125C1.52344 3.125 1.62109 3.04688 1.64062 2.92969L1.875 0.292969C1.89453 0.117188 2.03125 0 2.1875 0C2.34375 0 2.48047 0.117188 2.5 0.292969L2.73438 2.92969C2.75391 3.04688 2.85156 3.125 2.94922 3.125C3.06641 3.125 3.16406 3.04688 3.18359 2.92969L3.4375 0.273438C3.45703 0.117188 3.59375 0 3.75 0C3.90625 0 4.04297 0.117188 4.0625 0.273438L4.33594 2.92969C4.35547 3.04688 4.375 3.16406 4.375 3.28125C4.375 4.17969 3.69141 4.92188 2.8125 5V9.375C2.8125 9.72656 2.53906 10 2.1875 10C1.83594 10 1.5625 9.72656 1.5625 9.375V5C0.683594 4.92188 0 4.17969 0 3.28125C0 3.16406 0.0195312 3.04688 0.0390625 2.92969L0.3125 0.273438C0.332031 0.117188 0.46875 0 0.625 0C0.78125 0 0.917969 0.117188 0.9375 0.273438ZM8.4375 0C8.78906 0 9.0625 0.273438 9.0625 0.625V9.375C9.0625 9.72656 8.78906 10 8.4375 10C8.08594 10 7.8125 9.72656 7.8125 9.375V6.875H7.1875C6.50391 6.875 5.9375 6.30859 5.9375 5.625V3.4375C5.9375 0.625 8.125 0 8.4375 0Z" fill="#fff"/></symbol>
+<symbol id="p-1" viewBox="0 0 12 10"><path d="M2.5 1.25C2.5 0.566406 3.06641 0 3.75 0H7.5C8.18359 0 8.75 0.566406 8.75 1.25V2.5H10C10.6836 2.5 11.25 3.06641 11.25 3.75V8.75C11.25 9.43359 10.6836 10 10 10H1.25C0.566406 10 0 9.43359 0 8.75V3.75C0 3.06641 0.566406 2.5 1.25 2.5H2.5V1.25ZM5.3125 6.875C4.96094 6.875 4.6875 7.14844 4.6875 7.5V9.0625H6.5625V7.5C6.5625 7.14844 6.28906 6.875 5.9375 6.875H5.3125ZM2.5 7.1875V6.5625C2.5 6.38672 2.36328 6.25 2.1875 6.25H1.5625C1.38672 6.25 1.25 6.38672 1.25 6.5625V7.1875C1.25 7.36328 1.38672 7.5 1.5625 7.5H2.1875C2.36328 7.5 2.5 7.36328 2.5 7.1875ZM2.1875 5C2.36328 5 2.5 4.86328 2.5 4.6875V4.0625C2.5 3.88672 2.36328 3.75 2.1875 3.75H1.5625C1.38672 3.75 1.25 3.88672 1.25 4.0625V4.6875C1.25 4.86328 1.38672 5 1.5625 5H2.1875ZM10 7.1875V6.5625C10 6.38672 9.86328 6.25 9.6875 6.25H9.0625C8.88672 6.25 8.75 6.38672 8.75 6.5625V7.1875C8.75 7.36328 8.88672 7.5 9.0625 7.5H9.6875C9.86328 7.5 10 7.36328 10 7.1875ZM9.6875 5C9.86328 5 10 4.86328 10 4.6875V4.0625C10 3.88672 9.86328 3.75 9.6875 3.75H9.0625C8.88672 3.75 8.75 3.88672 8.75 4.0625V4.6875C8.75 4.86328 8.88672 5 9.0625 5H9.6875ZM5.15625 2.03125V2.65625H4.53125C4.35547 2.65625 4.21875 2.79297 4.21875 2.96875V3.28125C4.21875 3.45703 4.35547 3.59375 4.53125 3.59375H5.15625V4.21875C5.15625 4.39453 5.29297 4.53125 5.46875 4.53125H5.78125C5.95703 4.53125 6.09375 4.39453 6.09375 4.21875V3.59375H6.71875C6.89453 3.59375 7.03125 3.45703 7.03125 3.28125V2.96875C7.03125 2.79297 6.89453 2.65625 6.71875 2.65625H6.09375V2.03125C6.09375 1.85547 5.95703 1.71875 5.78125 1.71875H5.46875C5.29297 1.71875 5.15625 1.85547 5.15625 2.03125Z" fill="#fff"/></symbol>
+<symbol id="p-2" viewBox="0 0 12 11"><path d="M0.46875 0H1.34766C1.875 0 2.34375 0.371094 2.42188 0.898438L2.44141 0.9375H10.4883C10.8984 0.9375 11.1914 1.28906 11.1133 1.67969L10.5078 4.92188C10.3906 5.50781 9.88281 5.9375 9.27734 5.9375H3.33984L3.45703 6.48438C3.49609 6.71875 3.69141 6.875 3.90625 6.875H8.90625C9.16016 6.875 9.375 7.08984 9.375 7.34375C9.375 7.59766 9.16016 7.8125 8.90625 7.8125H3.90625C3.22266 7.8125 2.65625 7.32422 2.51953 6.66016L1.50391 1.07422C1.50391 0.996094 1.42578 0.9375 1.34766 0.9375H0.46875C0.214844 0.9375 0 0.722656 0 0.46875C0 0.214844 0.214844 0 0.46875 0ZM4.0625 10.3125C3.53516 10.3125 3.125 9.90234 3.125 9.375C3.125 8.84766 3.53516 8.4375 4.0625 8.4375C4.58984 8.4375 5 8.84766 5 9.375C5 9.90234 4.58984 10.3125 4.0625 10.3125ZM8.4375 10.3125C7.91016 10.3125 7.5 9.90234 7.5 9.375C7.5 8.84766 7.91016 8.4375 8.4375 8.4375C8.96484 8.4375 9.375 8.84766 9.375 9.375C9.375 9.90234 8.96484 10.3125 8.4375 10.3125Z" fill="#fff"/></symbol>
+<symbol id="p-3" viewBox="0 0 8 11"><path d="M0 1.875C0 0.839844 0.839844 0 1.875 0H5.625C6.66016 0 7.5 0.839844 7.5 1.875V6.875C7.5 7.65625 7.01172 8.33984 6.34766 8.61328L7.38281 9.86328C7.55859 10.0586 7.53906 10.3516 7.34375 10.5078C7.14844 10.6836 6.83594 10.6641 6.67969 10.4688L5.23438 8.75H2.28516L0.839844 10.4688C0.664062 10.6641 0.371094 10.6836 0.175781 10.5078C-0.0195312 10.3516 -0.0585938 10.0586 0.117188 9.86328L1.17188 8.61328C0.488281 8.33984 0 7.65625 0 6.875V1.875ZM1.25 2.5V4.375C1.25 4.72656 1.52344 5 1.875 5H5.625C5.97656 5 6.25 4.72656 6.25 4.375V2.5C6.25 2.14844 5.97656 1.875 5.625 1.875H1.875C1.52344 1.875 1.25 2.14844 1.25 2.5ZM3.75 7.5C4.10156 7.5 4.375 7.22656 4.375 6.875C4.375 6.52344 4.10156 6.25 3.75 6.25C3.39844 6.25 3.125 6.52344 3.125 6.875C3.125 7.22656 3.39844 7.5 3.75 7.5Z" fill="#fff"/></symbol>
+<symbol id="pin-shape" viewBox="0 0 48.55 64"><path transform="translate(1.24 1.21)" d="M23.947 61.1626L41.4402 35.3615C45.1597 29.8756 46.2351 22.9583 44.408 16.5873C42.7801 10.9111 38.9283 6.06817 33.7433 3.24255C27.079 -0.389227 19.0156 -0.339927 12.3962 3.37306L11.6203 3.8083C6.50239 6.67906 2.76795 11.5031 1.27118 17.1771C-0.325691 23.2305 0.774188 29.6788 4.28745 34.8605L22.1204 61.1626C22.5581 61.8083 23.5093 61.8083 23.947 61.1626Z" fill="#D9D9D9" stroke="#1E1E1E" stroke-opacity="0.1" stroke-width="1.1"/><path transform="translate(1.8 1.77)" d="M12.1113 3.2998C18.5652 -0.320314 26.4272 -0.36906 32.9248 3.17188C37.9788 5.92609 41.7357 10.6489 43.3232 16.1846C45.1058 22.4001 44.0554 29.148 40.4287 34.4971L22.9355 60.2979C22.7167 60.6207 22.2413 60.6207 22.0225 60.2979L4.18945 33.9961C0.76571 28.9463 -0.306195 22.6619 1.25 16.7627C2.70873 11.2334 6.3485 6.53195 11.3359 3.73438L12.1113 3.2998Z" fill="#fff"/></symbol>
+<linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse"><stop stop-color="#1E1E1E" stop-opacity="0.7"/><stop offset="1" stop-color="#1E1E1E"/></linearGradient>
+</defs></svg>
+
+  <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
+    <span class="menu-btn__burger" aria-hidden="true">
+      <span class="menu-btn__line menu-btn__line--top"></span>
+      <span class="menu-btn__line menu-btn__line--bot"></span>
+    </span>
+    <svg class="menu-btn__x" viewBox="0 0 24 24" aria-hidden="true">
+      <!-- Both strokes start at the bottom and draw upward into the X -->
+      <line class="menu-btn__x-line menu-btn__x-line--a" pathLength="100" x1="5" y1="19" x2="19" y2="5"/>
+      <line class="menu-btn__x-line menu-btn__x-line--b" pathLength="100" x1="19" y1="19" x2="5" y2="5"/>
+    </svg>
+  </button>
+
+  <header class="navbar is-solid" id="navbar">
+    <a class="logo" href="index.html">Havenlist.</a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+      <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
+    </nav>
+
+    <!-- Takes the middle once the inquiry card has scrolled away -->
+
+    <div class="nav-actions">
+      <button class="icon-btn icon-btn--fav" type="button" id="favBtn" aria-label="Saved homes" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn-sell hl-btn hl-btn--black" type="button" id="sellBtn">
+        <span class="hl-btn__inner">Sell with us</span>
+      </button>
+      <span class="menu-btn-spacer" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main class="soon">
+    <span class="soon__tag">Coming soon</span>
+    <h1 class="soon__title">Insights</h1>
+    <p class="soon__lead">Market reports, buying and renting guides and local stories from the Havenlist team are on their way.</p>
+    <a class="btn-sell hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">Browse all listings</span></a>
+  </main>
+
+  <footer class="site-footer">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" decoding="async">
+
+    <div class="site-footer__cta">
+      <h2>Ready to sell your property?</h2>
+      <p>Get a free market valuation and a tailored selling strategy from our top agents.</p>
+      <div class="site-footer__actions">
+        <button class="site-footer__btn hl-btn hl-btn--white" type="button">
+          <span class="hl-btn__inner">
+            Get started
+            <span class="hl-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </span>
+        </button>
+        <button class="site-footer__contact" type="button">Contact us</button>
+      </div>
+    </div>
+
+    <div class="site-footer__panel">
+      <div class="site-footer__row">
+        <div class="site-footer__brand">
+          <div>
+            <a class="logo" href="index.html">Havenlist.</a>
+            <p class="site-footer__addr">123 Harbor Avenue, Suite 400<br>San Francisco, CA 94111</p>
+          </div>
+          <div class="site-footer__legal">
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of services</a>
+          </div>
+        </div>
+
+        <div class="site-footer__cols">
+          <div class="site-footer__col">
+            <h3>Discover</h3>
+            <a href="search.html?q=">Listings</a>
+            <a href="index.html#agents">Agents</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
+            <a href="#">About</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Listings Type</h3>
+            <a href="#">Buy</a>
+            <a href="#">Rent</a>
+            <a href="#">Commercial</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Resources</h3>
+            <a href="insights.html">Insights</a>
+            <a href="#">Sell with Us</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Follow us</h3>
+            <a class="is-link" href="#">Instagram</a>
+            <a class="is-link" href="#">Pinterest</a>
+            <a class="is-link" href="#">Youtube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-footer__bottom">
+        <a class="site-footer__email" href="mailto:hello@havenlist.com">
+          hello@havenlist.com
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <span class="site-footer__copy">©2026 Havenlist</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="mega-menu" id="megaMenu" hidden>
+    <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__media">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" width="609" height="914">
+      </div>
+
+      <div class="mega-menu__body">
+        <div class="mega-menu__grid">
+          <div>
+            <p class="mega-menu__group-label">Our pages</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="index.html"><span class="link-rise" data-text="Home">Home</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Listings Type</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="#buy"><span class="link-rise" data-text="Buy">Buy</span></a></li>
+              <li><a href="#rent"><span class="link-rise" data-text="Rent">Rent</span></a></li>
+              <li><a href="#commercial"><span class="link-rise" data-text="Commercial">Commercial</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Follow us</p>
+            <ul class="mega-menu__links mega-menu__links--md mega-menu__links--social">
+              <li><a href="#instagram"><span class="link-rise" data-text="Instagram">Instagram</span></a></li>
+              <li><a href="#youtube"><span class="link-rise" data-text="Youtube">Youtube</span></a></li>
+              <li><a href="#pinterest"><span class="link-rise" data-text="Pinterest">Pinterest</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Resources</p>
+            <ul class="mega-menu__links mega-menu__links--md">
+              <li><a href="#wishlist"><span class="link-rise" data-text="Wishlist">Wishlist</span></a></li>
+              <li><a href="#sell"><span class="link-rise" data-text="Sell with us">Sell with us</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mega-menu__contact">
+          <p class="mega-menu__group-label">Contact</p>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>window.HL_SMOOTH_TAU = 120;</script>
+  <script src="smooth-scroll.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      var $ = function (id) { return document.getElementById(id); };
+      function toast() {}
+      function closeMap() {}
+
+      /* ---------- full-page circle menu (same as the other pages) ---------- */
+      var menuBtn = $("menuBtn");
+      var megaMenu = $("megaMenu");
+      var xLines = Array.prototype.slice.call(menuBtn.querySelectorAll(".menu-btn__x-line"));
+      var closingTimer;
+      var menuBusy = false;
+
+      function replayXDraw() {
+        xLines.forEach(function (line) { line.style.animation = "none"; line.style.strokeDashoffset = "100"; });
+        void menuBtn.offsetHeight;
+        xLines.forEach(function (line) { line.style.animation = ""; line.style.strokeDashoffset = ""; });
+      }
+
+      function placeCircleOrigin() {
+        var rect = menuBtn.getBoundingClientRect();
+        megaMenu.style.setProperty("--cx", (rect.left + rect.width / 2) + "px");
+        megaMenu.style.setProperty("--cy", (rect.top + rect.height / 2) + "px");
+      }
+
+      function openMenu() {
+        if (menuBusy) return;
+        menuBusy = true;
+        clearTimeout(closingTimer);
+        closeMap();
+        megaMenu.classList.remove("is-closing");
+        megaMenu.style.clipPath = "";
+        placeCircleOrigin();
+        megaMenu.hidden = false;
+        void megaMenu.offsetHeight;
+        megaMenu.classList.add("is-open");
+        menuBtn.classList.add("is-open");
+        replayXDraw();
+        menuBtn.setAttribute("aria-expanded", "true");
+        menuBtn.setAttribute("aria-label", "Close menu");
+        document.body.classList.add("is-menu-open");
+        setTimeout(function () { menuBusy = false; }, 1100);
+      }
+
+      function closeMenu() {
+        if (menuBusy && !megaMenu.classList.contains("is-open")) return;
+        menuBusy = true;
+        placeCircleOrigin();
+        megaMenu.style.clipPath = "";
+        megaMenu.classList.add("is-closing");
+        megaMenu.classList.remove("is-open");
+        menuBtn.classList.remove("is-open");
+        menuBtn.setAttribute("aria-expanded", "false");
+        menuBtn.setAttribute("aria-label", "Open menu");
+        document.body.classList.remove("is-menu-open");
+        clearTimeout(closingTimer);
+        closingTimer = setTimeout(function () {
+          megaMenu.classList.remove("is-closing");
+          megaMenu.hidden = true;
+          menuBusy = false;
+        }, 750);
+      }
+
+      menuBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (megaMenu.classList.contains("is-open")) closeMenu(); else openMenu();
+      });
+      menuBtn.addEventListener("mouseenter", function () { if (menuBtn.classList.contains("is-open")) replayXDraw(); });
+
+      /* Links to a page just go there; the rest keep the placeholder toast */
+      megaMenu.querySelectorAll("a").forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          var href = link.getAttribute("href") || "";
+          if (href.charAt(0) !== "#") return;
+          e.preventDefault();
+          closeMenu();
+          var label = link.querySelector(".link-rise") ? link.querySelector(".link-rise").dataset.text : link.textContent.trim();
+          toast("Go to " + (label || "page"));
+        });
+      });
+
+      document.querySelectorAll(".nav-links a").forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          var href = link.getAttribute("href") || "";
+          if (href.indexOf("#insights") === -1) return;
+          e.preventDefault();
+          toast("Go to Insights");
+        });
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        if (megaMenu.classList.contains("is-open")) closeMenu(); else closeMap();
+      });
+      window.addEventListener("resize", function () { if (megaMenu.classList.contains("is-open")) placeCircleOrigin(); });
+
+    })();
+  </script>
+</body>
+</html>
