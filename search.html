@@ -2288,6 +2288,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/listings-store.js"></script>
+  <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
   <script src="parallax.js"></script>
   <script>
@@ -2303,7 +2304,7 @@
         <div class="card__media">
           <img src="${esc(l.image)}" alt="${esc(l.alt || l.place)}" loading="lazy" width="800" height="809">
           <span class="card__badge">${esc(l.badge)}</span>
-          <button class="card__fav" type="button" aria-label="Save ${esc(l.place)}">
+          <button class="card__fav" type="button" data-wl-id="${esc(l.id)}" aria-label="Save ${esc(l.place)}">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -2322,6 +2323,8 @@
       </article>
     `).join("");
 
+
+    HLWishlist.sync(document.getElementById("listingsGrid"));
 
     /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
     function addRise(el) {

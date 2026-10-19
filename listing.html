@@ -1796,7 +1796,7 @@
             <p class="detail__addr" id="detailAddr"></p>
           </div>
           <div class="detail__actions">
-            <button class="icon-btn" type="button" id="shareBtn" aria-label="Copy link">
+            <button class="icon-btn" type="button" id="shareBtn" aria-label="Share this listing">
               <svg class="share-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path class="share-line" pathLength="100" d="M8 10.25V2.4M4.9 5.4L8 2.3L11.1 5.4"/><path class="share-line share-line--tray" pathLength="100" d="M2.75 9.6V11.9C2.75 12.95 3.55 13.75 4.6 13.75H11.4C12.45 13.75 13.25 12.95 13.25 11.9V9.6"/></svg>
             </button>
             <button class="icon-btn icon-btn--fav" type="button" id="saveBtn" aria-label="Save this home" aria-pressed="false">
@@ -2014,6 +2014,7 @@
 
   <script src="assets/listings-store.js"></script>
   <script>window.HL_SMOOTH_TAU = 190; /* floatier glide on the long detail page */</script>
+  <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
   <script src="parallax.js"></script>
   <script>
@@ -2129,7 +2130,7 @@
           '<div class="card__media">' +
             '<img src="' + esc(l.image) + '" alt="' + esc(l.alt || l.place) + '" loading="lazy" width="800" height="809">' +
             '<span class="card__badge">' + esc(l.badge || "For sale") + "</span>" +
-            '<button class="card__fav" type="button" aria-label="Save ' + esc(l.place) + '">' +
+            '<button class="card__fav" type="button" data-wl-id="' + esc(l.id) + '" aria-label="Save ' + esc(l.place) + '">' +
               '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
             "</button>" +
           "</div>" +
@@ -2208,14 +2209,16 @@
         });
       })($("shareBtn"));
 
+      /* Share opens the dropdown; its picture is the largest photo of the gallery */
       $("shareBtn").addEventListener("click", function () {
-        var url = window.location.href;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(url).then(function () { toast("Link copied"); }, function () { toast(url); });
-        } else {
-          toast(url);
-        }
+        var big = document.querySelector("#gallery img");
+        HLWishlist.openShare(item, $("shareBtn"), big ? (big.currentSrc || big.src) : "assets/detail/main.webp");
       });
+
+      /* Save heart = wishlist; remember this visit for "Latest visited" */
+      $("saveBtn").setAttribute("data-wl-id", item.id);
+      HLWishlist.visit(item.id);
+      HLWishlist.sync();
 
       /* Back goes to the results the user came from, if any */
       $("backBtn").addEventListener("click", function (e) {
