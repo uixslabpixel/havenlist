@@ -57,8 +57,36 @@ button:focus-visible > .x-icon .x-icon__b {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) 0.14s both;
 }
 
+
+/* ----- Filter chevrons, filter-lines and search glass: drawn on hover too ----- */
+.chev path, .lines path,
+.filter-query__icon circle, .filter-query__icon path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+}
+
+button:hover > .chev path,
+button:focus-visible > .chev path,
+.filter-more:hover .lines path,
+.filter-more:focus-visible .lines path,
+.filter-query:hover .filter-query__icon circle,
+.filter-query:focus-within .filter-query__icon circle,
+.filter-query:hover .filter-query__icon path,
+.filter-query:focus-within .filter-query__icon path {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.filter-more:hover .lines path:nth-child(2) { animation-delay: 0.1s; }
+.filter-more:hover .lines path:nth-child(3) { animation-delay: 0.2s; }
+.filter-query:hover .filter-query__icon path,
+.filter-query:focus-within .filter-query__icon path { animation-delay: 0.2s; }
+
+/* Hearts in the navbar: same redraw on hover on every page */
+.icon-btn--fav:hover .heart-outline { animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.icon-btn--fav.is-active .heart-outline { animation: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .ui-arrow path,
   .back-link__arrow path,
-  .x-icon path { animation: none !important; }
+  .x-icon path, .chev path, .lines path, .filter-query__icon path, .filter-query__icon circle { animation: none !important; }
 }
