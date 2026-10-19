@@ -1,0 +1,3074 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent — Havenlist</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="footer.css">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="stylesheet" href="components.css">
+  <style>
+    @font-face {
+      font-family: "Inter Display";
+      src: url("assets/InterDisplay-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Inter Display";
+      src: url("assets/InterDisplay-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Geist";
+      src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --ink: #1e1e1e;
+      --ink-70: rgba(30, 30, 30, 0.7);
+      --ink-40: rgba(30, 30, 30, 0.4);
+      --ink-10: rgba(30, 30, 30, 0.1);
+      --ink-07: rgba(30, 30, 30, 0.07);
+      --paper: #fafaf9;
+      --white: #ffffff;
+      --chip: #f4f4f4;
+      --page-pad: 64px;
+      --nav-h: 64px;
+      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-morph: cubic-bezier(0.32, 0.72, 0, 1);
+      --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
+      --dur: 0.7s;
+      /* Filter dropdown motion — live-tunable from the "Dropdown tweaks" panel */
+      --pop-open: 550ms;
+      --pop-close: 300ms;
+      --pop-fade: 160ms;
+      --pop-ease-open: cubic-bezier(0.32, 0.72, 0, 1);
+      --pop-ease-close: cubic-bezier(0.32, 0.72, 0, 1);
+      --pop-r-from: 40px;
+      --pop-r-to: 20px;
+      --pop-gap: 10px;
+      --pop-shadow: 0.12;
+      --font-display: "Inter Display", "Inter", system-ui, sans-serif;
+      --font-ui: "Geist", system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: auto; }
+
+    html, body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      /* No rubber-band past the top/bottom edge */
+      overscroll-behavior-y: none;
+    }
+
+    body { overflow-x: hidden; }
+
+    button, a, input { font: inherit; color: inherit; }
+    button { border: none; background: none; cursor: pointer; }
+    a { text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ========== NAVBAR ========== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--nav-h);
+      padding: 0 var(--page-pad);
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: none;
+      transform: translateY(0);
+      transition:
+        transform 0.45s var(--ease-out),
+        box-shadow 0.35s var(--ease);
+    }
+
+    /* Same solid shadow as the homepage once listings scroll underneath */
+    body.is-compact .navbar {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    }
+
+    .logo {
+      position: relative;
+      z-index: 2;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: currentColor;
+      width: 100px;
+      flex-shrink: 0;
+      transition: opacity 0.25s var(--ease);
+    }
+
+    .logo:hover { opacity: 0.85; }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      z-index: 1;
+      /* Clip so links can rise out of view — movement, not a dissolve */
+      overflow: hidden;
+      visibility: visible;
+      transition: visibility 0s linear 0s;
+    }
+
+    /* Airbnb-style sequence — going compact: the three links rise out
+       together, the rounded frame opens from the centre, then the filter
+       contents come in with a short fade. Returning runs it back. */
+    .nav-links a {
+      transform: translateY(0);
+      /* Returning: drop back in (all together) as the frame closes */
+      transition: transform 0.3s var(--ease-morph) 0.12s;
+    }
+
+    body.is-compact .nav-links {
+      visibility: hidden;
+      pointer-events: none;
+      transition: visibility 0s linear 0.3s;
+    }
+
+    body.is-compact .nav-links a {
+      transform: translateY(-110%);
+      transition: transform 0.3s var(--ease-morph);
+    }
+
+    body.is-sheet-open.is-compact .nav-links {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    body.is-sheet-open.is-compact .nav-links a {
+      transform: translateY(0);
+    }
+
+    body.is-sheet-open.is-compact .compact-bar {
+      visibility: hidden;
+      pointer-events: none;
+      clip-path: inset(0 50% 0 50% round 46px);
+    }
+
+    .nav-links a {
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: currentColor;
+      height: 1.4em;
+      line-height: 1.4;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .link-rise {
+      display: block;
+      position: relative;
+      transition: none;
+    }
+
+    .link-rise::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 100%;
+      white-space: nowrap;
+    }
+
+    a:hover > .link-rise,
+    a:focus-visible > .link-rise {
+      transform: translateY(-100%);
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    /* Text rise for buttons & links: the label slides up while an identical
+       copy (its own text-shadow, 1.4em below) rises into place. Spans are
+       added in JS (addRise), so live-updating labels keep working. */
+    .rise {
+      display: inline-block;
+      vertical-align: top;
+      height: 1.4em;
+      line-height: 1.4;
+      overflow: hidden;
+    }
+
+    .rise__t {
+      display: block;
+      text-shadow: 0 1.4em 0 currentColor;
+      transition: none;
+    }
+
+    a:hover .rise__t,
+    button:hover .rise__t,
+    a:focus-visible .rise__t,
+    button:focus-visible .rise__t {
+      transform: translateY(-1.4em);
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    .nav-actions {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 56px;
+      border: 1px solid var(--ink-10);
+      color: currentColor;
+      transition: background 0.25s var(--ease), border-color 0.25s var(--ease);
+    }
+
+    .icon-btn:hover {
+      background: var(--ink-07);
+      border-color: rgba(30, 30, 30, 0.18);
+    }
+
+    .icon-btn--fav .heart-outline {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 0;
+    }
+
+    .icon-btn--fav.is-drawing .heart-outline {
+      animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .icon-btn--fav.is-active .heart-outline {
+      stroke-dashoffset: 0;
+      animation: none;
+    }
+
+    @keyframes draw-heart-outline {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .btn-sell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 8px 16px;
+      border-radius: 56px;
+      background: var(--ink);
+      color: var(--white);
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      transition: background 0.35s var(--ease);
+    }
+
+    .btn-sell:hover { background: #2a2a2a; }
+
+    .menu-btn {
+      position: fixed;
+      top: 12px;
+      right: var(--page-pad);
+      z-index: 220;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--ink);
+      transition: transform 0.45s var(--ease-out), opacity 0.35s var(--ease);
+    }
+
+    .menu-btn-spacer {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .menu-btn__burger {
+      position: relative;
+      width: 24px;
+      height: 9px;
+    }
+
+    .menu-btn__line {
+      position: absolute;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: 1.5px;
+      background: currentColor;
+      border-radius: 1px;
+      transform-origin: left center;
+    }
+
+    .menu-btn__line--top { top: 0; }
+    .menu-btn__line--bot { top: 8px; }
+
+    .menu-btn:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+
+    .menu-btn__burger { transition: opacity 0.2s var(--ease), transform 0.2s var(--ease); }
+
+    .menu-btn:not(.is-open):hover .menu-btn__line--top {
+      animation: draw-line 0.7s var(--ease-out) forwards;
+    }
+
+    .menu-btn:not(.is-open):hover .menu-btn__line--bot {
+      animation: draw-line 0.7s var(--ease-out) 0.22s forwards;
+    }
+
+    .menu-btn:not(.is-open):not(:hover) .menu-btn__line { animation: none; }
+
+    @keyframes draw-line {
+      0% { transform: scaleX(0); transform-origin: left center; }
+      100% { transform: scaleX(1); transform-origin: left center; }
+    }
+
+    /* X — each stroke draws from the bottom end upward */
+    .menu-btn__x {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      opacity: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .menu-btn__x-line {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
+
+    .menu-btn.is-open {
+      color: var(--ink);
+      transform: none !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .menu-btn.is-open .menu-btn__burger {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+
+    .menu-btn.is-open .menu-btn__x { opacity: 1; }
+
+    .menu-btn.is-open .menu-btn__x-line--a {
+      animation: draw-x-stroke 0.72s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .menu-btn.is-open .menu-btn__x-line--b {
+      animation: draw-x-stroke 0.72s cubic-bezier(0.4, 0, 0.2, 1) 0.14s forwards;
+    }
+
+    @keyframes draw-x-stroke {
+      0% { stroke-dashoffset: 100; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    body.is-menu-open { overflow: hidden; }
+
+    /* Compact filter bar — sits in navbar center.
+       Opens by unfolding from the centre (clip-path), then its contents rise
+       in from below; folds back the same way. No opacity fades. */
+    .compact-bar {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 48px;
+      padding: 8px 4px 8px 6px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      clip-path: inset(0 50% 0 50% round 46px);
+      transition:
+        clip-path 0.26s var(--ease-morph),
+        visibility 0s linear 0.26s;
+    }
+
+    body.is-compact .compact-bar {
+      visibility: visible;
+      pointer-events: auto;
+      /* Negative inset keeps the soft shadow visible once open */
+      clip-path: inset(-8px -8px -8px -8px round 54px);
+      transition:
+        clip-path 0.26s var(--ease-morph) 0.06s,
+        visibility 0s;
+    }
+
+    .compact-bar > * {
+      opacity: 0;
+      transition: opacity 0.08s var(--ease);
+    }
+
+    body.is-compact .compact-bar > * {
+      opacity: 1;
+      transition: opacity 0.16s var(--ease) 0.2s;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 10px 0 14px;
+      border-radius: 46px;
+      background: var(--chip);
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+
+    .chip--query { width: 180px; max-width: 180px; }
+    .chip[hidden] { display: none; }
+    .chip--type { width: 85px; }
+    .chip--featured { width: 115px; }
+
+    .chip__label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip__x {
+      flex-shrink: 0;
+      display: inline-flex;
+      width: 20px;
+      height: 20px;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.34;
+      color: var(--ink);
+    }
+
+    .chip__x:hover { opacity: 0.7; }
+
+    .compact-selects {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+    }
+
+    .compact-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 40px;
+      padding: 0 2px;
+      border-radius: 46px;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .compact-select > span,
+    .filter-select > span {
+      min-width: 0;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .compact-select svg {
+      opacity: 0.43;
+      flex-shrink: 0;
+    }
+
+    .compact-more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      color: var(--ink);
+    }
+
+    .compact-more:hover { background: var(--ink-07); }
+
+    /* ========== SEARCH HEADER ========== */
+    .search-header {
+      margin-top: var(--nav-h);
+      background: var(--white);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      padding: 16px var(--page-pad) 32px;
+    }
+
+    .search-header__inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .search-title {
+      width: 100%;
+      text-align: center;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(36px, 4vw, 40px);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    .search-title q { quotes: "“" "”"; }
+
+    /* Tabs */
+    .tabs {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 400px;
+      max-width: 100%;
+      height: 48px;
+      padding: 4px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0) 100%),
+        #f9f9f9;
+    }
+
+    .tabs__pill {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      width: calc((100% - 8px) / 3);
+      border-radius: 36px;
+      border: 1px solid var(--white);
+      outline: 1px solid var(--ink-07);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0) 100%),
+        var(--white);
+      transition: transform 0.45s var(--ease-out);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .tab {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink-70);
+      border-radius: 40px;
+      transition: color 0.25s var(--ease);
+    }
+
+    .tab[aria-selected="true"] { color: var(--ink); }
+
+    /* Expanded filter form */
+    .filter-form {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: auto;
+      max-width: 100%;
+      min-height: 40px;
+      margin: 0 auto;
+    }
+
+    .filter-query {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 250px;
+      height: 40px;
+      padding: 0 10px 0 10px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .filter-query__icon {
+      flex-shrink: 0;
+      display: inline-flex;
+      color: var(--ink-40);
+    }
+
+    .filter-query__input {
+      flex: 1;
+      min-width: 0;
+      text-overflow: ellipsis;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1.4;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .filter-query__input::-webkit-search-decoration,
+    .filter-query__input::-webkit-search-cancel-button,
+    .filter-query__input::-webkit-search-results-button,
+    .filter-query__input::-webkit-search-results-decoration {
+      -webkit-appearance: none;
+      appearance: none;
+      display: none;
+    }
+
+    .filter-query__clear {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      color: rgba(30, 30, 30, 0.4);
+      border-radius: 50%;
+    }
+
+    .filter-query__clear:hover { color: var(--ink-70); }
+
+    .filter-query.has-value .filter-query__clear {
+      display: inline-flex;
+    }
+
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      padding: 0 14px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.2s var(--ease), border-color 0.25s var(--ease);
+    }
+
+    .filter-pill:hover { background: var(--paper); }
+
+    .filter-pill[aria-pressed="true"] {
+      border-color: var(--ink);
+    }
+
+    .filter-select {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 12px 0 16px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      white-space: nowrap;
+      flex: 0 0 auto;
+      min-width: 0;
+      justify-content: space-between;
+      transition: background 0.2s var(--ease);
+    }
+
+    .filter-select:hover { background: var(--paper); }
+
+    .filter-select svg {
+      opacity: 0.45;
+      flex-shrink: 0;
+      transition: transform 0.4s var(--ease-out);
+    }
+
+    .filter-select[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
+    .filter-more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      color: var(--ink);
+      flex-shrink: 0;
+      transition: background 0.2s var(--ease);
+    }
+
+    .filter-more:hover { background: var(--paper); }
+
+    /* ========== LISTINGS ========== */
+    .listings {
+      padding: 32px var(--page-pad) 48px;
+    }
+
+    .listings__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px 16px;
+      max-width: 1312px;
+      margin: 0 auto;
+    }
+
+
+    /* ========== HL BUTTON (Figma decoration) ========== */
+    .hl-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: stretch;
+      height: 40px;
+      border-radius: 80px;
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: filter 0.3s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .hl-btn__inner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 100%;
+      padding: 0 14px;
+      border-radius: inherit;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .hl-btn__icon {
+      position: relative;
+      display: inline-flex;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    /* Arrow swap, in step with the label's rise (same duration + easing):
+       the current arrow leaves right, a fresh one slides in from the left */
+    .hl-btn__icon svg {
+      position: absolute;
+      inset: 0;
+      width: 16px;
+      height: 16px;
+      transition: transform var(--dur) var(--ease-soft);
+    }
+
+    .hl-btn__icon svg:first-child { transform: translateX(0); }
+    .hl-btn__icon svg:last-child { transform: translateX(-120%); }
+    .hl-btn:hover .hl-btn__icon svg:first-child,
+    .hl-btn:focus-visible .hl-btn__icon svg:first-child { transform: translateX(120%); }
+    .hl-btn:hover .hl-btn__icon svg:last-child,
+    .hl-btn:focus-visible .hl-btn__icon svg:last-child { transform: translateX(0); }
+
+    .hl-btn--black {
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .hl-btn--black .hl-btn__inner {
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      color: #fff;
+    }
+
+    .hl-btn--black:hover { filter: brightness(1.12); }
+    .hl-btn--black:active { transform: scale(0.97); filter: brightness(0.92); }
+
+    .hl-btn--white {
+      border: 1px solid var(--ink-07);
+      border-radius: 46px;
+      background: var(--white);
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    }
+
+    .hl-btn--white .hl-btn__inner {
+      background: var(--white);
+      color: var(--ink);
+      border-radius: 100px;
+    }
+
+    .hl-btn--white:hover { filter: brightness(0.98); }
+    .hl-btn--white:active { transform: scale(0.97); }
+
+    .hl-btn--sm { height: 36px; }
+    .hl-btn--sm .hl-btn__inner { font-size: 14px; padding: 0 12px; }
+
+    .btn-sell.hl-btn--black {
+      height: 40px;
+      padding: 0;
+      background: transparent;
+      border-radius: 80px;
+    }
+
+    .btn-sell.hl-btn--black .hl-btn__inner {
+      padding: 0 16px;
+      font-size: 14px;
+    }
+
+    /* ========== FILTER PANELS ========== */
+    /* Dropdowns grow out of the button that opened them: the panel starts as
+       a pill the size of the button (tucked behind it), then drops and widens
+       into the full panel while its corners relax. Contents sit at their final
+       size and are uncovered as the panel grows. Closing runs in two beats:
+       the contents dissolve first, then the empty panel shrinks back into the
+       button. JS sets --from-* (button) and --pop-h / --body-h (final) sizes. */
+    .filter-pop {
+      --pop-shift: 0px;
+      --pop-w: 480px;
+      position: absolute;
+      z-index: 0;
+      top: 0;
+      left: 0;
+      width: var(--from-w, 40px);
+      height: var(--from-h, 40px);
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: var(--pop-r-from);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0);
+      visibility: hidden;
+      pointer-events: none;
+      /* Closing: wait for the contents to dissolve (--pop-fade), then shrink */
+      transition:
+        top var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        left var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        width var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        height var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        border-radius var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        box-shadow var(--pop-close) var(--pop-ease-close) var(--pop-fade),
+        visibility 0s linear calc(var(--pop-fade) + var(--pop-close));
+    }
+
+    .filter-pop.is-open {
+      top: calc(100% + var(--pop-gap));
+      left: calc(50% - var(--pop-w) / 2 + var(--pop-shift));
+      width: var(--pop-w);
+      height: var(--pop-h);
+      border-radius: var(--pop-r-to);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, var(--pop-shadow));
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        top var(--pop-open) var(--pop-ease-open),
+        left var(--pop-open) var(--pop-ease-open),
+        width var(--pop-open) var(--pop-ease-open),
+        height var(--pop-open) var(--pop-ease-open),
+        border-radius var(--pop-open) var(--pop-ease-open),
+        box-shadow var(--pop-open) var(--pop-ease-open),
+        visibility 0s;
+    }
+
+    /* Contents: visible the instant it opens, dissolve first when closing */
+    .filter-pop > * {
+      opacity: 0;
+      transition: opacity var(--pop-fade) var(--ease);
+    }
+
+    .filter-pop.is-open > * {
+      opacity: 1;
+      transition: none;
+    }
+
+    /* Used by JS to read the panel's natural size without showing it */
+    .filter-pop.is-measuring {
+      top: calc(100% + var(--pop-gap));
+      left: 0;
+      width: var(--pop-w);
+      height: auto;
+      visibility: hidden;
+      transition: none !important;
+    }
+
+    .filter-pop > * { width: calc(var(--pop-w) - 2px); }
+
+    .filter-pop--price { --pop-w: 480px; }
+    .filter-pop--location { --pop-w: 500px; }
+    .filter-pop--beds { --pop-w: 400px; }
+    .filter-pop--more { --pop-w: 640px; }
+
+    .filter-pop__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 24px 0;
+    }
+
+    .filter-pop__title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 20px;
+      color: var(--ink);
+    }
+
+    .filter-pop__close {
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-40);
+      border-radius: 6px;
+    }
+
+    .filter-pop__close:hover { background: var(--ink-07); color: var(--ink); }
+
+    .filter-pop__body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: var(--body-h, auto);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    .filter-pop__foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px 24px;
+      border-top: 1px solid var(--ink-07);
+    }
+
+    .filter-clear {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--ink-70);
+      letter-spacing: -0.01em;
+    }
+
+    .filter-clear:hover { color: var(--ink); }
+
+    .filter-field { display: flex; flex-direction: column; gap: 4px; }
+    .filter-field label {
+      font-size: 14px;
+      color: var(--ink-40);
+      letter-spacing: -0.01em;
+    }
+    .filter-field .filter-value {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      height: 40px;
+      padding: 0 16px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+      background: var(--white);
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    /* Maximum sits on the right edge */
+    .filter-row .filter-field:last-child { align-items: flex-end; }
+    .filter-row .filter-field:last-child .filter-value { align-self: flex-end; }
+
+    .filter-row { display: flex; gap: 24px; justify-content: space-between; }
+
+    .range-track {
+      position: relative;
+      height: 4px;
+      background: rgba(30, 30, 30, 0.05);
+      border-radius: 16px;
+      margin: 12px 0 8px;
+    }
+
+    .range-track__fill {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: var(--ink);
+      border-radius: 32px;
+    }
+
+    .range-track input[type="range"] {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      margin: 0;
+      transform: translateY(-50%);
+      appearance: none;
+      background: transparent;
+      pointer-events: none;
+      height: 24px;
+    }
+
+    .range-track input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--ink-10);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .range-track input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--ink-10);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .loc-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 40px;
+      height: 40px;
+      min-height: 40px;
+      box-sizing: border-box;
+      padding: 0 14px;
+      border: 1px solid var(--ink-07);
+      border-radius: 40px;
+    }
+
+    .loc-search input {
+      flex: 1;
+      min-width: 0;
+      text-overflow: ellipsis;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .loc-search input::placeholder { color: var(--ink-70); }
+
+    .loc-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .loc-chip {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 40px;
+      border: 1px solid var(--ink-10);
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .loc-chip.is-active {
+      border-color: var(--ink);
+    }
+
+    .loc-meta {
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: rgba(30, 30, 30, 0.5);
+    }
+
+    .loc-list { display: flex; flex-direction: column; gap: 4px; }
+
+    .loc-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    .loc-item:hover,
+    .loc-item.is-active { background: var(--ink-07); }
+
+    .stepper-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stepper-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      color: rgba(30, 30, 30, 0.9);
+    }
+
+    .stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      height: 32px;
+      border: none;
+      background: transparent;
+    }
+
+    .stepper button {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--ink-07);
+      border-radius: 50px;
+      flex-shrink: 0;
+      transition: background 0.2s var(--ease);
+    }
+
+    .stepper button:hover { background: var(--ink-07); }
+
+    .stepper__val {
+      min-width: 48px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--font-ui);
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .type-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .type-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 32px;
+      padding: 0 12px 0 10px;
+      border: 1px solid var(--ink-10);
+      border-radius: 40px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .type-chip.is-active {
+      border-color: var(--ink);
+    }
+
+    /* Two rows: 3 + 2 */
+    .facilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; }
+
+    .facility {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .facility input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--ink);
+    }
+
+    .filter-section-title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    /* Isolated so the button can sit above its own panel without climbing
+       over the navbar; lifted above the page only while its panel is out. */
+    .filter-anchor { position: relative; isolation: isolate; }
+    .filter-anchor.is-front { z-index: 90; }
+    .filter-anchor > .filter-select,
+    .filter-anchor > .filter-more { position: relative; z-index: 1; }
+
+    /* ========== FILTER SHEET (scrolled click) ========== */
+    .filter-sheet {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 110;
+      pointer-events: none;
+      visibility: hidden;
+      transition: visibility 0s linear 0.5s;
+    }
+
+    .filter-sheet.is-open {
+      pointer-events: auto;
+      visibility: visible;
+      transition: visibility 0s;
+    }
+
+    .filter-sheet__scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 30, 30, 0.2);
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      transition: opacity 0.35s var(--ease-out);
+    }
+
+    .filter-sheet.is-open .filter-sheet__scrim {
+      opacity: 1;
+    }
+
+    .filter-sheet__panel {
+      position: relative;
+      z-index: 1;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1440px;
+      background: var(--white);
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 64px 40px 32px;
+      /* Slides down from behind the navbar like a drawer — no scale, so
+         dropdowns hosted inside it stay put relative to their buttons */
+      transform: translateY(calc(-100% - 12px));
+      transition: transform 0.45s var(--ease-morph);
+    }
+
+    .filter-sheet.is-open .filter-sheet__panel {
+      transform: translateY(0);
+      transition: transform 0.7s var(--ease-morph);
+    }
+
+    .filter-sheet__title {
+      text-align: center;
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(32px, 3.5vw, 40px);
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    .filter-sheet__inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    body.is-sheet-open { overflow: hidden; }
+
+    body.is-sheet-open .navbar {
+      z-index: 115;
+      box-shadow: none;
+      background: var(--white);
+    }
+
+    body.is-sheet-open .menu-btn {
+      z-index: 116;
+    }
+
+
+    /* ========== FULL-PAGE MENU (circle expand, no margin) ========== */
+    .mega-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      pointer-events: none;
+      visibility: hidden;
+      background: var(--white);
+      --cx: calc(100% - 84px);
+      --cy: 32px;
+      clip-path: circle(0px at var(--cx) var(--cy));
+      transition:
+        clip-path 1.37s var(--ease-out),
+        visibility 0s linear 1.37s;
+    }
+
+    .mega-menu.is-open {
+      pointer-events: auto;
+      visibility: visible;
+      clip-path: circle(3000px at var(--cx) var(--cy));
+      transition:
+        clip-path 1.37s var(--ease-out),
+        visibility 0s linear 0s;
+    }
+
+    .mega-menu.is-closing {
+      clip-path: circle(0px at var(--cx) var(--cy));
+      transition:
+        clip-path 0.72s var(--ease),
+        visibility 0s linear 0.72s;
+    }
+
+    .mega-menu__panel {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      border-radius: 0;
+      background: transparent;
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) 1.15fr;
+      gap: 64px;
+      padding: 40px 64px 48px;
+    }
+
+    .mega-menu__media {
+      border-radius: 28px;
+      overflow: hidden;
+      min-height: 0;
+      height: 100%;
+      opacity: 0;
+      transform: translateY(28px);
+      transition:
+        opacity 0.94s var(--ease-out) 0.75s,
+        transform 0.94s var(--ease-out) 0.75s;
+    }
+
+    .mega-menu.is-open .mega-menu__media {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mega-menu__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+      transform: translateZ(0);
+    }
+
+    .mega-menu__body {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 16px 48px 8px 0;
+    }
+
+    .mega-menu__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 56px;
+      row-gap: 48px;
+      margin-top: 24px;
+      flex: 1;
+    }
+
+    .mega-menu__group-label {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      color: var(--ink-40);
+      margin-bottom: 18px;
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 0.85s var(--ease-out),
+        transform 0.85s var(--ease-out);
+    }
+
+    .mega-menu.is-open .mega-menu__group-label {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mega-menu__links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mega-menu__links a {
+      display: inline-block;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      height: 1.2em;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(22px);
+      transition:
+        opacity 0.94s var(--ease-out),
+        transform 0.94s var(--ease-out);
+    }
+
+    .mega-menu.is-open .mega-menu__links a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Mega menu link hover = same rise as navbar — open stagger 30% slower */
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) .mega-menu__group-label { transition-delay: 0.81s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) .mega-menu__group-label { transition-delay: 0.88s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) .mega-menu__group-label { transition-delay: 0.95s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(4) .mega-menu__group-label { transition-delay: 1.01s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(1) a { transition-delay: 0.88s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(2) a { transition-delay: 0.95s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(3) a { transition-delay: 1.01s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(4) a { transition-delay: 1.08s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(5) a { transition-delay: 1.14s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(1) a { transition-delay: 0.95s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(2) a { transition-delay: 1.01s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(3) a { transition-delay: 1.08s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(1) a { transition-delay: 1.12s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(2) a { transition-delay: 1.18s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(3) a { transition-delay: 1.25s; }
+
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(1) a { transition-delay: 1.18s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(2) a { transition-delay: 1.25s; }
+
+    .mega-menu__contact {
+      margin-top: auto;
+      padding-top: 28px;
+    }
+
+    .mega-menu__contact .mega-menu__group-label {
+      margin-bottom: 10px;
+    }
+
+    .mega-menu.is-open .mega-menu__contact .mega-menu__group-label {
+      transition-delay: 1.22s;
+    }
+
+    .mega-menu__contact > a {
+      display: inline-block;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      opacity: 0;
+      transform: translateY(22px);
+      overflow: hidden;
+      height: 1.2em;
+      transition:
+        opacity 0.94s var(--ease-out) 1.29s,
+        transform 0.94s var(--ease-out) 1.29s;
+    }
+
+    .mega-menu.is-open .mega-menu__contact > a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 140;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #1e1e1e;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-weight: 500;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Desktop-first: keep compact usable ≥1100 */
+    @media (max-width: 1100px) {
+      .listings__grid { grid-template-columns: repeat(2, 1fr); }
+      .compact-bar { display: none; }
+      .filter-pop--price,
+      .filter-pop--location,
+      .filter-pop--beds,
+      .filter-pop--more { --pop-w: min(92vw, 480px); }
+
+      .mega-menu__panel {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 88px 32px 40px;
+        overflow: auto;
+      }
+
+      .mega-menu__media { height: 260px; }
+    }
+
+    /* ========== AGENT DETAIL ========== */
+    .filter-form .filter-anchor:has([data-filter="location"]), .compact-select[data-filter="location"], .chip--type { display: none !important; }
+    .filter-form [hidden] { display: none !important; }
+    .agent-profile { width: 100%; display: flex; justify-content: center; margin: 4px 0 24px; }
+    .agent-profile__card { display: flex; align-items: center; gap: 24px; width: min(812px, 100%); background: #fff; border-radius: 24px; padding: 16px; text-align: left; border: 1px solid rgba(0,0,0,.08); }
+    .agent-profile__photo { flex: none; width: 120px; height: 120px; border-radius: 16px; background: #f2f1ee; overflow: hidden; }
+    .agent-profile__photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+    .agent-profile__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+    .agent-profile__name { margin: 0; font: 400 28px/1.15 var(--font-ui); letter-spacing: -0.02em; color: var(--ink); }
+    .agent-profile__role { margin: 4px 0 0; font: 400 14px/1.3 var(--font-ui); color: var(--ink-70); }
+    .agent-profile__stats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; padding: 0; list-style: none; font: 400 14px/1.4 var(--font-ui); color: var(--ink-70); }
+    .agent-profile__stats li + li::before { content: "·"; margin-right: 10px; }
+    .agent-profile__side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+    .agent-profile__phone { display: inline-flex; align-items: center; gap: 8px; font: 400 14px/1 var(--font-ui); color: var(--ink); text-decoration: none; }
+    .agent-profile__mail { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 14px/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
+    .agent-profile__mail:hover { background: var(--ink-07, rgba(0,0,0,.05)); }
+    .chip--agent { gap: 8px; padding-left: 4px; }
+    .chip__avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: top; background: #f2f1ee; }
+    .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
+    @media (max-width: 720px) { .agent-profile__card { flex-direction: column; align-items: flex-start; } .agent-profile__side { align-items: flex-start; flex-direction: row; flex-wrap: wrap; align-items: center; } }
+  </style>
+</head>
+<body>
+  <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
+    <span class="menu-btn__burger" aria-hidden="true">
+      <span class="menu-btn__line menu-btn__line--top"></span>
+      <span class="menu-btn__line menu-btn__line--bot"></span>
+    </span>
+    <svg class="menu-btn__x" viewBox="0 0 24 24" aria-hidden="true">
+      <!-- Both strokes start at the bottom and draw upward into the X -->
+      <line class="menu-btn__x-line menu-btn__x-line--a" pathLength="100" x1="5" y1="19" x2="19" y2="5"/>
+      <line class="menu-btn__x-line menu-btn__x-line--b" pathLength="100" x1="19" y1="19" x2="5" y2="5"/>
+    </svg>
+  </button>
+
+  <header class="navbar is-solid" id="navbar">
+    <a class="logo" href="index.html">Havenlist.</a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+      <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
+    </nav>
+
+    <div class="compact-bar" id="compactBar" aria-hidden="true">
+      <div class="chip chip--agent" data-open-sheet id="agentChip"><img class="chip__avatar" id="agentChipImg" alt="" width="24" height="24"><span class="chip__label" id="agentChipName"></span></div>
+      <div class="chip chip--query" data-open-sheet>
+        <span class="chip__label" id="compactQueryLabel">Modern house</span>
+        <button class="chip__x" type="button" aria-label="Clear search" id="clearQueryChip">
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+        </button>
+      </div>
+      <div class="chip chip--type" data-open-sheet>
+        <span class="chip__label" id="compactTypeLabel">Rent</span>
+        <button class="chip__x" type="button" aria-label="Clear type">
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+        </button>
+      </div>
+      <div class="chip chip--featured" data-open-sheet hidden>
+        <span class="chip__label">Featured</span>
+        <button class="chip__x" type="button" aria-label="Clear featured" id="clearFeaturedChip">
+          <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+        </button>
+      </div>
+      <div class="compact-selects">
+        <button class="compact-select" type="button" data-open-sheet data-filter="price" aria-expanded="false">
+          <span id="compactPriceLabel">$1000-10000</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="compact-select" type="button" data-open-sheet data-filter="location" aria-expanded="false">
+          <span id="compactLocationLabel">All neighborhoods</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="compact-select" type="button" data-open-sheet data-filter="beds" aria-expanded="false">
+          <span id="compactBedsLabel">2 bath, 2 bed</span>
+          <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <button class="compact-more" type="button" aria-label="More filters" data-open-sheet data-filter="more" aria-expanded="false">
+        <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="nav-actions">
+      <button class="icon-btn icon-btn--fav" type="button" id="favBtn" aria-label="Saved homes" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn-sell hl-btn hl-btn--black" type="button" id="sellBtn">
+        <span class="hl-btn__inner">Sell with us</span>
+      </button>
+      <span class="menu-btn-spacer" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <section class="search-header" aria-label="Search filters">
+    <div class="search-header__inner">
+      <div class="search-meta">
+        <a class="back-link" href="agents.html">
+          <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          Back to agents
+        </a>
+      </div>
+
+      <h1 class="search-title" id="agentTitle" hidden><span id="titlePrefix"></span><q id="titleQuery"></q></h1>
+      <div class="agent-profile" id="agentProfile"></div>
+
+      <div class="tabs" role="tablist" aria-hidden="true" style="display:none">
+        <span class="tabs__pill" id="tabsPill" aria-hidden="true"></span>
+        <button class="tab" role="tab" type="button" data-type="Rent" aria-selected="true">Rent</button>
+        <button class="tab" role="tab" type="button" data-type="Buy" aria-selected="false">Buy</button>
+        <button class="tab" role="tab" type="button" data-type="Commercial" aria-selected="false">Commercial</button>
+      </div>
+
+      <form class="filter-form" id="filterForm" role="search" aria-label="Refine search" onsubmit="return false">
+        <label class="filter-query">
+          <span class="filter-query__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
+              <path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input class="filter-query__input" id="searchInput" type="search" value="Modern house" placeholder="Search here" aria-label="Search">
+          <button class="filter-query__clear" type="button" id="searchClearBtn" aria-label="Clear search">
+            <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+          </button>
+        </label>
+
+        <div class="filter-anchor" id="anchorType"><button class="filter-select" type="button" data-filter="type" id="btnType" aria-expanded="false"><span id="labelType">Rent</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><button class="filter-pill" type="button" id="btnFeatured" aria-pressed="false" hidden>Featured</button>
+
+        <div class="filter-anchor" id="anchorPrice">
+          <button class="filter-select" type="button" data-filter="price" id="btnPrice" aria-expanded="false">
+            <span data-expanded-label="price" id="labelPrice">Price range</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-anchor" id="anchorLocation">
+          <button class="filter-select" type="button" data-filter="location" id="btnLocation" aria-expanded="false">
+            <span data-expanded-label="location" id="labelLocation">All neighborhoods</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-anchor" id="anchorBeds">
+          <button class="filter-select" type="button" data-filter="beds" id="btnBeds" aria-expanded="false">
+            <span data-expanded-label="beds" id="labelBeds">Bed &amp; bath</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="filter-anchor" id="anchorMore">
+          <button class="filter-more" type="button" data-filter="more" id="btnMore" aria-label="More filters" aria-expanded="false">
+            <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+    <!-- Shared filter popovers (teleported near open trigger) -->
+    <div class="filter-pop filter-pop--location" id="popType" role="dialog" aria-label="Listing type">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Listing type</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close"><svg class="x-icon" width="12" height="12" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg></button>
+      </div>
+      <div class="filter-pop__body">
+        <div class="loc-list" id="typeList">
+          <button class="loc-item is-active" type="button" data-typ="Rent">Rent</button>
+          <button class="loc-item" type="button" data-typ="Buy">Buy</button>
+          <button class="loc-item" type="button" data-typ="Commercial">Commercial</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--price" id="popPrice" role="dialog" aria-label="Price range">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Price range</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <div class="range-track">
+          <div class="range-track__fill" id="priceFill"></div>
+          <input type="range" id="priceMin" min="0" max="100000" step="100" value="200">
+          <input type="range" id="priceMax" min="0" max="100000" step="100" value="100000">
+        </div>
+        <div class="filter-row">
+          <div class="filter-field">
+            <label>Minimum</label>
+            <span class="filter-value" id="priceMinLabel">$200</span>
+          </div>
+          <div class="filter-field">
+            <label>Maximum</label>
+            <span class="filter-value" id="priceMaxLabel">$100.000+</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-pop__foot">
+        <button class="filter-clear" type="button" data-clear="price">Clear filters</button>
+        <button class="hl-btn hl-btn--black hl-btn--sm" type="button" data-apply-pop>
+          <span class="hl-btn__inner"><span id="priceShowCount">Show 56 listings</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--location" id="popLocation" role="dialog" aria-label="Select location">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Select location</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <label class="loc-search">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.4"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <input type="search" id="locSearch" placeholder="Search city or district of your property" autocomplete="off">
+        </label>
+        <div class="loc-chips">
+          <span class="loc-meta">Top regions:</span>
+          <button class="loc-chip" type="button" data-loc="German">German</button>
+          <button class="loc-chip" type="button" data-loc="Japan">Japan</button>
+          <button class="loc-chip" type="button" data-loc="New York">New York</button>
+          <button class="loc-chip" type="button" data-loc="Bali">Bali</button>
+        </div>
+        <button class="filter-clear" type="button" id="useCurrentLoc" style="align-self:flex-start">Use current location</button>
+        <div class="loc-list" id="locList">
+          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (226)</button>
+          <button class="loc-item" type="button" data-loc="New York">New york (32)</button>
+          <button class="loc-item" type="button" data-loc="Los Angeles">Los angeles (48)</button>
+          <button class="loc-item" type="button" data-loc="Texas">Texas (40)</button>
+          <button class="loc-item" type="button" data-loc="Chicago">Chicago (24)</button>
+          <button class="loc-item" type="button" data-loc="San Fierro">San Fierro (18)</button>
+          <button class="loc-item" type="button" data-loc="San Francisco">San Francisco (64)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--beds" id="popBeds" role="dialog" aria-label="Beds and baths">
+      <div class="filter-pop__head">
+        <h3 class="filter-pop__title">Beds &amp; baths</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <div class="stepper-row">
+          <span class="stepper-label">Bedroom</span>
+          <div class="stepper" data-stepper="beds">
+            <button type="button" data-step="-1" aria-label="Fewer bedrooms">−</button>
+            <span class="stepper__val" id="bedsVal">All</span>
+            <button type="button" data-step="1" aria-label="More bedrooms">+</button>
+          </div>
+        </div>
+        <div class="stepper-row">
+          <span class="stepper-label">Bathroom</span>
+          <div class="stepper" data-stepper="baths">
+            <button type="button" data-step="-1" aria-label="Fewer bathrooms">−</button>
+            <span class="stepper__val" id="bathsVal">All</span>
+            <button type="button" data-step="1" aria-label="More bathrooms">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="filter-pop__foot">
+        <button class="filter-clear" type="button" data-clear="beds">Clear filters</button>
+        <button class="hl-btn hl-btn--black hl-btn--sm" type="button" data-apply-pop>
+          <span class="hl-btn__inner"><span id="bedsShowCount">Show 48 listings</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-pop filter-pop--more" id="popMore" role="dialog" aria-label="More filters">
+      <div class="filter-pop__head" style="padding-top:16px">
+        <h3 class="filter-pop__title">Filter</h3>
+        <button class="filter-pop__close" type="button" data-close-pop aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
+      </div>
+      <div class="filter-pop__body">
+        <div>
+          <p class="filter-section-title">Property type</p>
+          <div class="type-chips" id="propTypes" style="margin-top:12px">
+            <button class="type-chip is-active" type="button" data-type="House">House</button>
+            <button class="type-chip" type="button" data-type="Apartment">Apartment</button>
+            <button class="type-chip" type="button" data-type="Villa">Villa</button>
+          </div>
+        </div>
+        <div>
+          <p class="filter-section-title">Building area</p>
+          <div class="range-track" data-range="build" style="margin-top:20px">
+            <div class="range-track__fill"></div>
+            <input type="range" min="0" max="1000" step="10" value="100" data-end="min" aria-label="Minimum building area">
+            <input type="range" min="0" max="1000" step="10" value="300" data-end="max" aria-label="Maximum building area">
+          </div>
+          <div class="filter-row">
+            <div class="filter-field"><label>Minimum</label><span class="filter-value" data-range-label="min">100 sqft</span></div>
+            <div class="filter-field"><label>Maximum</label><span class="filter-value" data-range-label="max">300 sqft</span></div>
+          </div>
+        </div>
+        <div>
+          <p class="filter-section-title">Land area</p>
+          <div class="range-track" data-range="land" style="margin-top:20px">
+            <div class="range-track__fill"></div>
+            <input type="range" min="0" max="2000" step="10" value="200" data-end="min" aria-label="Minimum land area">
+            <input type="range" min="0" max="2000" step="10" value="400" data-end="max" aria-label="Maximum land area">
+          </div>
+          <div class="filter-row">
+            <div class="filter-field"><label>Minimum</label><span class="filter-value" data-range-label="min">200 sqft</span></div>
+            <div class="filter-field"><label>Maximum</label><span class="filter-value" data-range-label="max">400 sqft</span></div>
+          </div>
+        </div>
+        <div>
+          <p class="filter-section-title">Living facilities</p>
+          <div class="facilities" id="facilities" style="margin-top:12px">
+            <label class="facility"><input type="checkbox" value="Swimming pool"> Swimming pool</label>
+            <label class="facility"><input type="checkbox" value="Garage/Carport"> Garage/Carport</label>
+            <label class="facility"><input type="checkbox" value="24 Hours security"> 24 Hours security</label>
+            <label class="facility"><input type="checkbox" value="House garden"> House garden</label>
+            <label class="facility"><input type="checkbox" value="Parking area"> Parking area</label>
+          </div>
+        </div>
+      </div>
+      <div class="filter-pop__foot">
+        <button class="filter-clear" type="button" data-clear="more">Clear filters</button>
+        <button class="hl-btn hl-btn--black hl-btn--sm" type="button" data-apply-pop>
+          <span class="hl-btn__inner"><span id="moreShowCount">Show 56 listings</span></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Expanded filter sheet when accessing filters after scroll -->
+  <div class="filter-sheet" id="filterSheet" aria-hidden="true">
+    <div class="filter-sheet__scrim" id="filterSheetScrim"></div>
+    <div class="filter-sheet__panel">
+      <div class="filter-sheet__inner">
+        <h2 class="filter-sheet__title" id="sheetTitle">All listings (104)</h2>
+        <div class="tabs" role="tablist" aria-label="Listing type sheet" id="sheetTabs" style="display:none">
+          <span class="tabs__pill" id="sheetTabsPill" aria-hidden="true"></span>
+          <button class="tab" role="tab" type="button" data-type="Rent" aria-selected="true">Rent</button>
+          <button class="tab" role="tab" type="button" data-type="Buy" aria-selected="false">Buy</button>
+          <button class="tab" role="tab" type="button" data-type="Commercial" aria-selected="false">Commercial</button>
+        </div>
+        <form class="filter-form" role="search" onsubmit="return false" style="max-width:795px;width:100%;justify-content:center">
+          <label class="filter-query">
+            <span class="filter-query__icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </span>
+            <input class="filter-query__input" id="sheetSearchInput" type="search" placeholder="Search here" aria-label="Search">
+            <button class="filter-query__clear" type="button" id="sheetSearchClearBtn" aria-label="Clear search">
+              <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
+            </button>
+          </label>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="type" id="sheetBtnType" aria-expanded="false"><span id="sheetLabelType">Rent</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><button class="filter-pill" type="button" id="sheetFeatured" aria-pressed="false" hidden>Featured</button>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="price" id="sheetBtnPrice" aria-expanded="false">
+            <span id="sheetLabelPrice">Price range</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button></div>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="location" id="sheetBtnLocation" aria-expanded="false">
+            <span id="sheetLabelLocation">All neighborhoods</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button></div>
+          <div class="filter-anchor"><button class="filter-select" type="button" data-filter="beds" id="sheetBtnBeds" aria-expanded="false">
+            <span id="sheetLabelBeds">Bed &amp; bath</span>
+            <svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button></div>
+          <div class="filter-anchor"><button class="filter-more" type="button" data-filter="more" id="sheetBtnMore" aria-label="More filters" aria-expanded="false">
+            <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <main class="listings" aria-label="Property listings">
+    <div class="listings__grid" id="listingsGrid"></div>
+    <p class="listings__empty" id="listingsEmpty" hidden>No listings match these filters.</p>
+  </main>
+
+  <footer class="site-footer">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" decoding="async">
+
+    <div class="site-footer__cta">
+      <h2>Ready to sell your property?</h2>
+      <p>Get a free market valuation and a tailored selling strategy from our top agents.</p>
+      <div class="site-footer__actions">
+        <button class="site-footer__btn hl-btn hl-btn--white" type="button">
+          <span class="hl-btn__inner">
+            Get started
+            <span class="hl-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </span>
+        </button>
+        <button class="site-footer__contact" type="button">Contact us</button>
+      </div>
+    </div>
+
+    <div class="site-footer__panel">
+      <div class="site-footer__row">
+        <div class="site-footer__brand">
+          <div>
+            <a class="logo" href="index.html">Havenlist.</a>
+            <p class="site-footer__addr">123 Harbor Avenue, Suite 400<br>San Francisco, CA 94111</p>
+          </div>
+          <div class="site-footer__legal">
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of services</a>
+          </div>
+        </div>
+
+        <div class="site-footer__cols">
+          <div class="site-footer__col">
+            <h3>Discover</h3>
+            <a href="search.html?q=">Listings</a>
+            <a href="agents.html">Agents</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
+            <a href="#">About</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Listings Type</h3>
+            <a href="#">Buy</a>
+            <a href="#">Rent</a>
+            <a href="#">Commercial</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Resources</h3>
+            <a href="insights.html">Insights</a>
+            <a href="#">Sell with Us</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Follow us</h3>
+            <a class="is-link" href="#">Instagram</a>
+            <a class="is-link" href="#">Pinterest</a>
+            <a class="is-link" href="#">Youtube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-footer__bottom">
+        <a class="site-footer__email" href="mailto:hello@havenlist.com">
+          hello@havenlist.com
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <span class="site-footer__copy">©2026 Havenlist</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="mega-menu" id="megaMenu" hidden>
+    <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__media">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" width="609" height="914">
+      </div>
+
+      <div class="mega-menu__body">
+        <div class="mega-menu__grid">
+          <div>
+            <p class="mega-menu__group-label">Our pages</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="#home"><span class="link-rise" data-text="Home">Home</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Listings Type</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="#buy"><span class="link-rise" data-text="Buy">Buy</span></a></li>
+              <li><a href="#rent"><span class="link-rise" data-text="Rent">Rent</span></a></li>
+              <li><a href="#commercial"><span class="link-rise" data-text="Commercial">Commercial</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Follow us</p>
+            <ul class="mega-menu__links mega-menu__links--md mega-menu__links--social">
+              <li><a href="#instagram"><span class="link-rise" data-text="Instagram">Instagram</span></a></li>
+              <li><a href="#youtube"><span class="link-rise" data-text="Youtube">Youtube</span></a></li>
+              <li><a href="#pinterest"><span class="link-rise" data-text="Pinterest">Pinterest</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Resources</p>
+            <ul class="mega-menu__links mega-menu__links--md">
+              <li><a href="#wishlist"><span class="link-rise" data-text="Wishlist">Wishlist</span></a></li>
+              <li><a href="#sell"><span class="link-rise" data-text="Sell with us">Sell with us</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mega-menu__contact">
+          <p class="mega-menu__group-label">Contact</p>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/listings-store.js"></script>
+  <script src="assets/agents.js"></script>
+  <script src="listing-card.js"></script>
+  <script src="wishlist.js"></script>
+  <script src="smooth-scroll.js"></script>
+  <script>
+    const AGENT = HLAgents.get(new URLSearchParams(location.search).get("id")) || HLAgents.all()[0];
+    const ALLL = HavenlistStore.all();
+    const LISTINGS = AGENT.listings.map((id) => ALLL.find((l) => l.id === id)).filter(Boolean);
+    document.title = AGENT.name + " — Havenlist";
+    document.getElementById("agentProfile").innerHTML =
+      '<div class="agent-profile__card"><div class="agent-profile__photo"><img src="' + AGENT.photo + '" alt="' + AGENT.name + '"></div>' +
+      '<div class="agent-profile__main"><div><h1 class="agent-profile__name">' + AGENT.name + '</h1><p class="agent-profile__role">' + AGENT.role + ' · ' + AGENT.location + '</p></div>' +
+      '<ul class="agent-profile__stats"><li>' + AGENT.years + '+ years</li><li>' + (AGENT.years * 18) + '+ families</li><li>' + AGENT.rating.toFixed(1) + ' rating</li></ul></div>' +
+      '<div class="agent-profile__side"><a class="agent-profile__phone" href="tel:' + AGENT.phone.replace(/\s/g, "") + '">' + HLAgents.PHONE + '<span>' + AGENT.phone + '</span></a>' +
+      '<a class="agent-profile__mail" href="mailto:' + AGENT.email + '">Email me</a></div></div>';
+    document.getElementById("agentChipImg").src = AGENT.photo;
+    document.getElementById("agentChipName").textContent = AGENT.name;
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+    function renderListings() {
+      const q = state.query.toLowerCase();
+      const list = LISTINGS.filter((l) =>
+        (!q || (l.place + " " + l.addr + " " + l.badge).toLowerCase().includes(q)) &&
+        (state.beds <= 0 || (state.beds >= 5 ? l.beds >= 5 : l.beds === state.beds)) &&
+        (state.baths <= 0 || (state.baths >= 5 ? l.baths >= 5 : l.baths === state.baths)));
+      const key = list.map((l) => l.id).join();
+      if (renderListings.key !== key) { renderListings.key = key; HLCard.mount(document.getElementById("listingsGrid"), list); }
+      document.getElementById("listingsEmpty").hidden = list.length > 0;
+      return list.length;
+    }
+
+
+
+    /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
+    function addRise(el) {
+      if (el.querySelector(".rise, .link-rise")) return;
+      const host = el.querySelector(".hl-btn__inner") || el;
+      Array.from(host.childNodes).forEach((node) => {
+        const isText = node.nodeType === 3 && node.textContent.trim();
+        const isLabel = node.nodeType === 1 && node.tagName === "SPAN" &&
+          !node.children.length && node.textContent.trim();
+        if (!isText && !isLabel) return;
+        const clip = document.createElement("span");
+        clip.className = "rise";
+        let label = node;
+        if (isText) {
+          label = document.createElement("span");
+          label.textContent = node.textContent.trim();
+        }
+        host.replaceChild(clip, node);
+        clip.appendChild(label);
+        label.classList.add("rise__t");
+      });
+    }
+
+    /* Text buttons and text links only — not the logo, tabs, pills or dropdowns */
+    document.querySelectorAll(".hl-btn, .back-link, .filter-clear, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+
+    /* ----- Apply URL params from homepage search ----- */
+    const params = new URLSearchParams(window.location.search);
+    /* ?q= (even empty) = all listings; no q at all keeps the demo query */
+    const initialQuery = "";
+    const initialType = params.get("type")?.trim() || "Rent";
+
+    const state = {
+      query: initialQuery,
+      type: initialType,
+      featured: false,
+      priceMin: 200,
+      priceMax: 100000,
+      location: "",
+      beds: 0, // 0 = All
+      baths: 0,
+      propType: "House",
+      facilities: [],
+      listingCount: 104,
+    };
+
+    const body = document.body;
+    const navbar = document.getElementById("navbar");
+    const menuBtn = document.getElementById("menuBtn");
+    const compactBar = document.getElementById("compactBar");
+    const filterForm = document.getElementById("filterForm");
+    const filterSheet = document.getElementById("filterSheet");
+
+    let compact = false;
+    let sheetOpen = false;
+    let openPop = null;
+
+    /* ----- Tabs ----- */
+    const tabs = Array.from(document.querySelectorAll(".search-header .tab"));
+    const tabsPill = document.getElementById("tabsPill");
+    const compactTypeLabel = document.getElementById("compactTypeLabel");
+    const sheetTabs = Array.from(document.querySelectorAll("#sheetTabs .tab"));
+    const sheetTabsPill = document.getElementById("sheetTabsPill");
+
+    function setTab(index, syncSheet = true) {
+      tabs.forEach((t, i) => t.setAttribute("aria-selected", String(i === index)));
+      tabsPill.style.transform = `translateX(${index * 100}%)`;
+      state.type = tabs[index].dataset.type;
+      compactTypeLabel.textContent = state.type;
+      if (syncSheet) {
+        sheetTabs.forEach((t, i) => t.setAttribute("aria-selected", String(i === index)));
+        sheetTabsPill.style.transform = `translateX(${index * 100}%)`;
+      }
+      updateCount();
+    }
+
+    tabs.forEach((tab, i) => tab.addEventListener("click", () => setTab(i)));
+    sheetTabs.forEach((tab, i) => tab.addEventListener("click", () => setTab(i)));
+
+    const typeIndex = Math.max(0, tabs.findIndex((t) => t.dataset.type === initialType));
+    setTab(typeIndex);
+
+    /* ----- Query sync ----- */
+    const searchInput = document.getElementById("searchInput");
+    const sheetSearchInput = document.getElementById("sheetSearchInput");
+    const titleQuery = document.getElementById("titleQuery");
+    const compactQueryLabel = document.getElementById("compactQueryLabel");
+
+    searchInput.value = initialQuery;
+    sheetSearchInput.value = initialQuery;
+
+    const titlePrefix = document.getElementById("titlePrefix");
+    const compactQueryChip = compactQueryLabel.closest(".chip");
+
+    /* Mirror the edited field into the other one — never rewrite the field
+       being typed in (trimming it would eat spaces mid-word). Empty = all. */
+    function syncQuery(from) {
+      const source = from === "sheet" ? sheetSearchInput : searchInput;
+      const other = from === "sheet" ? searchInput : sheetSearchInput;
+      const q = source.value.trim();
+      state.query = q;
+      if (other.value !== source.value) other.value = source.value;
+      titlePrefix.textContent = q ? "Search result for " : "All listings";
+      titleQuery.textContent = q;
+      titleQuery.hidden = !q;
+      compactQueryLabel.textContent = q;
+      if (compactQueryChip) compactQueryChip.hidden = !q;
+      
+      updateCount();
+    }
+    searchInput.addEventListener("input", () => syncQuery("main"));
+    sheetSearchInput.addEventListener("input", () => syncQuery("sheet"));
+    syncQuery("main");
+
+    function syncClearVisibility() {
+      searchInput.closest(".filter-query")?.classList.toggle("has-value", !!searchInput.value.trim());
+      sheetSearchInput.closest(".filter-query")?.classList.toggle("has-value", !!sheetSearchInput.value.trim());
+    }
+    searchInput.addEventListener("input", syncClearVisibility);
+    sheetSearchInput.addEventListener("input", syncClearVisibility);
+    syncClearVisibility();
+
+    document.getElementById("searchClearBtn")?.addEventListener("click", () => {
+      searchInput.value = "";
+      syncQuery("main");
+      syncClearVisibility();
+      searchInput.focus();
+    });
+    document.getElementById("sheetSearchClearBtn")?.addEventListener("click", () => {
+      sheetSearchInput.value = "";
+      syncQuery("sheet");
+      syncClearVisibility();
+      sheetSearchInput.focus();
+    });
+
+    document.getElementById("btnFeatured").addEventListener("click", (e) => {
+      state.featured = !state.featured;
+      e.currentTarget.setAttribute("aria-pressed", String(state.featured));
+      document.getElementById("sheetFeatured").setAttribute("aria-pressed", String(state.featured));
+      /* The navbar chip only exists while the filter is on */
+      document.querySelector(".chip--featured").hidden = !state.featured;
+      updateLabels();
+      updateCount();
+    });
+    document.getElementById("sheetFeatured").addEventListener("click", () => {
+      document.getElementById("btnFeatured").click();
+    });
+
+    /* ----- Fav ----- */
+    const favBtn = document.getElementById("favBtn");
+    favBtn.addEventListener("mouseenter", () => {
+      const path = favBtn.querySelector(".heart-outline");
+      path.style.animation = "none";
+      void path.getBoundingClientRect();
+      path.style.animation = "";
+      favBtn.classList.add("is-drawing");
+    });
+    favBtn.addEventListener("mouseleave", () => {
+      const path = favBtn.querySelector(".heart-outline");
+      favBtn.classList.remove("is-drawing");
+      path.style.animation = "none";
+      path.style.strokeDashoffset = "0";
+    });
+    favBtn.addEventListener("click", () => {
+      const pressed = favBtn.getAttribute("aria-pressed") === "true";
+      favBtn.setAttribute("aria-pressed", String(!pressed));
+      favBtn.classList.toggle("is-active", !pressed);
+      toast(pressed ? "Removed from saved" : "Saved homes");
+    });
+
+    document.getElementById("sellBtn").addEventListener("click", () => {
+      toast("Opening seller onboarding…");
+    });
+
+    /* ----- Helpers ----- */
+    const toastEl = document.getElementById("toast");
+    let toastTimer;
+
+    function toast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("is-visible");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("is-visible"), 2200);
+    }
+
+    function formatPrice(n) {
+      if (n >= 100000) return "$100.000+";
+      return "$" + n.toLocaleString("de-DE");
+    }
+
+    function bedsLabel(n) {
+      return n <= 0 ? "All" : n >= 5 ? "5+" : String(n);
+    }
+
+    function updateCount() {
+      const n = renderListings();
+      state.listingCount = n;
+      const show = `Show ${n} listing${n === 1 ? "" : "s"}`;
+      ["priceShowCount", "bedsShowCount", "moreShowCount"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = show;
+      });
+      document.getElementById("sheetTitle").textContent = `${AGENT.name}'s listings (${n})`;
+      ["labelType", "sheetLabelType"].forEach((id) => { const el = document.getElementById(id); if (el) el.textContent = state.type; });
+    }
+
+    function updateLabels() {
+      const priceDefault = state.priceMin === 200 && state.priceMax === 100000;
+      const priceText = priceDefault ? "Price range" : `${formatPrice(state.priceMin)} – ${formatPrice(state.priceMax)}`;
+      document.getElementById("labelPrice").textContent = priceText;
+      document.getElementById("sheetLabelPrice").textContent = priceText;
+      document.getElementById("compactPriceLabel").textContent =
+        priceDefault ? "$1000-10000" : `$${state.priceMin}-${state.priceMax >= 100000 ? "100000+" : state.priceMax}`;
+
+      const locationText = state.location || "All neighborhoods";
+      document.getElementById("labelLocation").textContent = locationText;
+      document.getElementById("sheetLabelLocation").textContent = locationText;
+      document.getElementById("compactLocationLabel").textContent = state.location || "All neighborhoods";
+
+      const anyBeds = state.beds <= 0 && state.baths <= 0;
+      const part = (n) => (bedsLabel(n) === "All" ? "Any" : bedsLabel(n));
+      const bedsText = anyBeds ? "Bed & bath" : `${part(state.baths)} bath, ${part(state.beds)} bed`;
+      document.getElementById("labelBeds").textContent = bedsText;
+      document.getElementById("sheetLabelBeds").textContent = bedsText;
+      document.getElementById("compactBedsLabel").textContent =
+        anyBeds ? "2 bath, 2 bed" : `${state.baths > 0 ? state.baths : 1} bath, ${state.beds > 0 ? state.beds : 1} bed`;
+    }
+
+    /* ----- Price filter ----- */
+    const priceMin = document.getElementById("priceMin");
+    const priceMax = document.getElementById("priceMax");
+    const priceFill = document.getElementById("priceFill");
+
+    function syncPriceUI() {
+      let a = Number(priceMin.value);
+      let b = Number(priceMax.value);
+      if (a > b) [a, b] = [b, a];
+      state.priceMin = a;
+      state.priceMax = b;
+      const max = 100000;
+      priceFill.style.left = `${(a / max) * 100}%`;
+      priceFill.style.width = `${((b - a) / max) * 100}%`;
+      document.getElementById("priceMinLabel").textContent = formatPrice(a);
+      document.getElementById("priceMaxLabel").textContent = formatPrice(b);
+      updateCount();
+    }
+    priceMin.addEventListener("input", syncPriceUI);
+    priceMax.addEventListener("input", syncPriceUI);
+    syncPriceUI();
+
+    /* ----- Building / land area ranges ----- */
+    function bindAreaRange(track) {
+      const lo = track.querySelector('[data-end="min"]');
+      const hi = track.querySelector('[data-end="max"]');
+      const fill = track.querySelector(".range-track__fill");
+      const row = track.nextElementSibling;
+      const loLabel = row.querySelector('[data-range-label="min"]');
+      const hiLabel = row.querySelector('[data-range-label="max"]');
+      const max = Number(hi.max);
+      const defaults = [lo.value, hi.value];
+      const fmt = (n) => `${n.toLocaleString("en-US")}${n >= max ? "+" : ""} sqft`;
+
+      function sync() {
+        let a = Number(lo.value);
+        let b = Number(hi.value);
+        if (a > b) [a, b] = [b, a];
+        fill.style.left = `${(a / max) * 100}%`;
+        fill.style.width = `${((b - a) / max) * 100}%`;
+        loLabel.textContent = fmt(a);
+        hiLabel.textContent = fmt(b);
+        state[track.dataset.range] = [a, b];
+        updateCount();
+      }
+
+      lo.addEventListener("input", sync);
+      hi.addEventListener("input", sync);
+      sync();
+      return {
+        reset() {
+          lo.value = defaults[0];
+          hi.value = defaults[1];
+          sync();
+        },
+      };
+    }
+    const areaRanges = Array.from(document.querySelectorAll(".range-track[data-range]")).map(bindAreaRange);
+
+    /* ----- Location ----- */
+    function selectLocation(loc) {
+      state.location = loc;
+      document.querySelectorAll(".loc-chip, .loc-item").forEach((el) => {
+        el.classList.toggle("is-active", el.dataset.loc === loc);
+      });
+      updateLabels();
+      updateCount();
+      closePop();
+    }
+    document.querySelectorAll(".loc-chip, .loc-item").forEach((el) => {
+      el.addEventListener("click", () => selectLocation(el.dataset.loc));
+    });
+    document.getElementById("locSearch").addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase();
+      document.querySelectorAll("#locList .loc-item").forEach((item) => {
+        item.style.display = item.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    });
+    document.getElementById("useCurrentLoc").addEventListener("click", () => selectLocation("San Francisco"));
+
+    /* ----- Beds / baths steppers ----- */
+    function setStepper(kind, delta) {
+      const key = kind;
+      let v = state[key] + delta;
+      if (v < 0) v = 0;
+      if (v > 5) v = 5;
+      state[key] = v;
+      document.getElementById(kind + "Val").textContent = bedsLabel(v);
+      updateLabels();
+      updateCount();
+    }
+    document.querySelectorAll("[data-stepper]").forEach((row) => {
+      const kind = row.dataset.stepper;
+      row.querySelectorAll("[data-step]").forEach((btn) => {
+        btn.addEventListener("click", () => setStepper(kind, Number(btn.dataset.step)));
+      });
+    });
+
+    /* ----- More filters ----- */
+    document.querySelectorAll("#propTypes .type-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll("#propTypes .type-chip").forEach((c) => c.classList.remove("is-active"));
+        chip.classList.add("is-active");
+        state.propType = chip.dataset.type;
+        updateCount();
+      });
+    });
+    document.querySelectorAll("#facilities input").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        state.facilities = Array.from(document.querySelectorAll("#facilities input:checked")).map((i) => i.value);
+        updateCount();
+      });
+    });
+
+    /* ----- Listing type dropdown ----- */
+    document.querySelectorAll("#typeList .loc-item").forEach((el) => el.addEventListener("click", () => {
+      const idx = tabs.findIndex((t) => t.dataset.type === el.dataset.typ);
+      setTab(Math.max(0, idx));
+      document.querySelectorAll("#typeList .loc-item").forEach((x) => x.classList.toggle("is-active", x === el));
+      closePop();
+    }));
+
+    /* ----- Popover open/close ----- */
+    const pops = {
+      type: document.getElementById("popType"),
+      price: document.getElementById("popPrice"),
+      location: document.getElementById("popLocation"),
+      beds: document.getElementById("popBeds"),
+      more: document.getElementById("popMore"),
+    };
+
+    function syncFilterExpanded(name) {
+      document.querySelectorAll("[data-filter]").forEach((btn) => {
+        btn.setAttribute("aria-expanded", String(!!name && btn.dataset.filter === name));
+      });
+    }
+
+    /* Tunable motion (CSS vars): full close = dissolve beat + shrink beat */
+    function cssMs(name, fallback) {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      const n = parseFloat(raw);
+      return Number.isNaN(n) ? fallback : (raw.endsWith("ms") ? n : n * 1000);
+    }
+    function popCloseMs() { return cssMs("--pop-fade", 160) + cssMs("--pop-close", 300); }
+
+    function closePop() {
+      Object.values(pops).forEach((p) => {
+        if (!p.classList.contains("is-open")) return;
+        p.classList.remove("is-open");
+        /* Keep its anchor above the page until the panel has folded back in */
+        const host = p.parentElement;
+        clearTimeout(host._frontTimer);
+        host._frontTimer = setTimeout(() => host.classList.remove("is-front"), popCloseMs() + 60);
+      });
+      openPop = null;
+      syncFilterExpanded(null);
+    }
+
+    const anchors = {
+      type: document.getElementById("anchorType"),
+      price: document.getElementById("anchorPrice"),
+      location: document.getElementById("anchorLocation"),
+      beds: document.getElementById("anchorBeds"),
+      more: document.getElementById("anchorMore"),
+    };
+
+    /* The dropdown always lives next to the button that opened it (in-page
+       form or the sheet), so it moves with that button. It grows out of the
+       button's own rect: we measure its final size while hidden, park it at
+       the button's size, then let CSS carry it to the final size. */
+    function openFilter(name, anchorEl) {
+      closePop();
+      const pop = pops[name];
+      if (!pop) return;
+      const anchor = (anchorEl && anchorEl.closest(".filter-anchor")) || anchors[name];
+      if (anchor && pop.parentElement !== anchor) anchor.appendChild(pop);
+      clearTimeout(anchor._frontTimer);
+      anchor.classList.add("is-front");
+
+      const body = pop.querySelector(".filter-pop__body");
+      const aRect = anchor.getBoundingClientRect();
+      /* Measure against where the sheet will rest, not where it is mid-slide */
+      const slide = anchor.closest(".filter-sheet__panel");
+      const settleY = slide ? new DOMMatrix(getComputedStyle(slide).transform).m42 : 0;
+      const anchorBottom = aRect.bottom - settleY;
+      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pop-gap")) || 10;
+      const maxH = Math.max(240, window.innerHeight - anchorBottom - gap - 16);
+
+      /* Natural size, off-screen state */
+      pop.style.transition = "none";
+      pop.style.setProperty("--pop-shift", "0px");
+      pop.style.setProperty("--body-h", "auto");
+      pop.classList.add("is-measuring");
+      const w = pop.offsetWidth;
+      const natural = pop.offsetHeight;
+      const bodyNatural = body.offsetHeight;
+      pop.classList.remove("is-measuring");
+
+      /* Keep wide panels inside the viewport, and short ones inside the height */
+      const left = aRect.left + aRect.width / 2 - w / 2;
+      const min = 16;
+      const max = window.innerWidth - 16 - w;
+      const shift = left < min ? min - left : left > max ? max - left : 0;
+      const height = Math.min(natural, maxH);
+      pop.style.setProperty("--pop-shift", `${shift}px`);
+      pop.style.setProperty("--pop-h", `${height}px`);
+      pop.style.setProperty("--body-h", `${Math.max(0, bodyNatural - (natural - height))}px`);
+      pop.style.setProperty("--from-w", `${aRect.width}px`);
+      pop.style.setProperty("--from-h", `${aRect.height}px`);
+
+      /* Land on the button-sized start frame, then release the transition */
+      void pop.offsetHeight;
+      pop.style.transition = "";
+      void pop.offsetHeight;
+      pop.classList.add("is-open");
+      openPop = name;
+      syncFilterExpanded(name);
+    }
+
+    function bindFilterButton(btn) {
+      if (!btn) return;
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const name = btn.dataset.filter;
+        if (compact && !sheetOpen && btn.closest("#compactBar")) {
+          openSheet(name);
+          return;
+        }
+        if (openPop === name) closePop();
+        else openFilter(name, btn);
+      });
+    }
+
+    ["btnType", "sheetBtnType", "btnPrice", "btnLocation", "btnBeds", "btnMore",
+     "sheetBtnPrice", "sheetBtnLocation", "sheetBtnBeds", "sheetBtnMore"].forEach((id) => {
+      bindFilterButton(document.getElementById(id));
+    });
+
+    document.querySelectorAll("[data-close-pop]").forEach((btn) => {
+      btn.addEventListener("click", closePop);
+    });
+    document.querySelectorAll("[data-apply-pop]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        updateLabels();
+        updateCount();
+        closePop();
+        if (sheetOpen) closeSheet();
+      });
+    });
+    document.querySelectorAll("[data-clear]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const kind = btn.dataset.clear;
+        if (kind === "price") {
+          priceMin.value = 200; priceMax.value = 100000; syncPriceUI();
+        } else if (kind === "beds") {
+          state.beds = 0; state.baths = 0;
+          document.getElementById("bedsVal").textContent = "All";
+          document.getElementById("bathsVal").textContent = "All";
+        } else if (kind === "more") {
+          state.propType = "House";
+          state.facilities = [];
+          document.querySelectorAll("#propTypes .type-chip").forEach((c, i) => c.classList.toggle("is-active", i === 0));
+          document.querySelectorAll("#facilities input").forEach((i) => { i.checked = false; });
+          areaRanges.forEach((range) => range.reset());
+        }
+        updateLabels();
+        updateCount();
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!openPop) return;
+      const pop = pops[openPop];
+      if (pop && !pop.contains(e.target) && !e.target.closest("[data-filter]")) closePop();
+    });
+
+    /* ----- Filter sheet (after scroll) ----- */
+    let sheetPopTimer = null;
+
+    function openSheet(focusFilter) {
+      sheetOpen = true;
+      filterSheet.classList.add("is-open");
+      filterSheet.setAttribute("aria-hidden", "false");
+      body.classList.add("is-sheet-open");
+      updateLabels();
+      clearTimeout(sheetPopTimer);
+      if (focusFilter) {
+        /* Let the drawer arrive first, then unfold the requested dropdown */
+        sheetPopTimer = setTimeout(() => {
+          if (!sheetOpen) return;
+          const btn = document.getElementById({
+            type: "sheetBtnType",
+            price: "sheetBtnPrice",
+            location: "sheetBtnLocation",
+            beds: "sheetBtnBeds",
+            more: "sheetBtnMore",
+          }[focusFilter]);
+          if (btn) openFilter(focusFilter, btn);
+        }, 260);
+      }
+    }
+
+    function closeSheet() {
+      clearTimeout(sheetPopTimer);
+      sheetOpen = false;
+      closePop();
+      filterSheet.classList.remove("is-open");
+      filterSheet.setAttribute("aria-hidden", "true");
+      body.classList.remove("is-sheet-open");
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (openPop) closePop();
+      else if (sheetOpen) closeSheet();
+    });
+
+    document.getElementById("filterSheetScrim").addEventListener("click", closeSheet);
+
+    document.querySelectorAll("[data-open-sheet]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        if (e.target.closest(".chip__x")) return;
+        if (!compact) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openSheet(el.dataset.filter || null);
+      });
+    });
+
+    /* ----- Compact chip clears ----- */
+    const clearQueryChip = document.getElementById("clearQueryChip");
+    if (clearQueryChip) {
+      clearQueryChip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        searchInput.value = "";
+        sheetSearchInput.value = "";
+        syncQuery("main");
+        syncClearVisibility();
+      });
+    }
+    document.getElementById("clearFeaturedChip")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (state.featured) document.getElementById("btnFeatured").click();
+    });
+
+    /* ----- Compact filter bar -----
+       The navbar itself stays put on this page (only the homepage hides it);
+       once the in-page form scrolls away, the filters move up into it. */
+    const NAV_H = 64;
+    const COMPACT_ON = NAV_H + 16;   // form top crosses this → compact
+    const COMPACT_OFF = NAV_H + 28;  // hysteresis so trackpad jitter can't flicker it
+
+    function setCompact(next) {
+      if (next === compact) return;
+      compact = next;
+      body.classList.toggle("is-compact", next);
+      compactBar.setAttribute("aria-hidden", String(!next));
+    }
+
+    function evaluateCompact() {
+      const top = filterForm.getBoundingClientRect().top;
+      if (window.innerWidth <= 1100) {
+        setCompact(false);
+        return;
+      }
+      if (!compact && top < COMPACT_ON) setCompact(true);
+      else if (compact && top > COMPACT_OFF) setCompact(false);
+    }
+
+    let scrollTicking = false;
+    window.addEventListener("scroll", () => {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      requestAnimationFrame(() => {
+        scrollTicking = false;
+        evaluateCompact();
+      });
+    }, { passive: true });
+
+    window.addEventListener("resize", evaluateCompact);
+    evaluateCompact();
+    updateLabels();
+    updateCount();
+
+    /* ----- Full-page circle menu (same as homepage) ----- */
+    const megaMenu = document.getElementById("megaMenu");
+    const xLines = Array.from(menuBtn.querySelectorAll(".menu-btn__x-line"));
+    let closingTimer;
+    let isAnimating = false;
+
+    function replayXDraw() {
+      xLines.forEach((line) => {
+        line.style.animation = "none";
+        line.style.strokeDashoffset = "100";
+      });
+      void menuBtn.offsetHeight;
+      xLines.forEach((line) => {
+        line.style.animation = "";
+        line.style.strokeDashoffset = "";
+      });
+    }
+
+    function placeCircleOrigin() {
+      const rect = menuBtn.getBoundingClientRect();
+      megaMenu.style.setProperty("--cx", `${rect.left + rect.width / 2}px`);
+      megaMenu.style.setProperty("--cy", `${rect.top + rect.height / 2}px`);
+    }
+
+    function openMenu() {
+      if (isAnimating) return;
+      isAnimating = true;
+      clearTimeout(closingTimer);
+      if (sheetOpen) closeSheet();
+      closePop();
+      megaMenu.classList.remove("is-closing");
+      megaMenu.style.clipPath = "";
+      placeCircleOrigin();
+      megaMenu.hidden = false;
+      megaMenu.offsetHeight;
+      megaMenu.classList.add("is-open");
+      menuBtn.classList.add("is-open");
+      replayXDraw();
+      menuBtn.setAttribute("aria-expanded", "true");
+      menuBtn.setAttribute("aria-label", "Close menu");
+      body.classList.add("is-menu-open");
+      setTimeout(() => { isAnimating = false; }, 1100);
+    }
+
+    function closeMenu() {
+      if (isAnimating && !megaMenu.classList.contains("is-open")) return;
+      isAnimating = true;
+      placeCircleOrigin();
+      megaMenu.style.clipPath = "";
+      megaMenu.classList.add("is-closing");
+      megaMenu.classList.remove("is-open");
+      menuBtn.classList.remove("is-open");
+      menuBtn.setAttribute("aria-expanded", "false");
+      menuBtn.setAttribute("aria-label", "Open menu");
+      body.classList.remove("is-menu-open");
+      clearTimeout(closingTimer);
+      closingTimer = setTimeout(() => {
+        megaMenu.classList.remove("is-closing");
+        megaMenu.hidden = true;
+        isAnimating = false;
+      }, 750);
+    }
+
+    menuBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (megaMenu.classList.contains("is-open")) closeMenu();
+      else openMenu();
+    });
+
+    menuBtn.addEventListener("mouseenter", () => {
+      if (menuBtn.classList.contains("is-open")) replayXDraw();
+    });
+
+    megaMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
+        e.preventDefault();
+        closeMenu();
+        const label = link.querySelector(".link-rise")?.dataset.text || link.textContent.trim();
+        toast(`Go to ${label || "page"}`);
+      });
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && megaMenu.classList.contains("is-open")) closeMenu();
+    });
+
+    window.addEventListener("resize", () => {
+      if (megaMenu.classList.contains("is-open")) placeCircleOrigin();
+    });
+  </script>
+  <!-- DEV TOOL — "Dropdown tweaks". Hidden unless the URL has ?tweak=1.
+       Saved values (localStorage) always apply. Once final, paste the "Copy values"
+       output into :root and delete this whole block. -->
+  <script>
+    (function dropdownTweaks() {
+      /* The panel is hidden by default. Your saved values still apply; open
+         search.html?tweak=1 to bring the panel back. */
+      var SHOW_PANEL = /[?&]tweak(=1|=true)?(&|$)/.test(window.location.search);
+
+      var KEY = "havenlist.popTweaks.v1";
+      var root = document.documentElement;
+      var EASES = {
+        "Smooth": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "Out expo": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "Ease in-out": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "Soft": "cubic-bezier(0.33, 0.1, 0.25, 1)",
+        "Overshoot": "cubic-bezier(0.34, 1.4, 0.64, 1)",
+        "Linear": "linear"
+      };
+      var DEFAULTS = {
+        open: 550, close: 300, fade: 160,
+        easeOpen: "Smooth", easeClose: "Smooth",
+        rFrom: 40, rTo: 20, gap: 10, shadow: 12
+      };
+      var SLIDERS = [
+        ["open", "Open duration", 150, 1400, 10, "ms"],
+        ["close", "Close · shrink duration", 100, 1000, 10, "ms"],
+        ["fade", "Close · content dissolve", 0, 600, 10, "ms"],
+        ["rFrom", "Start radius (button)", 0, 40, 1, "px"],
+        ["rTo", "End radius (panel)", 0, 40, 1, "px"],
+        ["gap", "Gap below button", 0, 32, 1, "px"],
+        ["shadow", "Shadow strength", 0, 30, 1, "%"]
+      ];
+
+      var v = {};
+      Object.keys(DEFAULTS).forEach(function (k) { v[k] = DEFAULTS[k]; });
+      try {
+        var saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+        Object.keys(saved).forEach(function (k) { if (k in DEFAULTS) v[k] = saved[k]; });
+      } catch (e) {}
+
+      function vars() {
+        return {
+          "--pop-open": v.open + "ms",
+          "--pop-close": v.close + "ms",
+          "--pop-fade": v.fade + "ms",
+          "--pop-ease-open": EASES[v.easeOpen] || EASES.Smooth,
+          "--pop-ease-close": EASES[v.easeClose] || EASES.Smooth,
+          "--pop-r-from": v.rFrom + "px",
+          "--pop-r-to": v.rTo + "px",
+          "--pop-gap": v.gap + "px",
+          "--pop-shadow": String(v.shadow / 100)
+        };
+      }
+
+      function apply() {
+        var all = vars();
+        Object.keys(all).forEach(function (k) { root.style.setProperty(k, all[k]); });
+        try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {}
+      }
+      apply();
+      if (!SHOW_PANEL) return;
+
+      var css = document.createElement("style");
+      css.textContent =
+        ".tw{position:fixed;left:16px;bottom:16px;z-index:400;font:12px/1.3 var(--font-ui);color:var(--ink)}" +
+        ".tw__btn{height:36px;padding:0 14px;border-radius:36px;background:var(--ink);color:#fff;font-weight:500;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.18)}" +
+        ".tw__card{position:absolute;left:0;bottom:44px;width:296px;max-height:calc(100vh - 80px);overflow:auto;padding:14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none}" +
+        ".tw.is-open .tw__card{display:block}" +
+        ".tw__title{font:500 14px var(--font-display);margin-bottom:10px;letter-spacing:-.01em}" +
+        ".tw__row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-bottom:10px}" +
+        ".tw__row label{color:var(--ink-70)}" +
+        ".tw__row output{font-variant-numeric:tabular-nums;font-weight:500}" +
+        ".tw__row input[type=range]{grid-column:1/3;width:100%;margin:0;accent-color:#1e1e1e}" +
+        ".tw__row select{grid-column:1/3;height:30px;border:1px solid var(--ink-10);border-radius:8px;padding:0 8px;background:#fff;font:inherit}" +
+        ".tw__sec{margin:12px 0 8px;font-weight:500;color:var(--ink-40);letter-spacing:.02em;text-transform:uppercase;font-size:10px}" +
+        ".tw__tests,.tw__acts{display:flex;flex-wrap:wrap;gap:6px}" +
+        ".tw__tests button,.tw__acts button{height:28px;padding:0 10px;border:1px solid var(--ink-10);border-radius:28px;background:#fff;font:500 12px var(--font-ui)}" +
+        ".tw__tests button:hover,.tw__acts button:hover{background:var(--ink-07)}" +
+        ".tw__acts .is-primary{background:var(--ink);color:#fff;border-color:var(--ink)}";
+      document.head.appendChild(css);
+
+      var wrap = document.createElement("div");
+      wrap.className = "tw";
+      wrap.innerHTML =
+        '<div class="tw__card" role="group" aria-label="Dropdown tweaks"><div class="tw__title">Dropdown tweaks</div>' +
+        '<div class="tw__sec">Test (scrolls to top)</div><div class="tw__tests"></div>' +
+        '<div class="tw__sec">Timing &amp; shape</div><div class="tw__sliders"></div>' +
+        '<div class="tw__sec">Easing</div><div class="tw__eases"></div>' +
+        '<div class="tw__sec">&nbsp;</div><div class="tw__acts"></div></div>' +
+        '<button class="tw__btn" type="button" aria-expanded="false">Dropdown tweaks</button>';
+      document.body.appendChild(wrap);
+
+      /* Don't let clicks in the panel count as "outside" clicks that close the dropdown */
+      wrap.addEventListener("click", function (e) { e.stopPropagation(); });
+
+      var toggle = wrap.querySelector(".tw__btn");
+      toggle.addEventListener("click", function () {
+        var open = wrap.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+
+      var inputs = {};
+      function row(key, label, node) {
+        var r = document.createElement("div");
+        r.className = "tw__row";
+        var l = document.createElement("label");
+        l.textContent = label;
+        r.appendChild(l);
+        return r;
+      }
+      var slidersEl = wrap.querySelector(".tw__sliders");
+      SLIDERS.forEach(function (def) {
+        var key = def[0];
+        var r = row(key, def[1]);
+        var out = document.createElement("output");
+        var input = document.createElement("input");
+        input.type = "range";
+        input.min = def[2]; input.max = def[3]; input.step = def[4];
+        function paint() { out.textContent = v[key] + def[5]; input.value = v[key]; }
+        input.addEventListener("input", function () { v[key] = Number(input.value); paint(); apply(); });
+        r.appendChild(out); r.appendChild(input);
+        slidersEl.appendChild(r);
+        inputs[key] = paint;
+        paint();
+      });
+
+      var easesEl = wrap.querySelector(".tw__eases");
+      [["easeOpen", "Open easing"], ["easeClose", "Close easing"]].forEach(function (def) {
+        var key = def[0];
+        var r = row(key, def[1]);
+        var sel = document.createElement("select");
+        Object.keys(EASES).forEach(function (name) {
+          var o = document.createElement("option");
+          o.value = name; o.textContent = name + "  " + (EASES[name] === "linear" ? "" : EASES[name].replace("cubic-bezier", ""));
+          sel.appendChild(o);
+        });
+        function paint() { sel.value = v[key]; }
+        sel.addEventListener("change", function () { v[key] = sel.value; apply(); });
+        r.appendChild(sel);
+        easesEl.appendChild(r);
+        inputs[key] = paint;
+        paint();
+      });
+
+      var tests = wrap.querySelector(".tw__tests");
+      [["Price", "btnPrice"], ["Location", "btnLocation"], ["Beds", "btnBeds"], ["More", "btnMore"]].forEach(function (def) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = def[0];
+        b.addEventListener("click", function () {
+          var target = document.getElementById(def[1]);
+          if (!target) return;
+          if (window.scrollY > 0) { window.scrollTo(0, 0); setTimeout(function () { target.click(); }, 120); }
+          else target.click();
+        });
+        tests.appendChild(b);
+      });
+
+      var acts = wrap.querySelector(".tw__acts");
+      var reset = document.createElement("button");
+      reset.type = "button"; reset.textContent = "Reset";
+      reset.addEventListener("click", function () {
+        Object.keys(DEFAULTS).forEach(function (k) { v[k] = DEFAULTS[k]; if (inputs[k]) inputs[k](); });
+        apply();
+      });
+      var copy = document.createElement("button");
+      copy.type = "button"; copy.className = "is-primary"; copy.textContent = "Copy values";
+      copy.addEventListener("click", function () {
+        var all = vars();
+        var text = ":root {\n" + Object.keys(all).map(function (k) { return "  " + k + ": " + all[k] + ";"; }).join("\n") + "\n}";
+        function done() { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy values"; }, 1400); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { window.prompt("Copy:", text); });
+        else window.prompt("Copy:", text);
+      });
+      acts.appendChild(reset); acts.appendChild(copy);
+    })();
+  </script>
+</body>
+</html>
