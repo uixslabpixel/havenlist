@@ -7,6 +7,7 @@
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
   <link rel="stylesheet" href="icons.css">
+  <link rel="stylesheet" href="components.css">
   <style>
     @font-face {
       font-family: "Inter Display";
@@ -1706,17 +1707,12 @@
     @media (max-width: 700px) { .soon { padding-top: 120px; } }
   
     /* ========== WISHLIST PAGE ========== */
-    .wl { max-width: 1440px; margin: 0 auto; padding: 64px 64px 96px; }
+    .wl { max-width: 1440px; margin: 0 auto; padding: 64px var(--page-pad) 96px; }
     .wl__top { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0 24px; }
-    .wl__back { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; height: 28px; border-radius: 18px; background: #fff; border: .5px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); font: 400 14px var(--font-ui); letter-spacing: -.01em; color: var(--ink); text-decoration: none; transition: box-shadow .25s; }
-    .wl__back:hover { box-shadow: 0 2px 8px rgba(0,0,0,.14); }
-    .wl__back path { stroke-dasharray: 100; }
-    .wl__back:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .wl__title { margin: 0; font: 500 48px/1.2 var(--font-display); letter-spacing: -.02em; }
-    .wl__lists { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 259px)); gap: 16px; padding-bottom: 8px; }
-    .wl__list { position: relative; display: flex; flex-direction: column; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
-    .wl__collage { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; aspect-ratio: 259 / 259; padding: 0; border-radius: 10px; outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
-    .wl__list.is-on .wl__collage { outline-color: var(--ink); }
+    .wl__title { margin: 0; font: 500 48px/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
+    .wl__lists { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 259px)); gap: 16px; }
+    .wl__list { position: relative; display: flex; flex-direction: column; }
+    .wl__collage { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; aspect-ratio: 1; }
     .wl__cell { border-radius: 10px; background: #ddd; overflow: hidden; }
     .wl__cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .wl__cell--empty { background: transparent; border: 1px solid rgba(0,0,0,.07); }
@@ -1729,32 +1725,16 @@
     .wl__del path { fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-dasharray: 100; }
     .wl__del:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
     .wl__del:hover path + path { animation-delay: .14s; }
-    .wl__add { align-self: start; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; aspect-ratio: 1; background: #fff; border: 1px solid rgba(30,30,30,.1); border-radius: 16px; box-shadow: 0 2px 4px rgba(0,0,0,.05); cursor: pointer; font: 500 16px var(--font-ui); letter-spacing: -.01em; color: var(--ink); transition: box-shadow .25s, transform .25s; }
-    .wl__add:hover { box-shadow: 0 6px 18px rgba(0,0,0,.1); transform: translateY(-2px); }
-    .wl__add svg path { stroke-dasharray: 100; }
-    .wl__add:hover svg path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .wl__sec { padding-top: 48px; }
-    .wl__h2 { margin: 0 0 24px; font: 500 32px/1.4 var(--font-display); letter-spacing: -.02em; }
-    .wl__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .wl__empty { grid-column: 1 / -1; color: var(--ink-70); font: 400 16px/1.5 var(--font-ui); }
-    .wl-card { display: flex; flex-direction: column; }
-    .wl-card__media { position: relative; aspect-ratio: 4 / 3.2; border-radius: 16px; overflow: hidden; background: #ddd; }
-    .wl-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .wl-card__badge { position: absolute; top: 16px; left: 16px; height: 28px; padding: 0 10px; display: inline-flex; align-items: center; border-radius: 8px; background: rgba(255,255,255,.9); border: 1px solid #fff; font: 400 14px var(--font-ui); letter-spacing: -.01em; }
-    .wl-card__fav { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 36px; background: rgba(0,0,0,.1); border: .7px solid rgba(255,255,255,.15); backdrop-filter: blur(6px); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background .25s; }
-    .wl-card__fav.is-saved .heart-outline { fill: currentColor; animation: none; }
-    .wl-card__fav:hover { background: rgba(0,0,0,.22); }
-    .wl-card__fav .heart-outline { fill: none; stroke-dasharray: 100; }
-    .wl-card__fav:hover .heart-outline { animation: draw-heart-outline 1.55s cubic-bezier(.4,0,.2,1) forwards; }
-    .wl-card__body { padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
-    .wl-card__place { margin: 0; font: 500 20px/1.2 var(--font-display); letter-spacing: -.02em; }
-    .wl-card__place a { color: inherit; text-decoration: none; }
-    .wl-card__place a::after { content: ""; position: absolute; inset: 0; }
-    .wl-card { position: relative; }
-    .wl-card__fav { z-index: 2; }
-    .wl-card__addr { margin: 0; font: 400 14px/1.4 var(--font-ui); color: rgba(30,30,30,.8); letter-spacing: -.01em; }
-    .wl-card__meta { display: flex; gap: 10px; align-items: center; font: 400 14px var(--font-ui); color: rgba(30,30,30,.8); }
-    .wl-card__price { margin-left: auto; }
+    /* Add tile: the card itself stays still — only the plus draws, when the icon is hovered */
+    .wl__add { align-self: start; width: 100%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid rgba(30,30,30,.1); border-radius: 16px; box-shadow: 0 2px 4px rgba(0,0,0,.05); cursor: pointer; font: 500 16px var(--font-ui); letter-spacing: -.01em; color: var(--ink); }
+    .wl__add-ic { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+    .wl__add-ic path { stroke-dasharray: 100; stroke-dashoffset: 0; }
+    .wl__add-ic:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
+    .wl__add-ic:hover path + path { animation-delay: .14s; }
+    .wl__sec { padding-top: 64px; }
+    .wl__h2 { margin: 0 0 24px; font: 500 32px/1.4 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
+    .wl__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
+    @media (max-width: 1100px) { .wl__grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 900px) { .wl { padding: 32px 24px 72px; } .wl__title { font-size: 36px; } .wl__lists { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
@@ -1820,15 +1800,14 @@
 
   <main class="wl">
     <div class="wl__top">
-      <a class="wl__back" href="index.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M8.5 2.5L4 7l4.5 4.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to home</a>
+      <a class="back-link" href="index.html">
+        <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+        Back to home
+      </a>
       <h1 class="wl__title">My wishlist</h1>
     </div>
     <section class="wl__lists" id="wlLists" aria-label="Wishlists"></section>
-    <section class="wl__sec" id="wlItemsSec" hidden>
-      <h2 class="wl__h2" id="wlItemsTitle"></h2>
-      <div class="wl__grid" id="wlItems"></div>
-    </section>
-    <section class="wl__sec" id="wlVisitedSec">
+    <section class="wl__sec" id="wlVisitedSec" hidden>
       <h2 class="wl__h2">Latest visited</h2>
       <div class="wl__grid" id="wlVisited"></div>
     </section>
@@ -1963,6 +1942,7 @@
 
   <script>window.HL_SMOOTH_TAU = 120;</script>
   <script src="assets/listings-store.js"></script>
+  <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
   <script>
@@ -2068,55 +2048,47 @@
 
   <script>
   (function () {
-    var W = HLWishlist, esc = W.esc, sel = null;
+    var W = HLWishlist, esc = W.esc;
     var $ = function (id) { return document.getElementById(id); };
     var X = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path pathLength="100" d="M3 3L13 13"/><path pathLength="100" d="M13 3L3 13"/></svg>';
-    var HEART = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    var iBed = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5V4.5a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0112 4.5V7.5M1.5 11.5v-2A1.5 1.5 0 013 8h8a1.5 1.5 0 011.5 1.5v2M1.5 7.5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
-    var iBath = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h9.5V9a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 9V3.5M3 3.5h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>';
-    var iArea = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 8.5L8.5 2.5l3 3-6 6-3-3zM5 6l1 1M6.5 4.5l1 1M8 3l1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    var PLUS = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path pathLength="100" d="M9 3V15" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path pathLength="100" d="M3 9H15" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+    var lastVisited = "";
 
-    function card(l) {
-      return '<article class="wl-card"><div class="wl-card__media"><img src="' + esc(l.image) + '" alt="' + esc(l.alt || l.place) + '" loading="lazy">' +
-        '<span class="wl-card__badge">' + esc(l.badge || "For sale") + '</span>' +
-        '<button class="wl-card__fav" type="button" data-wl-id="' + esc(l.id) + '" aria-label="Save ' + esc(l.place) + '">' + HEART + '</button></div>' +
-        '<div class="wl-card__body"><h3 class="wl-card__place"><a href="listing.html?id=' + encodeURIComponent(l.id) + '">' + esc(l.place) + '</a></h3>' +
-        '<p class="wl-card__addr">' + esc(l.addr) + '</p>' +
-        '<div class="wl-card__meta"><span>' + iBed + " " + esc(l.beds) + '</span><span>' + iBath + " " + esc(l.baths) + '</span><span>' + iArea + " " + esc(l.sqft) + ' ft²</span><span class="wl-card__price">' + esc(l.price) + '</span></div></div></article>';
-    }
-    function render() {
+    function renderLists() {
       var d = W.data();
-      if (!d.lists.some(function (l) { return l.id === sel; })) sel = d.lists.length ? d.lists[0].id : null;
-      var html = d.lists.map(function (l) {
-        var items = l.items.map(W.listing).filter(Boolean);
-        var cells = "";
-        for (var i = 0; i < 4; i++) cells += items[i] ? '<div class="wl__cell"><img src="' + esc(items[i].image) + '" alt=""></div>' : '<div class="wl__cell' + (i === 3 || items.length < 4 ? " wl__cell--empty" : "") + '"></div>';
-        return '<div class="wl__list' + (l.id === sel ? " is-on" : "") + '" data-id="' + esc(l.id) + '"><button class="wl__list-hit" type="button" style="all:unset;cursor:pointer;display:flex;flex-direction:column;width:100%" data-pick="' + esc(l.id) + '"><div class="wl__collage">' + cells + '</div>' +
-          '<div class="wl__meta"><div class="wl__name">' + esc(l.name) + '</div><div class="wl__count">' + items.length + ' Listing' + (items.length === 1 ? "" : "s") + ' added</div></div></button>' +
+      $("wlLists").innerHTML = d.lists.map(function (l) {
+        var items = l.items.map(W.listing).filter(Boolean), cells = "";
+        for (var i = 0; i < 4; i++) cells += items[i] ? '<div class="wl__cell"><img src="' + esc(items[i].image) + '" alt=""></div>' : '<div class="wl__cell wl__cell--empty"></div>';
+        return '<div class="wl__list"><div class="wl__collage">' + cells + '</div>' +
+          '<div class="wl__meta"><div class="wl__name">' + esc(l.name) + '</div><div class="wl__count">' + items.length + ' Listing' + (items.length === 1 ? "" : "s") + ' added</div></div>' +
           '<button class="wl__del" type="button" data-del="' + esc(l.id) + '" aria-label="Delete ' + esc(l.name) + '">' + X + '</button></div>';
-      }).join("");
-      html += '<button class="wl__add" type="button" id="wlAdd"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path pathLength="100" d="M9 3V15" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path pathLength="100" d="M3 9H15" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>Add wishlist</button>';
-      $("wlLists").innerHTML = html;
-
-      var cur = d.lists.filter(function (l) { return l.id === sel; })[0];
-      $("wlItemsSec").hidden = !cur;
-      if (cur) {
-        $("wlItemsTitle").textContent = cur.name;
-        var its = cur.items.map(W.listing).filter(Boolean);
-        $("wlItems").innerHTML = its.length ? its.map(card).join("") : '<p class="wl__empty">Nothing saved here yet. Tap the heart on any listing to add it.</p>';
-      }
-      var vis = d.visited.map(W.listing).filter(Boolean);
-      $("wlVisited").innerHTML = vis.length ? vis.map(card).join("") : '<p class="wl__empty">Listings you open will show up here.</p>';
-      W.sync();
+      }).join("") + '<button class="wl__add" type="button" id="wlAdd"><span class="wl__add-ic">' + PLUS + '</span>Add wishlist</button>';
+    }
+    /* Listings the visitor opened recently, in case they forgot to save them */
+    function renderVisited() {
+      var vis = W.data().visited.map(W.listing).filter(Boolean), key = vis.map(function (l) { return l.id; }).join();
+      $("wlVisitedSec").hidden = !vis.length;
+      if (key !== lastVisited) { lastVisited = key; HLCard.mount($("wlVisited"), vis); } else W.sync($("wlVisited"));
     }
     $("wlLists").addEventListener("click", function (e) {
-      var del = e.target.closest("[data-del]"), pick = e.target.closest("[data-pick]");
-      if (del) { var id = del.getAttribute("data-del"); W.openDelete(W.data().lists.filter(function (l) { return l.id === id; })[0], render); }
-      else if (pick) { sel = pick.getAttribute("data-pick"); render(); }
-      else if (e.target.closest("#wlAdd")) W.openCreate(function (l) { sel = l.id; render(); });
+      var del = e.target.closest("[data-del]");
+      if (del) { var id = del.getAttribute("data-del"); W.openDelete(W.data().lists.filter(function (l) { return l.id === id; })[0]); }
+      else if (e.target.closest("#wlAdd")) W.openCreate();
     });
-    document.addEventListener("wishlist:change", render);
-    render();
+    document.addEventListener("wishlist:change", renderLists);
+    renderLists(); renderVisited();
+
+    /* Same rising label as the Back to home link on All listings */
+    function addRise(el) {
+      if (el.querySelector(".rise")) return;
+      Array.from(el.childNodes).forEach(function (node) {
+        if (node.nodeType !== 3 || !node.textContent.trim()) return;
+        var clip = document.createElement("span"), label = document.createElement("span");
+        clip.className = "rise"; label.className = "rise__t"; label.textContent = node.textContent.trim();
+        el.replaceChild(clip, node); clip.appendChild(label);
+      });
+    }
+    document.querySelectorAll(".back-link").forEach(addRise);
   })();
   </script>
 </body>

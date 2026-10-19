@@ -43,7 +43,7 @@
     save(); sync();
   }
   /* Heart: add to the last-used list (creating "My wishlist" the first time), or remove everywhere */
-  function toggle(id) {
+  function toggle(id, from) {
     var d = load(), where = savedIn(id);
     if (where.length) {
       where.forEach(function (l) { l.items.splice(l.items.indexOf(id), 1); });
@@ -53,6 +53,7 @@
     var target = d.lists.filter(function (l) { return l.id === d.last; })[0] || d.lists[0] || create("My wishlist");
     target.items.push(id); d.last = target.id; save(); sync();
     toast("Saved to " + target.name);
+    if (from) fly(from);
     return true;
   }
   function visit(id) {
@@ -205,6 +206,39 @@
     el.querySelectorAll("[data-s]").forEach(function (b) { b.addEventListener("click", function () { acts[b.getAttribute("data-s")](); close(); }); });
   }
 
+
+  /* The card picture shrinks to 40x40, then flies into the navbar heart and dissolves */
+  function fly(from) {
+    var nav = document.getElementById("favBtn");
+    if (!nav || !from.animate || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    var media = from.closest(".card__media") || from.closest(".detail__top") && document.querySelector("#gallery .gallery__main");
+    var img = media && (media.tagName === "IMG" ? media : media.querySelector("img"));
+    if (!img) return;
+    var r = media.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    if (!r.width || !n.width) return;
+    var S = 40, cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    var el = document.createElement("div");
+    el.style.cssText = "position:fixed;z-index:600;pointer-events:none;overflow:hidden;background:#ddd url('" + (img.currentSrc || img.src) + "') center/cover;will-change:transform,opacity;" +
+      "left:" + r.left + "px;top:" + r.top + "px;width:" + r.width + "px;height:" + r.height + "px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18)";
+    document.body.appendChild(el);
+    var ease = "cubic-bezier(.4,0,.2,1)";
+    var a1 = el.animate([
+      { left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", borderRadius: "12px" },
+      { left: (cx - S / 2) + "px", top: (cy - S / 2) + "px", width: S + "px", height: S + "px", borderRadius: "8px" }
+    ], { duration: 360, easing: ease, fill: "forwards" });
+    a1.onfinish = function () {
+      var dx = n.left + n.width / 2 - cx, dy = n.top + n.height / 2 - cy;
+      var a2 = el.animate([
+        { transform: "translate(0,0) scale(1)", opacity: 1 },
+        { transform: "translate(" + dx + "px," + dy + "px) scale(.3)", opacity: 0 }
+      ], { duration: 620, easing: "cubic-bezier(.5,0,.75,.4)", fill: "forwards" });
+      a2.onfinish = function () {
+        el.remove();
+        nav.animate([{ transform: "scale(1)" }, { transform: "scale(1.22)" }, { transform: "scale(1)" }], { duration: 380, easing: ease });
+      };
+    };
+  }
+
   /* ---------- hearts ---------- */
   function sync(root) {
     (root || document).querySelectorAll("[data-wl-id]").forEach(function (b) {
@@ -223,7 +257,7 @@
       return;
     }
     var h = e.target.closest && e.target.closest("[data-wl-id]");
-    if (h) { e.preventDefault(); e.stopImmediatePropagation(); toggle(h.getAttribute("data-wl-id")); }
+    if (h) { e.preventDefault(); e.stopImmediatePropagation(); toggle(h.getAttribute("data-wl-id"), h); }
   }, true);
 
   document.addEventListener("DOMContentLoaded", function () {
