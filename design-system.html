@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design system — Hvnlst</title>
+  <meta name="description" content="The Hvnlst design system: colour, type, radius, elevation and motion tokens plus every shared component, rendered live from design-system.css.">
+  <meta name="robots" content="noindex">
+  <link rel="preload" href="assets/InterDisplay-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="design-system.css">
+  <style>
+    /* Documentation layout only — every component below is styled by design-system.css */
+    body { line-height: var(--lh-body); }
+    .ds { max-width: 1184px; margin: 0 auto; padding: 0 var(--page-pad) 120px; }
+    .ds-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); height: var(--nav-h); }
+    .ds-head .logo { width: auto; }
+    .ds-hero { padding: 72px 0 48px; border-bottom: 1px solid var(--ink-07); }
+    .ds-hero h1 { font: 500 var(--fs-display)/1.05 var(--font-display); letter-spacing: var(--tracking-tight); }
+    .ds-hero p { max-width: 620px; margin-top: var(--space-4); font-size: var(--fs-title-sm); color: var(--ink-70); }
+    .ds-toc { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-8); }
+    .ds-sec { padding: 64px 0 0; }
+    .ds-sec > h2 { font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); }
+    .ds-sec > p { max-width: 680px; margin-top: var(--space-2); color: var(--ink-70); }
+    .ds-sub { margin-top: var(--space-10); }
+    .ds-sub > h3 { font: 500 var(--fs-title-sm)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); }
+    .ds-sub > p { margin-top: var(--space-1); font-size: var(--fs-small); color: var(--ink-70); }
+    .ds-board { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4); margin-top: var(--space-4); padding: var(--space-8); background: var(--white); border: 1px solid var(--ink-07); border-radius: var(--radius-xl); }
+    .ds-board--dark { background: var(--ink); }
+    .ds-board--col { flex-direction: column; align-items: stretch; }
+    .ds-code { display: inline-block; font: 400 var(--fs-caption)/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-70); }
+    .ds-item { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+    .ds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+    .ds-swatch { overflow: hidden; background: var(--white); border: 1px solid var(--ink-07); border-radius: var(--radius-lg); }
+    .ds-swatch__chip { height: 88px; border-bottom: 1px solid var(--ink-07); }
+    .ds-swatch__meta { padding: var(--space-3); font-size: var(--fs-small); }
+    .ds-swatch__meta b { display: block; font-weight: 500; }
+    .ds-type { display: grid; grid-template-columns: 200px 1fr; gap: var(--space-6); align-items: baseline; padding: var(--space-4) 0; border-bottom: 1px solid var(--ink-07); }
+    .ds-type:last-child { border-bottom: 0; }
+    .ds-box { width: 96px; height: 96px; background: var(--white); border: 1px solid var(--ink-10); }
+    .ds-space { height: 16px; background: var(--ink); border-radius: 2px; }
+    .ds-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 16px; margin-top: var(--space-4); }
+    .ds-cards .nb-card__media { height: 240px; }
+    .ds-field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); width: 100%; }
+    .ds-toast-demo .toast { position: static; transform: none; opacity: 1; visibility: visible; }
+    @media (max-width: 860px) {
+      .ds-cards, .ds-field-row { grid-template-columns: 1fr; }
+      .ds-type { grid-template-columns: 1fr; gap: var(--space-1); }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#1E1E1E" stop-opacity="0.7"/>
+        <stop offset="1" stop-color="#1E1E1E"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="ds">
+    <header class="ds-head">
+      <a class="logo" href="index.html">Hvnlst.</a>
+      <a class="hl-btn hl-btn--white" href="index.html"><span class="hl-btn__inner">Back to site</span></a>
+    </header>
+
+    <main>
+      <section class="ds-hero" aria-labelledby="dsTitle">
+        <h1 id="dsTitle">Hvnlst design system</h1>
+        <p>One stylesheet, <code class="ds-code">design-system.css</code>, holds every token and shared component. Pages only add layout on top; they never restyle a component.</p>
+        <nav class="ds-toc" aria-label="Sections">
+          <a class="chip" href="#color">Colour</a>
+          <a class="chip" href="#type">Typography</a>
+          <a class="chip" href="#shape">Radius &amp; elevation</a>
+          <a class="chip" href="#space">Spacing &amp; motion</a>
+          <a class="chip" href="#buttons">Buttons</a>
+          <a class="chip" href="#links">Text links</a>
+          <a class="chip" href="#inputs">Inputs</a>
+          <a class="chip" href="#chips">Chips &amp; filters</a>
+          <a class="chip" href="#nav">Pagination</a>
+          <a class="chip" href="#cards">Cards</a>
+          <a class="chip" href="#feedback">Feedback</a>
+        </nav>
+      </section>
+
+      <!-- ============ TOKENS ============ -->
+      <section class="ds-sec" id="color" aria-labelledby="hColor">
+        <h2 id="hColor">Colour</h2>
+        <p>Ink is the only text colour. Lighter text, hairlines and fills are ink at a fixed alpha, so everything stays in one tone.</p>
+        <div class="ds-grid" id="swatches"></div>
+      </section>
+
+      <section class="ds-sec" id="type" aria-labelledby="hType">
+        <h2 id="hType">Typography</h2>
+        <p>Inter Display for headings and titles, Geist for interface text. Display text uses −0.02em tracking, UI text −0.01em.</p>
+        <div class="ds-board ds-board--col">
+          <div class="ds-type"><span class="ds-code">--fs-display · Inter Display 500</span><span style="font:500 var(--fs-display)/1.05 var(--font-display);letter-spacing:var(--tracking-tight)">Find your livings</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-section · Inter Display 500</span><span style="font:500 var(--fs-section)/1.2 var(--font-display);letter-spacing:var(--tracking-tight)">Featured listings</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-heading · 32px</span><span style="font:500 var(--fs-heading)/1.2 var(--font-display);letter-spacing:var(--tracking-tight)">Neighborhood guide</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-title · 24px</span><span style="font:500 var(--fs-title)/1.2 var(--font-display);letter-spacing:var(--tracking-tight)">Panel title</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-title-sm · 20px</span><span style="font:500 var(--fs-title-sm)/1.25 var(--font-display);letter-spacing:var(--tracking-tight)">Pacific Heights</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-body · Geist 400</span><span style="font:400 var(--fs-body)/1.4 var(--font-ui)">Light-filled homes across the Bay Area, curated by local agents.</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-small · Geist 400/500</span><span style="font:400 var(--fs-small)/1.4 var(--font-ui);letter-spacing:var(--tracking-ui);color:var(--ink-70)">2250 Vallejo St, San Francisco</span></div>
+          <div class="ds-type"><span class="ds-code">--fs-caption · 12px</span><span style="font:400 var(--fs-caption)/1.4 var(--font-ui);color:var(--ink-70)">Updated 2 days ago</span></div>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="shape" aria-labelledby="hShape">
+        <h2 id="hShape">Radius &amp; elevation</h2>
+        <p>Controls are pills; cards and panels use 24px; media inside a card uses 16px. Shadows stay soft and low.</p>
+        <div class="ds-board" id="radii"></div>
+        <div class="ds-board" id="shadows" style="background:var(--paper)"></div>
+      </section>
+
+      <section class="ds-sec" id="space" aria-labelledby="hSpace">
+        <h2 id="hSpace">Spacing &amp; motion</h2>
+        <p>A 4px base. Page edges use <code class="ds-code">--page-pad</code> (64px, 24px on phones); controls are <code class="ds-code">--control-h</code> (40px) tall.</p>
+        <div class="ds-board ds-board--col" id="spaces"></div>
+        <div class="ds-board ds-board--col" id="motion"></div>
+      </section>
+
+      <!-- ============ COMPONENTS ============ -->
+      <section class="ds-sec" id="buttons" aria-labelledby="hButtons">
+        <h2 id="hButtons">Buttons</h2>
+        <p>One button component, <code class="ds-code">.hl-btn</code>, in two tones. Hover reveals the label letter by letter; white buttons also fill with the hover veil.</p>
+        <div class="ds-sub">
+          <h3>Primary and secondary</h3>
+          <p>.hl-btn.hl-btn--black · .hl-btn.hl-btn--white · add .hl-btn--lg for hero calls to action</p>
+          <div class="ds-board">
+            <button class="hl-btn hl-btn--black" type="button"><span class="hl-btn__inner">Sell with us</span></button>
+            <button class="hl-btn hl-btn--white" type="button"><span class="hl-btn__inner">Learn more</span></button>
+            <a class="hl-btn hl-btn--lg hl-btn--black" href="#buttons"><span class="hl-btn__inner">View listings</span></a>
+            <a class="hl-btn hl-btn--lg hl-btn--white" href="#buttons"><span class="hl-btn__inner">Contact us</span></a>
+          </div>
+        </div>
+        <div class="ds-sub">
+          <h3>Icon buttons</h3>
+          <p>.icon-btn (navbar / detail actions) · .ui-btn (round arrow) · .ui-btn--raised for “view all” links</p>
+          <div class="ds-board">
+            <div class="detail__actions" style="display:flex;gap:8px">
+              <button class="icon-btn icon-btn--fav" type="button" aria-label="Save">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <button class="ui-btn" type="button" aria-label="Next"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+            <a class="ui-btn ui-btn--raised" href="#buttons" aria-label="View all"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="links" aria-labelledby="hLinks">
+        <h2 id="hLinks">Text links</h2>
+        <p>Every text link and text button uses the same letter reveal on hover (rise.js). Arrow links draw their stroke.</p>
+        <div class="ds-board">
+          <a href="#links"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+          <a class="back-link" href="#links"><span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>Back to results</a>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="inputs" aria-labelledby="hInputs">
+        <h2 id="hInputs">Inputs</h2>
+        <p>Search lives in a pill with a clear button; forms stack a label, the field and an inline error.</p>
+        <div class="ds-sub">
+          <h3>Search field</h3>
+          <p>.filter-query</p>
+          <div class="ds-board">
+            <form class="filter-form" role="search" onsubmit="return false" style="margin:0">
+              <label class="filter-query">
+                <span class="filter-query__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+                <input class="filter-query__input" type="search" placeholder="Search listings" aria-label="Search">
+              </label>
+            </form>
+          </div>
+        </div>
+        <div class="ds-sub">
+          <h3>Form field</h3>
+          <p>.ui-field · .ui-field__label · .ui-input · .ui-field__error</p>
+          <div class="ds-board">
+            <div class="ds-field-row">
+              <div class="ui-field"><label class="ui-field__label" for="dsFirst">First name</label><input class="ui-input" id="dsFirst" type="text" placeholder="Write your first name here" autocomplete="off"></div>
+              <div class="ui-field"><label class="ui-field__label" for="dsEmail">Email</label><input class="ui-input" id="dsEmail" type="email" placeholder="you@example.com" autocomplete="off"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="chips" aria-labelledby="hChips">
+        <h2 id="hChips">Chips &amp; filters</h2>
+        <p>Chips pick a quick query; filter controls open a dropdown. All share the hover veil.</p>
+        <div class="ds-sub">
+          <h3>Chips</h3>
+          <p>.chip · .type-chip (.is-active) · .loc-chip</p>
+          <div class="ds-board">
+            <button class="chip" type="button">Modern house</button>
+            <div class="type-chips" style="display:flex;gap:8px"><button class="type-chip is-active" type="button">House</button><button class="type-chip" type="button">Condo</button></div>
+            <div class="loc-chips" style="display:flex;gap:8px"><button class="loc-chip" type="button">Pacific Heights</button><button class="loc-chip" type="button">Noe Valley</button></div>
+          </div>
+        </div>
+        <div class="ds-sub">
+          <h3>Filter controls</h3>
+          <p>.filter-pill · .filter-select · .filter-more</p>
+          <div class="ds-board">
+            <form class="filter-form" onsubmit="return false" style="margin:0">
+              <button class="filter-pill" type="button" aria-pressed="false">Featured</button>
+              <div class="filter-anchor"><button class="filter-select" type="button" aria-expanded="false"><span>Price range</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+              <div class="filter-anchor"><button class="filter-more" type="button" aria-label="More filters" aria-expanded="false"><svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button></div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="nav" aria-labelledby="hNav">
+        <h2 id="hNav">Pagination</h2>
+        <p>.pager, rendered by pager.js. The current page and the arrows sit on a raised white pill.</p>
+        <div class="ds-board"><nav class="pager" id="dsPager" aria-label="Pagination" style="padding:0"></nav></div>
+      </section>
+
+      <section class="ds-sec" id="cards" aria-labelledby="hCards">
+        <h2 id="hCards">Cards</h2>
+        <p>Three card types, each rendered by its own template so every page shows the same card. Images drift on scroll and zoom 3.5% on hover.</p>
+        <div class="ds-sub">
+          <h3>Listing card</h3>
+          <p>.card — listing-card.js</p>
+          <div class="ds-cards" id="dsListings"></div>
+        </div>
+        <div class="ds-sub">
+          <h3>Agent card</h3>
+          <p>.agent-card — assets/agents.js</p>
+          <div class="ds-cards" id="dsAgents"></div>
+        </div>
+        <div class="ds-sub">
+          <h3>Neighborhood card</h3>
+          <p>.nb-card — assets/neighborhoods.js</p>
+          <div class="ds-cards" id="dsNeighborhoods"></div>
+        </div>
+      </section>
+
+      <section class="ds-sec" id="feedback" aria-labelledby="hFeedback">
+        <h2 id="hFeedback">Feedback</h2>
+        <p>.toast confirms an action at the bottom of the screen.</p>
+        <div class="ds-board ds-toast-demo"><div class="toast is-visible" role="status">Saved to your wishlist</div></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/listings-store.js"></script>
+  <script src="assets/agents.js"></script>
+  <script src="assets/neighborhoods.js?v=2"></script>
+  <script src="listing-card.js"></script>
+  <script src="pager.js"></script>
+  <script src="wishlist.js"></script>
+  <script src="parallax.js"></script>
+  <script src="rise.js"></script>
+  <script>
+    (function () {
+      var css = getComputedStyle(document.documentElement);
+      var v = function (n) { return css.getPropertyValue(n).trim(); };
+      var $ = function (id) { return document.getElementById(id); };
+
+      $("swatches").innerHTML = [
+        ["--ink", "Text, primary buttons"], ["--ink-70", "Secondary text"], ["--ink-40", "Placeholder, disabled"], ["--ink-10", "Field borders"],
+        ["--ink-07", "Hairlines, card borders"], ["--paper", "Page background"], ["--white", "Surfaces"], ["--chip", "Filled chips"], ["--heart", "Saved state"], ["--danger", "Errors"]
+      ].map(function (c) {
+        return '<div class="ds-swatch"><div class="ds-swatch__chip" style="background:var(' + c[0] + ')"></div><div class="ds-swatch__meta"><b>' + c[0] + "</b>" + c[1] + '<br><span class="ds-code">' + v(c[0]) + "</span></div></div>";
+      }).join("");
+
+      $("radii").innerHTML = ["--radius-xs", "--radius-sm", "--radius-md", "--radius-lg", "--radius-xl", "--radius-pill"].map(function (r) {
+        return '<div class="ds-item"><div class="ds-box" style="border-radius:var(' + r + ')"></div><span class="ds-code">' + r + " · " + v(r) + "</span></div>";
+      }).join("");
+      $("shadows").innerHTML = ["--shadow-xs", "--shadow-sm", "--shadow-card", "--shadow-pop"].map(function (s) {
+        return '<div class="ds-item"><div class="ds-box" style="border:0;border-radius:var(--radius-xl);box-shadow:var(' + s + ')"></div><span class="ds-code">' + s + "</span></div>";
+      }).join("");
+      $("spaces").innerHTML = ["--space-1", "--space-2", "--space-3", "--space-4", "--space-6", "--space-8", "--space-10", "--space-16"].map(function (s) {
+        return '<div class="ds-type" style="grid-template-columns:200px 1fr"><span class="ds-code">' + s + " · " + v(s) + '</span><span class="ds-space" style="width:var(' + s + ')"></span></div>';
+      }).join("");
+      $("motion").innerHTML = [["--ease", "Default UI easing"], ["--ease-out", "Entrances, letter reveal"], ["--ease-soft", "Hover veil, image zoom"], ["--ease-morph", "Navbar and dropdown morphs"], ["--dur", "Base duration"]].map(function (m) {
+        return '<div class="ds-type"><span class="ds-code">' + m[0] + "</span><span>" + m[1] + ' <span class="ds-code">' + v(m[0]) + "</span></span></div>";
+      }).join("");
+
+      function pager(page) { HLPager.mount($("dsPager"), { total: 60, pageSize: 12, page: page, onChange: pager }); }
+      pager(2);
+      HLCard.mount($("dsListings"), HavenlistStore.all().slice(0, 3));
+      HLAgents.mount($("dsAgents"), HLAgents.all().slice(0, 3));
+      HLNeighborhoods.mount($("dsNeighborhoods"), HLNeighborhoods.all().slice(0, 3));
+    })();
+  </script>
+</body>
+</html>
