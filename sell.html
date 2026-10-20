@@ -1686,7 +1686,7 @@
     .sl-form__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 10px; }
     .sl-form__full { grid-column: 1 / -1; }
     .sl-submit { width: 100%; height: 44px; }
-    .sl-submit .hl-btn__inner { font-family: var(--font-display); }
+    .sl-submit { display: flex; } .sl-submit .hl-btn__inner { flex: 1 1 auto; justify-content: center; text-align: center; }
     .sl-submit.is-busy { pointer-events: none; opacity: 0.7; }
 
     .sl-why { max-width: 1440px; margin: 0 auto; padding: 80px var(--page-pad) 0; display: flex; flex-direction: column; gap: 32px; }
@@ -1701,16 +1701,16 @@
     .sl-how__left { display: flex; flex-direction: column; justify-content: space-between; gap: 48px; }
     .sl-steps { display: flex; flex-direction: column; gap: 4px; }
     .sl-step { border-radius: 16px; transition: background-color 0.5s var(--ease), box-shadow 0.5s var(--ease); }
-    .sl-step.is-open { background: var(--white); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03); }
-    .sl-step__btn { display: block; width: 100%; padding: 12px 24px; text-align: left; }
-    .sl-step__title { font: 500 24px/1.2 var(--font-display); letter-spacing: -0.02em; color: rgba(30, 30, 30, 0.38); transition: color 0.5s var(--ease); }
+    .sl-step.is-open { background: transparent; }
+    .sl-step__btn { display: block; width: 100%; padding: 12px 0; text-align: left; }
+    .sl-step__title { font: 500 32px/1.2 var(--font-display); letter-spacing: -0.02em; color: rgba(30, 30, 30, 0.38); transition: color 0.5s var(--ease); }
     .sl-step:hover .sl-step__title { color: rgba(30, 30, 30, 0.7); }
     .sl-step.is-open .sl-step__title { color: var(--ink); }
-    .sl-step.is-open .sl-step__btn { padding-top: 16px; padding-bottom: 4px; }
+    .sl-step.is-open .sl-step__btn { padding-bottom: 8px; }
     .sl-step__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.6s cubic-bezier(0.38, 0, 0, 1); }
     .sl-step.is-open .sl-step__body { grid-template-rows: 1fr; }
-    .sl-step__body > p { overflow: hidden; margin: 0; padding: 0 24px; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); opacity: 0; transition: opacity 0.4s var(--ease), padding 0.6s cubic-bezier(0.38, 0, 0, 1); }
-    .sl-step.is-open .sl-step__body > p { opacity: 1; padding: 0 24px 20px; transition-delay: 0.12s, 0s; }
+    .sl-step__body > p { overflow: hidden; margin: 0; padding: 0; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); opacity: 0; transition: opacity 0.4s var(--ease), padding 0.6s cubic-bezier(0.38, 0, 0, 1); }
+    .sl-step.is-open .sl-step__body > p { opacity: 1; padding: 0 0 20px; transition-delay: 0.12s, 0s; }
     .sl-how__media { position: relative; min-height: 440px; border-radius: 24px; overflow: hidden; background: #dcdcdc; }
     .sl-how__img { position: absolute; inset: 0; overflow: hidden; visibility: hidden; will-change: clip-path; }
     .sl-how__img.is-active { visibility: visible; z-index: 1; }
@@ -1798,7 +1798,7 @@
           <h1 data-reveal>Sell with Havenlist</h1>
           <p data-reveal data-reveal-delay="100">Get a free market valuation and a tailored selling strategy from our top agents.</p>
           <div class="sl-hero__cta" data-reveal data-reveal-delay="200">
-            <a class="hl-btn hl-btn--white" href="#form" id="slContact"><span class="hl-btn__inner">Contact us</span></a>
+            <a class="hl-btn hl-btn--lg hl-btn--white" href="#form" id="slContact"><span class="hl-btn__inner">Contact us</span></a>
             <a class="sl-link" href="#how" id="slLearn">Learn more</a>
           </div>
         </div>
@@ -2006,10 +2006,10 @@
         function render(out, inn, dir, e) {
           var hid = ((1 - e) * 100).toFixed(3) + "%";
           imgs[inn].style.visibility = "visible"; imgs[inn].style.zIndex = "2";
-          imgs[inn].style.clipPath = dir > 0 ? "inset(0 0 0 " + hid + ")" : "inset(0 " + hid + " 0 0)";
-          pics[inn].style.transform = "translate3d(" + (dir * (1 - e) * 28).toFixed(3) + "%,0,0) scale(" + (1.05 + (1 - e) * 0.1).toFixed(4) + ")";
+          imgs[inn].style.clipPath = dir > 0 ? "inset(" + hid + " 0 0 0)" : "inset(0 0 " + hid + " 0)";
+          pics[inn].style.transform = "translate3d(0," + (dir * (1 - e) * 22).toFixed(3) + "%,0) scale(" + (1.05 + (1 - e) * 0.1).toFixed(4) + ")";
           imgs[out].style.visibility = "visible"; imgs[out].style.zIndex = "1";
-          pics[out].style.transform = "translate3d(" + (-dir * e * 14).toFixed(3) + "%,0,0) scale(" + (1.05 - e * 0.05).toFixed(4) + ")";
+          pics[out].style.transform = "translate3d(0," + (-dir * e * 12).toFixed(3) + "%,0) scale(" + (1.05 - e * 0.05).toFixed(4) + ")";
         }
         function settle(n) { if (raf) cancelAnimationFrame(raf); raf = 0; imgs.forEach(function (el, i) { el.classList.toggle("is-active", i === n); el.style.cssText = ""; pics[i].style.transform = ""; }); cur = n; busy = false; }
         function go(n) {

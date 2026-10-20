@@ -1572,6 +1572,14 @@
       border-color: transparent;
     }
 
+    @media (max-width: 720px) {
+      .neighborhoods__title { justify-self: stretch; }
+      .neighborhoods__stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; justify-items: center; gap: 20px; height: auto; }
+      .neighborhoods__media { order: 1; width: min(100%, 34vh); height: auto; aspect-ratio: 1 / 1; }
+      .neighborhoods__list { order: 2; align-items: center; text-align: center; width: 100%; gap: 4px; }
+      .neighborhoods__stage > :not(.neighborhoods__list):not(.neighborhoods__media) { order: 3; justify-self: center; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .neighborhoods__label,
       .neighborhoods__bg,

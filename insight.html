@@ -1680,9 +1680,9 @@
     .ind-body { display: grid; grid-template-columns: 406px minmax(0, 1fr); padding: 0 var(--page-pad); max-width: 1440px; margin: 0 auto; }
     .ind-toc { padding: 40px 0; }
     .ind-toc nav { position: sticky; top: calc(var(--nav-h) + 40px); display: flex; flex-direction: column; gap: 8px; }
-    .ind-toc a { font: 500 16px/1.5 var(--font-ui); letter-spacing: -0.01em; color: rgba(51, 51, 51, 0.4); transition: color 0.35s var(--ease), transform 0.5s var(--ease-slide, cubic-bezier(.38,0,0,1)); }
-    .ind-toc a:hover { color: rgba(51, 51, 51, 0.75); }
-    .ind-toc a.is-active { color: rgb(51, 51, 51); transform: translateX(6px); }
+    .ind-toc a { font: 500 16px/1.5 var(--font-ui); letter-spacing: -0.01em; color: rgba(30, 30, 30, 0.4); transition: color 0.35s var(--ease); }
+    .ind-toc a:hover { color: rgba(30, 30, 30, 0.75); }
+    .ind-toc a.is-active { color: var(--ink); }
     .ind-article { padding: 40px 0 40px; display: flex; flex-direction: column; gap: 40px; max-width: 842px; }
     .ind-sec { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: calc(var(--nav-h) + 32px); }
     .ind-sec h2, .ind-news h2 { margin: 0; font: 500 24px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }

@@ -2033,8 +2033,6 @@
     /* Same section as the homepage's Featured Listings; the page's own navbar offset is added on top */
     .nbf { padding-top: var(--nav-h); }
     @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 24px); } }
-    /* The navbar filter bar is not used on this page (it lives on the neighborhood detail page) */
-    .compact-bar, .filter-sheet { display: none !important; }
     .nb-more { margin-top: 0; background: transparent; box-shadow: none; padding-top: 32px; scroll-margin-top: var(--nav-h); }
     .nb-more .search-title { font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; }
     .nbs { padding: 16px var(--page-pad) 64px; }
@@ -2095,8 +2093,7 @@
   </header>
 
   <section class="featured nbf" aria-label="Featured neighborhoods">
-    <div class="featured__head"><div class="featured__title-row"><h1 class="featured__title">Featured Neighborhoods</h1>
-      <a class="ui-btn ui-btn--raised featured__all" href="#more" id="nbMoreLink" aria-label="See more neighborhoods"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a></div></div>
+    <div class="featured__head"><div class="featured__title-row"><h1 class="featured__title">Featured Neighborhoods</h1></div></div>
     <div class="featured__stage">
       <div class="featured__fade featured__fade--left" aria-hidden="true"></div>
       <div class="featured__fade featured__fade--right" aria-hidden="true"></div>
@@ -2685,7 +2682,6 @@
     }
 
     function evaluateCompact() {
-      return; /* navbar filter bar is not used on this page */
       const top = filterForm.getBoundingClientRect().top;
       if (window.innerWidth <= 1100) {
         setCompact(false);

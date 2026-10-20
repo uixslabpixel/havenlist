@@ -1,10 +1,10 @@
 /* Havenlist hover fill — one hover language for every white / grey control
    (search field, dropdown fields, chips, icon buttons, pagination, outline buttons).
-   A dark veil (#1e1e1e at 3%) rises from the bottom with a convex edge and,
+   A dark veil (#1e1e1e at 1%) rises from the bottom with a convex edge and,
    when the pointer leaves, drains back down. No colour swap, no jump. */
 
 :root {
-  --hover-veil: rgba(30, 30, 30, 0.03);
+  --hover-veil: rgba(30, 30, 30, 0.01);
   --hover-dur: 0.6s;
   --hover-ease: cubic-bezier(0.33, 0.1, 0.25, 1);
 }
@@ -91,6 +91,10 @@ a:hover .tx__c, button:hover .tx__c, a:focus-visible .tx__c, button:focus-visibl
 @media (max-width: 860px) {
   .nav-links { display: none !important; }
 }
-html { overflow-x: clip; }
+html, html body { overflow-x: clip; }
 .nav-links { padding-inline: 16px; }
 .ui-input { position: relative; }
+
+/* Hero CTAs on inner pages share the homepage's large button */
+.hl-btn.hl-btn--lg { height: 52px; }
+.hl-btn.hl-btn--lg .hl-btn__inner { padding: 0 22px; }

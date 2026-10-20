@@ -52,11 +52,21 @@
   function href(g) { return "neighborhood.html?id=" + encodeURIComponent(g.id); }
   function price(g) { return "$" + g.avg.toFixed(1) + "M"; }
 
+  /* Same markup and classes as the listing card (listing-card.js) so structure, parallax and hover match */
   function cardHTML(g) {
-    return '<a class="nb-card" href="' + href(g) + '">' +
-      '<div class="nb-card__media"><img src="' + esc(g.image) + '" alt="' + esc(g.name) + '" loading="lazy" width="632" height="640"></div>' +
-      '<div class="nb-card__body"><h3 class="nb-card__name">' + esc(g.name) + '</h3>' +
-      '<p class="nb-card__meta">' + price(g) + " Avg price (" + g.count + " Listings)</p></div></a>";
+    return '<article class="card">' +
+      '<div class="card__media">' +
+        '<img src="' + esc(g.image) + '" alt="' + esc(g.name) + '" loading="lazy" width="800" height="809">' +
+        '<span class="card__badge">' + esc(g.area) + "</span>" +
+      "</div>" +
+      '<div class="card__body">' +
+        '<h3 class="card__place"><a class="card__link" href="' + href(g) + '">' + esc(g.name) + "</a></h3>" +
+        '<p class="card__addr">' + esc(window.HLNeighborhoods.place(g)) + "</p>" +
+        '<div class="card__meta">' +
+          '<span class="card__meta-item">' + g.count + " listings</span>" +
+          '<span class="card__price">' + price(g) + " avg</span>" +
+        "</div>" +
+      "</div></article>";
   }
 
   window.HLNeighborhoods = {

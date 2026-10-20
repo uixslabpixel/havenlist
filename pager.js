@@ -22,10 +22,10 @@ window.HLPager = (function () {
     if (pages <= 1) { nav.innerHTML = ""; return cur; }
     nav.innerHTML =
       '<button class="pager__btn pager__nav pager__prev" type="button" aria-label="Previous page" data-go="' + (cur - 1) + '"' + (cur === 1 ? " disabled" : "") + ">" + ARROW + "</button>" +
-      pageList(cur, pages).map(function (p) {
+      '<div class="pager__list">' + pageList(cur, pages).map(function (p) {
         return p === "…" ? '<span class="pager__gap" aria-hidden="true">…</span>'
           : '<button class="pager__btn" type="button" data-go="' + p + '" aria-label="Page ' + p + '"' + (p === cur ? ' aria-current="page"' : "") + ">" + p + "</button>";
-      }).join("") +
+      }).join("") + '</div>' +
       '<button class="pager__btn pager__nav pager__next" type="button" aria-label="Next page" data-go="' + (cur + 1) + '"' + (cur === pages ? " disabled" : "") + ">" + ARROW + "</button>";
     nav.onclick = function (e) {
       var b = e.target.closest("[data-go]");

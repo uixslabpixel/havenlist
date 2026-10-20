@@ -1657,7 +1657,7 @@
     .ins { background: var(--paper); padding-top: var(--nav-h); }
     .ins-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 72px var(--page-pad) 40px; }
     .ins-title { margin: 0; font: 500 40px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
-    .ins-lead { margin: 0; max-width: 612px; font: 400 16px/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
+    .ins-lead { text-wrap: balance; margin: 0; max-width: 612px; font: 400 16px/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
     .ins-cta { display: flex; gap: 12px; margin-top: 16px; }
 
     .ins-feature { position: relative; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 40px; max-width: 1440px; margin: 0 auto; }
@@ -1684,14 +1684,7 @@
     .ins-slide__title { margin: 0; font: 500 32px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ins-slide__desc { margin: 0; font: 400 16px/1.4 var(--font-ui); letter-spacing: -0.01em; color: rgba(30, 30, 30, 0.7); }
     .ins-slide__foot { display: flex; align-items: center; justify-content: space-between; }
-    .ins-dots { display: flex; gap: 6px; }
-    .ins-dot { position: relative; overflow: hidden; width: 12px; height: 6px; border-radius: 24px; background: rgba(30, 30, 30, 0.1); transition: width 0.6s var(--ease-featured); padding: 0; }
-    .ins-dot::after { content: ""; position: absolute; inset: 0; background: var(--ink); transform: scaleX(0); transform-origin: left; }
-    .ins-dot.is-active { width: 40px; }
-    .ins-dot.is-active::after { animation: insProg var(--ins-auto, 6s) linear forwards; }
-    .ins-feature:hover .ins-dot.is-active::after, .ins-feature:has(:focus-visible) .ins-dot.is-active::after, .ins-slides.is-drag ~ * .ins-dot::after, body.is-ins-paused .ins-dot.is-active::after { animation-play-state: paused; }
-    @keyframes insProg { to { transform: scaleX(1); } }
-    @media (prefers-reduced-motion: reduce) { .ins-dot.is-active::after { animation: none; transform: scaleX(1); } }
+    .ins-ctrls { display: flex; gap: 8px; }
     .ins-read { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border: 1px solid var(--ink-07); border-radius: 36px; background: transparent; font: 400 16px/1 var(--font-ui); color: var(--ink); transition: background 0.2s var(--ease); }
 
     .ins-more { max-width: 1440px; margin: 0 auto; padding: 72px var(--page-pad) 96px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
@@ -1718,7 +1711,7 @@
     .ins-card__body { display: flex; flex-direction: column; gap: 12px; }
     .ins-card__title { margin: 0; font: 500 20px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); }
     .ins-empty { margin: 0; padding: 48px 0; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
-    @media (max-width: 1100px) { .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ins-nav { display: none; } .ins-media { width: 40%; } }
+    @media (max-width: 1100px) { .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ins-media { width: 40%; } }
     @media (max-width: 720px) { .ins-hero, .ins-more { padding-left: 24px; padding-right: 24px; } .ins-feature { padding: 0 24px; } .ins-slides { height: auto; min-height: 560px; flex-direction: column; } .ins-media { width: 100%; height: 220px; } .ins-grid { grid-template-columns: 1fr; } }
   
     /* ---- navbar filter treatment (shared with search/agents/neighborhoods) ---- */
@@ -2331,15 +2324,13 @@
       <h1 class="ins-title">Market Insights</h1>
       <p class="ins-lead">Expert analysis, buyer guides, and neighborhood spotlights from the Havenlist team.</p>
       <div class="ins-cta">
-        <a class="hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">View listings</span></a>
-        <a class="hl-btn hl-btn--white" href="index.html"><span class="hl-btn__inner">Learn about us</span></a>
+        <a class="hl-btn hl-btn--lg hl-btn--black" href="search.html?q="><span class="hl-btn__inner">View listings</span></a>
+        <a class="hl-btn hl-btn--lg hl-btn--white" href="index.html"><span class="hl-btn__inner">Learn about us</span></a>
       </div>
     </section>
 
     <section class="ins-feature" aria-label="Featured insights">
-      <button class="ui-btn ins-nav ins-nav--prev" type="button" id="insPrev" aria-label="Previous insight"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
       <div class="ins-slides" id="insSlides"></div>
-      <button class="ui-btn ins-nav ins-nav--next" type="button" id="insNext" aria-label="Next insight"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
     </section>
 
     <section class="ins-more" aria-label="Other insights">
@@ -2495,15 +2486,19 @@
     <div class="filter-sheet__scrim" id="filterSheetScrim"></div>
     <div class="filter-sheet__panel">
       <div class="filter-sheet__inner">
-        <h2 class="filter-sheet__title">Market insights</h2>
+        <h2 class="filter-sheet__title" id="sheetTitle">All insights</h2>
         <form class="filter-form" role="search" onsubmit="return false" style="max-width:795px;width:100%;justify-content:center">
           <label class="filter-query">
             <span class="filter-query__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
             <input class="filter-query__input" id="sheetInsQuery" type="search" placeholder="Search insights here" aria-label="Search insights" autocomplete="off">
             <button class="filter-query__clear" type="button" id="sheetInsClear" aria-label="Clear search"><svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg></button>
           </label>
+          <div class="ins-dd" id="sheetDd">
+            <button class="filter-select" type="button" id="sheetTypeBtn" aria-haspopup="listbox" aria-expanded="false"><span id="sheetTypeLabel">Type</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="ins-dd__menu" id="sheetTypeMenu" role="listbox" aria-label="Type"><button class="loc-item is-active" type="button" role="option" data-type="">All types</button><button class="loc-item" type="button" role="option" data-type="Report">Report</button><button class="loc-item" type="button" role="option" data-type="Guide">Guide</button><button class="loc-item" type="button" role="option" data-type="Spotlight">Spotlight</button><button class="loc-item" type="button" role="option" data-type="Tips">Tips</button></div>
+          </div>
+          <button class="filter-more" type="button" id="sheetReset" aria-label="Reset filters"><svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4.5 8h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M6.5 11.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
         </form>
-        <div class="type-chips" id="sheetTypeChips" style="justify-content:center"><button class="type-chip is-active" type="button" data-type="">All</button><button class="type-chip" type="button" data-type="Report">Report</button><button class="type-chip" type="button" data-type="Guide">Guide</button><button class="type-chip" type="button" data-type="Spotlight">Spotlight</button><button class="type-chip" type="button" data-type="Tips">Tips</button></div>
       </div>
     </div>
   </div>
@@ -2538,6 +2533,7 @@
     function aid(t) { var D = window.HL_INSIGHTS || []; for (var i = 0; i < D.length; i++) if (D[i].title === t) return D[i].id; return 0; }
     function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     var CAL = '<svg class="ins-cal" width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>';
+    var ARROW = '<span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>';
     var slidesEl = $("insSlides"), cur = 0;
     var ease = function (t) { return t * t * t * (t * (t * 6 - 15) + 10); };
     var TX = { dur: 900, inShift: 28, outShift: 14, zoom: 10, text: 220 };
@@ -2545,7 +2541,7 @@
     slidesEl.innerHTML =
       '<div class="ins-media">' + SLIDES.map(function (sl, i) { return '<div class="ins-img' + (i === 0 ? " is-active" : "") + '"><img src="' + sl.img + '" alt="" draggable="false" ' + (i === 0 ? "" : 'loading="lazy"') + '></div>'; }).join("") + '</div>' +
       '<div class="ins-body"><div class="ins-copy is-show" id="insCopy"><div class="ins-copy-inner" id="insCopyIn"></div></div>' +
-      '<div class="ins-slide__foot"><div class="ins-dots">' + SLIDES.map(function (_, j) { return '<button class="ins-dot' + (j === 0 ? " is-active" : "") + '" type="button" data-go="' + j + '" aria-label="Show insight ' + (j + 1) + '"></button>'; }).join("") + '</div>' +
+      '<div class="ins-slide__foot"><div class="ins-ctrls"><button class="ui-btn ins-nav ins-nav--prev" type="button" id="insPrev" aria-label="Previous insight">' + ARROW + '</button><button class="ui-btn ins-nav ins-nav--next" type="button" id="insNext" aria-label="Next insight">' + ARROW + '</button></div>' +
       '<a class="ins-read" id="insRead" href="insight.html?id=0">Read more</a></div></div>';
     var imgs = Array.prototype.slice.call(slidesEl.querySelectorAll(".ins-img")), pics = imgs.map(function (e) { return e.querySelector("img"); });
     var copyEl = $("insCopy"), copyIn = $("insCopyIn"), animating = false, raf = 0, tt = null;
@@ -2555,7 +2551,6 @@
         '<div class="ins-slide__text"><h2 class="ins-slide__title">' + esc(sl.title) + '</h2><p class="ins-slide__desc">' + esc(sl.desc) + '</p></div>';
     }
     setText(0);
-    function setDots(n) { slidesEl.querySelectorAll(".ins-dot").forEach(function (d) { d.classList.toggle("is-active", Number(d.dataset.go) === n); }); }
     function renderSlide(out, inn, dir, e) {
       var hidden = ((1 - e) * 100).toFixed(3) + "%";
       imgs[inn].style.visibility = "visible"; imgs[inn].style.zIndex = "2";
@@ -2581,7 +2576,7 @@
     function showSlide(n, dir) {
       n = (n + SLIDES.length) % SLIDES.length; if (n === cur || animating) return;
       var from = cur; dir = dir || (n > cur ? "next" : "prev"); var d = dir === "next" ? 1 : -1;
-      animating = true; setDots(n); animateText(n);
+      animating = true; animateText(n);
       if (reduce) { settle(n); return; }
       renderSlide(from, n, d, 0);
       var start = performance.now();
@@ -2593,9 +2588,6 @@
     }
     $("insPrev").addEventListener("click", function () { showSlide(cur - 1, "prev"); });
     $("insNext").addEventListener("click", function () { showSlide(cur + 1, "next"); });
-    /* autoplay: the active dot fills over --ins-auto; when it ends, advance */
-    document.querySelector(".ins-feature").addEventListener("animationend", function (e) { if (e.animationName === "insProg") showSlide(cur + 1, "next"); });
-    document.addEventListener("visibilitychange", function () { document.body.classList.toggle("is-ins-paused", document.hidden); });
     /* drag / swipe + keyboard */
     slidesEl.tabIndex = 0; slidesEl.setAttribute("aria-roledescription", "carousel");
     var sx = null;
@@ -2607,9 +2599,6 @@
     slidesEl.addEventListener("keydown", function (e) {
       if (e.key === "ArrowRight") { showSlide(cur + 1, "next"); e.preventDefault(); }
       if (e.key === "ArrowLeft") { showSlide(cur - 1, "prev"); e.preventDefault(); }
-    });
-    slidesEl.addEventListener("click", function (e) {
-      var d = e.target.closest(".ins-dot"); if (d) showSlide(Number(d.dataset.go));
     });
 
     var gridEl = $("insGrid"), q = "", type = "", lastKey = "";
@@ -2648,12 +2637,15 @@
       $("compactTypeLabel").textContent = type || "Type";
       document.querySelectorAll("#sheetTypeChips .type-chip").forEach(function (b) { b.classList.toggle("is-active", b.dataset.type === type); });
       if (sheetQ.value !== $("insQuery").value) sheetQ.value = $("insQuery").value;
+      $("sheetTypeLabel").textContent = type || "Type";
+      document.querySelectorAll("#sheetTypeMenu .loc-item").forEach(function (b) { b.classList.toggle("is-active", b.dataset.type === type); });
+      var n = document.querySelectorAll("#insGrid .ins-card").length; $("sheetTitle").textContent = "All insights (" + n + ")";
     }
     function openSheet() {
       sheetOpen = true; sheetEl.classList.add("is-open"); sheetEl.setAttribute("aria-hidden", "false"); body.classList.add("is-sheet-open"); syncUI();
       setTimeout(function () { if (sheetOpen) sheetQ.focus({ preventScroll: true }); }, 380);
     }
-    function closeSheet() { sheetOpen = false; sheetEl.classList.remove("is-open"); sheetEl.setAttribute("aria-hidden", "true"); body.classList.remove("is-sheet-open"); }
+    function closeSheet() { setSdd(false); sheetOpen = false; sheetEl.classList.remove("is-open"); sheetEl.setAttribute("aria-hidden", "true"); body.classList.remove("is-sheet-open"); }
     document.querySelectorAll("[data-open-sheet]").forEach(function (el) {
       el.addEventListener("click", function (e) { if (e.target.closest(".chip__x") || !compact) return; e.preventDefault(); e.stopPropagation(); openSheet(); });
     });
@@ -2663,7 +2655,12 @@
     sheetQ.addEventListener("input", function () { $("insQuery").value = sheetQ.value; q = sheetQ.value.trim().toLowerCase(); renderGrid(); });
     $("sheetInsClear").addEventListener("click", function () { sheetQ.value = ""; $("insQuery").value = ""; q = ""; renderGrid(); sheetQ.focus(); });
     $("clearQueryChip").addEventListener("click", function (e) { e.stopPropagation(); $("insQuery").value = ""; q = ""; renderGrid(); });
-    $("sheetTypeChips").addEventListener("click", function (e) { var b = e.target.closest(".type-chip"); if (b) pickType(b.dataset.type); });
+    var sdd = $("sheetDd");
+    function setSdd(o) { sdd.classList.toggle("is-open", o); $("sheetTypeBtn").setAttribute("aria-expanded", String(o)); }
+    $("sheetTypeBtn").addEventListener("click", function (e) { e.stopPropagation(); setSdd(!sdd.classList.contains("is-open")); });
+    $("sheetTypeMenu").addEventListener("click", function (e) { var b = e.target.closest(".loc-item"); if (b) { pickType(b.dataset.type); setSdd(false); } });
+    document.addEventListener("click", function (e) { if (!e.target.closest("#sheetDd")) setSdd(false); });
+    $("sheetReset").addEventListener("click", function () { sheetQ.value = ""; $("insQuery").value = ""; q = ""; pickType(""); setSdd(false); });
     function setCompact(next) { if (next === compact) return; compact = next; body.classList.toggle("is-compact", next); compactBar.setAttribute("aria-hidden", String(!next)); }
     function evalCompact() {
       var top = $("insForm").getBoundingClientRect().top;

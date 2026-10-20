@@ -1690,10 +1690,10 @@
     .ab-story { position: relative; height: 280vh; margin-top: 40px; }
     .ab-story__pin { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 0 var(--page-pad); overflow: hidden; }
     .ab-story__text { margin: 0; max-width: 860px; text-align: center; font: 500 clamp(28px, 3.4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
-    .ab-story__text .w { color: rgba(30, 30, 30, 0.12); }
+    .ab-story__text .w { color: rgba(30, 30, 30, 0.16); }
     .ab-float { position: absolute; width: clamp(120px, 15vw, 216px); aspect-ratio: 312 / 400; object-fit: cover; border-radius: 12px; will-change: transform; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); }
-    .ab-float--l { left: clamp(24px, 4.5vw, 64px); top: 20vh; }
-    .ab-float--r { right: clamp(24px, 4.5vw, 64px); bottom: 14vh; }
+    .ab-float--l { left: clamp(24px, 4.5vw, 64px); top: 0; }
+    .ab-float--r { right: clamp(24px, 4.5vw, 64px); top: 0; }
 
     .ab-stats { max-width: 1440px; margin: 0 auto; padding: 80px var(--page-pad); display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
     .ab-stats h2 { margin: 0; max-width: 420px; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
@@ -1797,8 +1797,8 @@
       <h1 data-reveal>About Havenlist</h1>
       <p data-reveal data-reveal-delay="100">A boutique real estate agency serving the San Francisco Bay Area since 2011, offering personalized services and local expertise.</p>
       <div class="ab-hero__cta" data-reveal data-reveal-delay="200">
-        <a class="hl-btn hl-btn--black" href="search.html?q="><span class="hl-btn__inner">View listings</span></a>
-        <a class="hl-btn hl-btn--white" href="sell.html#form"><span class="hl-btn__inner">Contact us</span></a>
+        <a class="hl-btn hl-btn--lg hl-btn--black" href="search.html?q="><span class="hl-btn__inner">View listings</span></a>
+        <a class="hl-btn hl-btn--lg hl-btn--white" href="sell.html#form"><span class="hl-btn__inner">Contact us</span></a>
       </div>
     </section>
     <div class="ab-hero__img" data-clip data-parallax>
@@ -1813,7 +1813,7 @@
       <div class="ab-story__pin">
         <img class="ab-float ab-float--l" id="abFl" src="assets/about/float-left.webp" alt="" width="312" height="400">
         <img class="ab-float ab-float--r" id="abFr" src="assets/about/float-right.webp" alt="" width="312" height="400">
-        <p class="ab-story__text" id="abText"><span data-t="1">Founded with a simple belief that buying or selling a home should feel personal, not transactional, Havenlist has grown into one of the Bay Area's most trusted boutique agencies.</span> <span data-t=".42">We combine deep local expertise with modern technology to deliver a premium experience for every possible potential client.</span></p>
+        <p class="ab-story__text" id="abText"><span data-t="1">Founded with a simple belief that buying or selling a home should feel personal, not transactional, Havenlist has grown into one of the Bay Area's most trusted boutique agencies.</span> <span data-t="1">We combine deep local expertise with modern technology to deliver a premium experience for every possible potential client.</span></p>
       </div>
     </section>
 
@@ -2017,8 +2017,7 @@
         });
         var N = words.length, cur = 0, target = 0, raf = 0;
         var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
-        var easeOut = function (t) { return 1 - Math.pow(1 - t, 3); };
-        var wide = function () { return window.innerWidth > 720; };
+                var wide = function () { return window.innerWidth > 720; };
         function measure() {
           var r = story.getBoundingClientRect(), vh = window.innerHeight;
           target = wide() ? clamp(-r.top / Math.max(1, r.height - vh), 0, 1) : 1;
@@ -2027,15 +2026,17 @@
         }
         function paint(p) {
           for (var i = 0; i < N; i++) {
-            var w = words[i], k = clamp(p * (N + 8) - i, 0, 1), a = 0.12 + (w.t - 0.12) * k;
+            var w = words[i], k = clamp(p * N - i, 0, 1), a = 0.16 + (1 - 0.16) * k;
             a = Math.round(a * 100) / 100;
             if (a !== w.a) { w.a = a; w.el.style.color = "rgba(30,30,30," + a + ")"; }
           }
           if (!wide()) { fl.style.transform = fr.style.transform = ""; return; }
+          /* Each image travels the full height of the screen, bottom to top, linear in the same
+             smoothed progress that drives the word fill - so they move exactly with the colour change */
           var vh = window.innerHeight;
-          var tl = easeOut(clamp((p - 0.04) / 0.5, 0, 1)), tr = easeOut(clamp((p - 0.34) / 0.5, 0, 1));
-          fl.style.transform = "translate3d(0," + ((1 - tl) * vh * 1.05 - p * vh * 0.1).toFixed(1) + "px,0)";
-          fr.style.transform = "translate3d(0," + ((1 - tr) * vh * 1.05 - p * vh * 0.08).toFixed(1) + "px,0)";
+          var tl = clamp(p / 0.88, 0, 1), tr = clamp((p - 0.12) / 0.88, 0, 1);
+          fl.style.transform = "translate3d(0," + (vh - tl * (vh + fl.offsetHeight + 8)).toFixed(1) + "px,0)";
+          fr.style.transform = "translate3d(0," + (vh - tr * (vh + fr.offsetHeight + 8)).toFixed(1) + "px,0)";
         }
         function step() {
           raf = 0; var d = target - cur;

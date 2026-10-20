@@ -2,18 +2,19 @@
    homepage CTAs: label slides up, an identical copy rises into place).
    Watches the DOM so dynamically rendered cards (agents, neighborhoods) work too. */
 (function () {
-  var SEL = ".ins-read, .agent-card__mail, .nbp__dir, .agent-profile__mail, .nav-pill__btn, .filter-clear";
+  var SEL = ".ins-read, .agent-card__mail, .nbp__dir, .agent-profile__mail, .nav-pill__btn, .filter-clear, .hl-btn, .back-link, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email";
   function wrap(el) {
     if (el.__rise || el.querySelector(".rise, .link-rise")) { el.__rise = 1; return; }
     el.__rise = 1;
-    Array.from(el.childNodes).forEach(function (node) {
+    var host = el.querySelector(".hl-btn__inner") || el;
+    Array.from(host.childNodes).forEach(function (node) {
       var isText = node.nodeType === 3 && node.textContent.trim();
       var isSpan = node.nodeType === 1 && node.tagName === "SPAN" && !node.children.length && node.textContent.trim();
       if (!isText && !isSpan) return;
       var clip = document.createElement("span"); clip.className = "rise";
       var label = node;
       if (isText) { label = document.createElement("span"); label.textContent = node.textContent.trim(); }
-      el.replaceChild(clip, node); clip.appendChild(label); label.classList.add("rise__t");
+      host.replaceChild(clip, node); clip.appendChild(label); label.classList.add("rise__t");
     });
   }
   /* ---- Letter-by-letter reveal: letters spread out, then close in, edges first ---- */
