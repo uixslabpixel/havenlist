@@ -93,3 +93,4 @@ a:hover .tx__c, button:hover .tx__c, a:focus-visible .tx__c, button:focus-visibl
 }
 html { overflow-x: clip; }
 .nav-links { padding-inline: 16px; }
+.ui-input { position: relative; }

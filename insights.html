@@ -2512,6 +2512,7 @@
   <script src="assets/listings-store.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
+  <script src="assets/insights-data.js"></script>
   <script src="parallax.js"></script>
   <script>
     (function () {
@@ -2534,6 +2535,7 @@
       { tag: "Seller Tips", title: "How to prepare your home for a spring listing", desc: "The small updates that photograph well, from staging to light, and the timeline to work back from.", img: IMG.Tips },
       { tag: "Market Report", title: "What rates mean for buyers this spring", desc: "A plain-language look at how mortgage rates are shaping offers, inventory and negotiation room.", img: IMG.Report }
     ];
+    function aid(t) { var D = window.HL_INSIGHTS || []; for (var i = 0; i < D.length; i++) if (D[i].title === t) return D[i].id; return 0; }
     function esc(x) { return String(x).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
     var CAL = '<svg class="ins-cal" width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>';
     var slidesEl = $("insSlides"), cur = 0;
@@ -2544,11 +2546,11 @@
       '<div class="ins-media">' + SLIDES.map(function (sl, i) { return '<div class="ins-img' + (i === 0 ? " is-active" : "") + '"><img src="' + sl.img + '" alt="" draggable="false" ' + (i === 0 ? "" : 'loading="lazy"') + '></div>'; }).join("") + '</div>' +
       '<div class="ins-body"><div class="ins-copy is-show" id="insCopy"><div class="ins-copy-inner" id="insCopyIn"></div></div>' +
       '<div class="ins-slide__foot"><div class="ins-dots">' + SLIDES.map(function (_, j) { return '<button class="ins-dot' + (j === 0 ? " is-active" : "") + '" type="button" data-go="' + j + '" aria-label="Show insight ' + (j + 1) + '"></button>'; }).join("") + '</div>' +
-      '<a class="ins-read" href="#">Read more</a></div></div>';
+      '<a class="ins-read" id="insRead" href="insight.html?id=0">Read more</a></div></div>';
     var imgs = Array.prototype.slice.call(slidesEl.querySelectorAll(".ins-img")), pics = imgs.map(function (e) { return e.querySelector("img"); });
     var copyEl = $("insCopy"), copyIn = $("insCopyIn"), animating = false, raf = 0, tt = null;
     function setText(i) {
-      var sl = SLIDES[i];
+      var sl = SLIDES[i]; $("insRead").href = "insight.html?id=" + aid(sl.title);
       copyIn.innerHTML = '<div class="ins-meta"><span>' + CAL + DATE + '</span><span>' + esc(sl.tag) + '</span></div>' +
         '<div class="ins-slide__text"><h2 class="ins-slide__title">' + esc(sl.title) + '</h2><p class="ins-slide__desc">' + esc(sl.desc) + '</p></div>';
     }
@@ -2608,7 +2610,6 @@
     });
     slidesEl.addEventListener("click", function (e) {
       var d = e.target.closest(".ins-dot"); if (d) showSlide(Number(d.dataset.go));
-      if (e.target.closest(".ins-read")) e.preventDefault();
     });
 
     var gridEl = $("insGrid"), q = "", type = "", lastKey = "";
@@ -2618,11 +2619,10 @@
       $("insEmpty").hidden = list.length > 0;
       if (key === lastKey) return; lastKey = key;
       gridEl.innerHTML = list.map(function (c) {
-        return '<a class="ins-card nb-card" href="#"><div class="nb-card__media"><img src="' + c.img + '" alt="" loading="lazy"><span class="ins-tag">' + c.type + '</span></div>' +
+        return '<a class="ins-card nb-card" href="insight.html?id=' + aid(c.title) + '"><div class="nb-card__media"><img src="' + c.img + '" alt="" loading="lazy"><span class="ins-tag">' + c.type + '</span></div>' +
           '<div class="ins-card__body"><h3 class="ins-card__title">' + esc(c.title) + '</h3><div class="ins-meta"><span>' + CAL + c.date + '</span></div></div></a>';
       }).join("");
     }
-    gridEl.addEventListener("click", function (e) { if (e.target.closest(".ins-card")) e.preventDefault(); });
     $("insQuery").addEventListener("input", function (e) { q = e.target.value.trim().toLowerCase(); renderGrid(); });
     var dd = $("insDd");
     function setDd(open) { dd.classList.toggle("is-open", open); $("insTypeBtn").setAttribute("aria-expanded", String(open)); }
@@ -2770,6 +2770,7 @@
 
     })();
   </script>
+  <script src="nav-links.js"></script>
   <script src="rise.js"></script>
 </body>
 </html>
