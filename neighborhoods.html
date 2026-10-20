@@ -8,6 +8,7 @@
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="footer.css">
   <link rel="stylesheet" href="icons.css">
+  <link rel="stylesheet" href="hover.css">
   <link rel="stylesheet" href="components.css">
   <style>
     @font-face {
@@ -53,6 +54,7 @@
       --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
       --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
       --ease-morph: cubic-bezier(0.32, 0.72, 0, 1);
+      --dur-morph: 0.5s;
       --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
       --dur: 0.7s;
       /* Filter dropdown motion — live-tunable from the "Dropdown tweaks" panel */
@@ -261,7 +263,6 @@
     }
 
     .icon-btn:hover {
-      background: var(--ink-07);
       border-color: rgba(30, 30, 30, 0.18);
     }
 
@@ -433,39 +434,54 @@
       gap: 8px;
       height: 48px;
       padding: 8px 4px 8px 6px;
-      background: var(--white);
-      border: 1px solid var(--ink-07);
+      background: rgba(255, 255, 255, 0);
+      border: 1px solid transparent;
       border-radius: 46px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0);
       overflow: hidden;
       visibility: hidden;
       pointer-events: none;
       transform: translate(-50%, -50%);
       clip-path: inset(0 50% 0 50% round 46px);
       transition:
-        clip-path 0.26s var(--ease-morph),
-        visibility 0s linear 0.26s;
+        clip-path var(--dur-morph) var(--ease-morph),
+        background-color 0.2s var(--ease),
+        border-color 0.2s var(--ease),
+        box-shadow 0.2s var(--ease),
+        visibility 0s linear var(--dur-morph);
     }
 
     body.is-compact .compact-bar {
       visibility: visible;
       pointer-events: auto;
+      background: var(--white);
+      border-color: var(--ink-07);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
       /* Negative inset keeps the soft shadow visible once open */
       clip-path: inset(-8px -8px -8px -8px round 54px);
       transition:
-        clip-path 0.26s var(--ease-morph) 0.06s,
+        clip-path var(--dur-morph) var(--ease-morph),
+        background-color 0.12s var(--ease),
+        border-color 0.3s var(--ease) 0.14s,
+        box-shadow 0.3s var(--ease) 0.14s,
         visibility 0s;
     }
 
     .compact-bar > * {
       opacity: 0;
-      transition: opacity 0.08s var(--ease);
+      transform: translateY(8px);
+      transition: opacity 0.15s var(--ease), transform 0.15s var(--ease);
     }
 
     body.is-compact .compact-bar > * {
       opacity: 1;
-      transition: opacity 0.16s var(--ease) 0.2s;
+      transform: none;
+      transition: opacity 0.35s var(--ease) 0.16s, transform 0.5s var(--ease-morph) 0.16s;
     }
+    body.is-compact .compact-bar > *:nth-child(2) { transition-delay: 0.21s; }
+    body.is-compact .compact-bar > *:nth-child(3) { transition-delay: 0.26s; }
+    body.is-compact .compact-bar > *:nth-child(4) { transition-delay: 0.31s; }
+    body.is-compact .compact-bar > *:nth-child(5) { transition-delay: 0.36s; }
 
     .chip {
       display: inline-flex;
@@ -558,7 +574,6 @@
       color: var(--ink);
     }
 
-    .compact-more:hover { background: var(--ink-07); }
 
     /* ========== SEARCH HEADER ========== */
     .search-header {
@@ -743,7 +758,6 @@
       transition: background 0.2s var(--ease), border-color 0.25s var(--ease);
     }
 
-    .filter-pill:hover { background: var(--paper); }
 
     .filter-pill[aria-pressed="true"] {
       border-color: var(--ink);
@@ -769,7 +783,6 @@
       transition: background 0.2s var(--ease);
     }
 
-    .filter-select:hover { background: var(--paper); }
 
     .filter-select svg {
       opacity: 0.45;
@@ -795,7 +808,6 @@
       transition: background 0.2s var(--ease);
     }
 
-    .filter-more:hover { background: var(--paper); }
 
     /* ========== LISTINGS ========== */
     .listings {
@@ -896,7 +908,6 @@
       border-radius: 100px;
     }
 
-    .hl-btn--white:hover { filter: brightness(0.98); }
     .hl-btn--white:active { transform: scale(0.97); }
 
     .hl-btn--sm { height: 36px; }
@@ -1019,7 +1030,7 @@
       border-radius: 6px;
     }
 
-    .filter-pop__close:hover { background: var(--ink-07); color: var(--ink); }
+    .filter-pop__close:hover { color: var(--ink); }
 
     .filter-pop__body {
       padding: 20px 24px;
@@ -1244,7 +1255,6 @@
       transition: background 0.2s var(--ease);
     }
 
-    .stepper button:hover { background: var(--ink-07); }
 
     .stepper__val {
       min-width: 48px;
@@ -1543,6 +1553,7 @@
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(3) a { transition-delay: 1.01s; }
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(4) a { transition-delay: 1.08s; }
     .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(5) a { transition-delay: 1.14s; }
+    .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(6) a { transition-delay: 1.21s; }
 
     .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(1) a { transition-delay: 0.95s; }
     .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(2) a { transition-delay: 1.01s; }

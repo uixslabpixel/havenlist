@@ -72,8 +72,7 @@
   '.hlw-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 24px;height:64px}' +
   '.hlw-title{margin:0;font:500 24px/1.2 "Inter Display","Inter",system-ui,sans-serif;letter-spacing:-.02em;white-space:nowrap}' +
   '.hlw-x{width:32px;height:32px;margin-right:-8px;border:0;background:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#1e1e1e;transition:background .2s}' +
-  '.hlw-x:hover{background:rgba(30,30,30,.06)}' +
-  '.hlw-x path{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}' +
+    '.hlw-x path{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:0}' +
   '.hlw-x:hover path{animation:hlw-draw .72s cubic-bezier(.4,0,.2,1) both}' +
   '.hlw-x:hover path+path{animation-delay:.14s}' +
   '@keyframes hlw-draw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}' +
@@ -102,7 +101,7 @@
   '.hlw-item__price{font-size:14px;color:rgba(30,30,30,.8);white-space:nowrap}' +
   '.hlw-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 24px 24px}' +
   '.hlw-opt{height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid rgba(30,30,30,.07);border-radius:12px;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.03);cursor:pointer;font:400 14px "Inter Display","Inter",system-ui,sans-serif;letter-spacing:-.01em;color:#1e1e1e;transition:background .2s,border-color .2s}' +
-  '.hlw-opt:hover{background:rgba(30,30,30,.04);border-color:rgba(30,30,30,.18)}' +
+  '.hlw-opt:hover{border-color:rgba(30,30,30,.18)}' +
   '.hlw-opt img{width:16px;height:16px;object-fit:contain;flex:none}' +
   '@media (max-width:560px){.hlw-share{left:16px!important;right:16px;width:auto}.hlw-title{font-size:20px}}' +
   /* card hearts + toast */

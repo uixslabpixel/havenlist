@@ -184,6 +184,7 @@
   padding: 8px;
   min-width: 0;
   background: var(--white);
+  border: 1px solid var(--ink-07);
   border-radius: 24px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
 }
@@ -257,11 +258,13 @@
   color: var(--ink);
   transition: background 0.2s var(--ease);
 }
-.agent-card__mail:hover { background: var(--paper); }
 .agent-card__phone svg path { stroke-dasharray: 100; stroke-dashoffset: 0; }
 
 /* ---------- Neighborhood card (neighborhoods page + detail) ---------- */
 .nb-card { display: flex; flex-direction: column; gap: 24px; min-width: 0; color: inherit; text-decoration: none; }
+/* Framed card (neighborhoods grid): same thin border + soft shadow as the agent card */
+.nb-card:not(.ins-card) { gap: 8px; padding: 8px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 24px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03); }
+.nb-card:not(.ins-card) .nb-card__body { padding: 8px 16px 16px; }
 .nb-card__media { position: relative; height: 320px; border-radius: 16px; overflow: hidden; background: transparent; }
 .nb-card__media img { position: absolute; left: 0; top: -10%; width: 100%; height: 120%; object-fit: cover; translate: 0 var(--py, 0px); will-change: translate; transition: transform 0.9s var(--ease-soft); }
 .nb-card:hover .nb-card__media img { transform: scale(1.035); }
@@ -277,9 +280,8 @@
 /* ---------- Pagination (pager.js) ---------- */
 .pager { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; padding: 40px 0 0; }
 .pager[hidden] { display: none; }
-.pager__btn { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; padding: 0 12px; border: 1px solid var(--ink-07); border-radius: 40px; background: var(--white); font: 400 16px/1 var(--font-ui); color: var(--ink); transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease); }
-.pager__btn:hover { background: var(--paper); }
-.pager__btn[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.pager__btn { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; padding: 0 12px; border: 1px solid transparent; border-radius: 40px; background: transparent; font: 400 16px/1 var(--font-ui); color: var(--ink); transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease); }
+.pager__btn[aria-current="page"] { background: var(--white); border-color: var(--ink-07); }
 .pager__btn:disabled { opacity: 0.35; pointer-events: none; }
 .pager__nav { padding: 0; }
 .pager__nav .ui-arrow { display: block; width: 16px; height: 12px; }
