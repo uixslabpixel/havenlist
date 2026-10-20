@@ -207,7 +207,7 @@
   will-change: translate;
   transition: transform 0.9s var(--ease-soft);
 }
-.agent-card:hover .agent-card__media img { transform: scale(1.03); }
+.agent-card:hover .agent-card__media img { transform: scale(1.035); }
 .agent-card__fade {
   position: absolute;
   left: 0;

@@ -12,11 +12,11 @@
 :where(.filter-query, .filter-select, .filter-pill, .filter-more, .compact-select, .compact-more, .chip,
 .type-chip, .loc-chip, .filter-pop__close, .stepper button, .navbar.is-solid .icon-btn, .detail__actions .icon-btn,
 .ui-btn, .pager__btn, .agent-card__mail, .ins-read, .nbp__dir, .agent-profile__mail,
-.hl-btn--white .hl-btn__inner, .hlw-x, .hlw-opt) { position: relative; }
+.hl-btn--white .hl-btn__inner, .hlw-x, .hlw-opt, .agents__action, .agent-card__icon, .ab-member__social a) { position: relative; }
 .filter-query, .filter-select, .filter-pill, .filter-more, .compact-select, .compact-more, .chip,
 .type-chip, .loc-chip, .filter-pop__close, .stepper button, .navbar.is-solid .icon-btn, .detail__actions .icon-btn,
 .ui-btn, .pager__btn, .agent-card__mail, .ins-read, .nbp__dir, .agent-profile__mail,
-.hl-btn--white .hl-btn__inner, .hlw-x, .hlw-opt {
+.hl-btn--white .hl-btn__inner, .hlw-x, .hlw-opt, .agents__action, .agent-card__icon, .ab-member__social a {
   overflow: hidden;
   isolation: isolate;
 }
@@ -25,7 +25,8 @@
 .compact-more::after, .chip::after, .type-chip::after, .loc-chip::after, .filter-pop__close::after,
 .stepper button::after, .navbar.is-solid .icon-btn::after, .detail__actions .icon-btn::after,
 .ui-btn::after, .pager__btn::after, .agent-card__mail::after, .ins-read::after, .nbp__dir::after,
-.agent-profile__mail::after, .hl-btn--white .hl-btn__inner::after, .hlw-x::after, .hlw-opt::after {
+.agent-profile__mail::after, .hl-btn--white .hl-btn__inner::after, .hlw-x::after, .hlw-opt::after,
+.agents__action::after, .agent-card__icon::after, .ab-member__social a::after {
   content: "";
   position: absolute;
   z-index: -1;
@@ -45,7 +46,8 @@
 .loc-chip:hover::after, .filter-pop__close:hover::after, .stepper button:hover::after,
 .navbar.is-solid .icon-btn:hover::after, .detail__actions .icon-btn:hover::after, .ui-btn:hover::after,
 .pager__btn:hover::after, .agent-card__mail:hover::after, .ins-read:hover::after, .nbp__dir:hover::after,
-.agent-profile__mail:hover::after, .hl-btn--white:hover .hl-btn__inner::after, .hlw-x:hover::after, .hlw-opt:hover::after {
+.agent-profile__mail:hover::after, .hl-btn--white:hover .hl-btn__inner::after, .hlw-x:hover::after, .hlw-opt:hover::after,
+.agents__action:hover::after, .agent-card__icon:hover::after, .ab-member__social a:hover::after {
   transform: translateY(-40%);
 }
 
@@ -56,7 +58,8 @@
   .compact-more::after, .chip::after, .type-chip::after, .loc-chip::after, .filter-pop__close::after,
   .stepper button::after, .navbar.is-solid .icon-btn::after, .detail__actions .icon-btn::after,
   .ui-btn::after, .pager__btn::after, .agent-card__mail::after, .ins-read::after, .nbp__dir::after,
-  .agent-profile__mail::after, .hl-btn--white .hl-btn__inner::after, .hlw-x::after, .hlw-opt::after { transition: none; }
+  .agent-profile__mail::after, .hl-btn--white .hl-btn__inner::after, .hlw-x::after, .hlw-opt::after,
+  .agents__action::after, .agent-card__icon::after, .ab-member__social a::after { transition: none; }
 }
 
 /* ----- Heart: filled state turns red on white backgrounds (solid navbar, detail actions);

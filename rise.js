@@ -2,7 +2,7 @@
    homepage CTAs: label slides up, an identical copy rises into place).
    Watches the DOM so dynamically rendered cards (agents, neighborhoods) work too. */
 (function () {
-  var SEL = ".ins-read, .agent-card__mail, .nbp__dir, .agent-profile__mail, .nav-pill__btn, .filter-clear, .hl-btn, .back-link, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email";
+  var SEL = ".ins-read, .agent-card__mail, .nbp__dir, .agent-profile__mail, .nav-pill__btn, .filter-clear, .hl-btn, .back-link, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email, .sl-link";
   function wrap(el) {
     if (el.__rise || el.querySelector(".rise, .link-rise")) { el.__rise = 1; return; }
     el.__rise = 1;

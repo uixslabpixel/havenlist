@@ -1,0 +1,19 @@
+/* Havenlist page transitions — cross-document View Transitions (same-origin
+   navigations). The old page fades out, the new one fades in while rising 12px;
+   the navbar is its own layer so it stays put instead of fading with the page.
+   Browsers without support just switch pages as before. */
+
+@view-transition { navigation: auto; }
+
+.navbar { view-transition-name: hl-navbar; }
+
+::view-transition-old(root) { animation: hl-page-out 0.2s cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: hl-page-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+::view-transition-group(hl-navbar) { animation-duration: 0.35s; }
+
+@keyframes hl-page-out { to { opacity: 0; } }
+@keyframes hl-page-in { from { opacity: 0; transform: translate3d(0, 12px, 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}

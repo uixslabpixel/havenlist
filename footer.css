@@ -90,7 +90,6 @@
   transition: opacity 0.2s var(--ease);
 }
 
-.site-footer__contact:hover { opacity: 0.8; }
 
 .site-footer__panel {
   position: relative;

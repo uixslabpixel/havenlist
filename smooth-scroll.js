@@ -4,6 +4,14 @@
    scroll frame through the main thread and made the heavier pages stutter.
    Any wheel, touch or key press during a jump takes over immediately. */
 window.HLScroll = (function () {
+  /* Every page load starts at the top: reload and back/forward don't restore the
+     old position (it landed mid-page, often inside a pinned section). Anchored
+     URLs (sell.html#form) still go to their anchor. */
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted && !location.hash) window.scrollTo(0, 0);
+  });
+
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let gliding = null;
   let lastSet = window.scrollY;
