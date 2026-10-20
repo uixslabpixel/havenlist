@@ -71,8 +71,10 @@ window.HLParallax = (function () {
   window.addEventListener("resize", schedule);
   if (window.MutationObserver) {
     var pending = false;
-    new MutationObserver(function () {
+    new MutationObserver(function (ms) {
       if (pending) return;
+      /* rise.js rewrites hover labels constantly; only new elements can hold new cards */
+      if (!ms.some(function (m) { return Array.prototype.some.call(m.addedNodes, function (n) { return n.nodeType === 1 && n.tagName !== "SPAN"; }); })) return;
       pending = true;
       requestAnimationFrame(function () { pending = false; scan(); });
     }).observe(document.documentElement, { childList: true, subtree: true });

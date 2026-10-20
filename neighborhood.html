@@ -2044,7 +2044,7 @@
   </main>
 
   <footer class="site-footer">
-    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" decoding="async">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" loading="lazy" decoding="async">
 
     <div class="site-footer__cta">
       <h2>Ready to sell your property?</h2>
@@ -2119,7 +2119,7 @@
   <div class="mega-menu" id="megaMenu" hidden>
     <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
       <div class="mega-menu__media">
-        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" width="609" height="914">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
       </div>
 
       <div class="mega-menu__body">
@@ -2192,7 +2192,7 @@
     })();
     document.title = NB.name + " — Havenlist";
     document.getElementById("agentProfile").innerHTML =
-      '<div class="nbp"><div class="nbp__thumb"><img src="' + NB.image + '" alt="' + NB.name + '"></div>' +
+      '<div class="nbp"><div class="nbp__thumb"><img src="' + NB.image + '" alt="' + NB.name + '" decoding="async"></div>' +
       '<div class="nbp__main"><div class="nbp__row"><div><h1 class="nbp__name">' + NB.name + '</h1><p class="nbp__addr">' + NB.name + ', San Francisco, CA</p></div>' +
       '<a class="nbp__dir" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + NB.ll[0] + "," + NB.ll[1] + '">Show directions</a></div>' +
       '<p class="nbp__stats"><span>' + HLNeighborhoods.price(NB) + ' Avg price</span><span>(' + NB.count + ' Listings)</span></p></div></div>';

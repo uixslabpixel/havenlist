@@ -20,7 +20,7 @@
   /* ---- Letter-by-letter reveal: letters spread out, then close in, edges first ---- */
   var LAB = ".rise__t, .link-rise";
   function letters(el) {
-    var txt = el.dataset.text || el.textContent;
+    var txt = el.querySelector(".tx") ? el.dataset.text || el.textContent : el.textContent;
     if (el.__fx === txt && el.querySelector(".tx")) return;
     if (!txt.trim()) return;
     var chars = Array.from(txt), n = chars.filter(function (c) { return c.trim(); }).length;
@@ -39,22 +39,33 @@
     (root || document).querySelectorAll(SEL).forEach(wrap);
     (root || document).querySelectorAll(LAB).forEach(letters);
   }
-  function scan(root) { fx(root); }
-  scan();
-  var busy = false;
-  new MutationObserver(function (ms) {
-    if (busy) return; busy = true;
+  fx();
+  /* One observer, batched per frame: mutations are collected and handled in a
+     single pass, and the observer is paused while we rewrite labels so our own
+     DOM changes don't feed back into it */
+  var roots = new Set(), labs = new Set(), queued = false;
+  var mo = new MutationObserver(function (ms) {
     ms.forEach(function (m) {
       var t = m.target.nodeType === 1 ? m.target : m.target.parentElement;
       var lab = t && t.closest && t.closest(LAB);
-      if (lab && lab.__fx !== undefined) letters(lab);
-      m.addedNodes.forEach(function (n) {
-        if (n.nodeType !== 1) return;
-        if (n.matches && n.matches(SEL)) wrap(n);
-        if (n.matches && n.matches(LAB)) letters(n);
-        scan(n);
-      });
+      if (lab && lab.__fx !== undefined) labs.add(lab);
+      m.addedNodes.forEach(function (n) { if (n.nodeType === 1) roots.add(n); });
     });
-    setTimeout(function () { busy = false; }, 0);
-  }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+    if (!queued && (roots.size || labs.size)) { queued = true; requestAnimationFrame(flush); }
+  });
+  function watch() { mo.observe(document.documentElement, { childList: true, subtree: true }); }
+  function flush() {
+    queued = false;
+    mo.disconnect();
+    labs.forEach(function (l) { if (l.isConnected) letters(l); });
+    roots.forEach(function (n) {
+      if (!n.isConnected) return;
+      if (n.matches(SEL)) wrap(n);
+      if (n.matches(LAB)) letters(n);
+      fx(n);
+    });
+    labs.clear(); roots.clear();
+    watch();
+  }
+  watch();
 })();
