@@ -273,3 +273,15 @@
 .hl-nblabel { background: none; border: 0; width: 90px; text-align: center; font: 500 10px/14px var(--font-ui, system-ui); letter-spacing: 0.02em; text-transform: uppercase; color: rgba(30, 30, 30, 0.42); pointer-events: none; white-space: nowrap; }
 .hl-nblabel.is-on { color: var(--ink, #1e1e1e); }
 .hl-nolabels .hl-nblabel:not(.is-on) { display: none; }
+
+/* ---------- Pagination (pager.js) ---------- */
+.pager { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; padding: 40px 0 0; }
+.pager[hidden] { display: none; }
+.pager__btn { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; padding: 0 12px; border: 1px solid var(--ink-07); border-radius: 40px; background: var(--white); font: 400 16px/1 var(--font-ui); color: var(--ink); transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease); }
+.pager__btn:hover { background: var(--paper); }
+.pager__btn[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.pager__btn:disabled { opacity: 0.35; pointer-events: none; }
+.pager__nav { padding: 0; }
+.pager__nav .ui-arrow { display: block; width: 16px; height: 12px; }
+.pager__prev .ui-arrow { transform: scaleX(-1); }
+.pager__gap { min-width: 24px; text-align: center; color: var(--ink-70); }

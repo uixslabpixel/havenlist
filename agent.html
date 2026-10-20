@@ -801,6 +801,7 @@
     .listings {
       padding: 32px var(--page-pad) 48px;
     }
+    .listings__empty { margin: 0; padding: 64px 0; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
 
     .listings__grid {
       display: grid;
@@ -1182,7 +1183,8 @@
       color: rgba(30, 30, 30, 0.5);
     }
 
-    .loc-list { display: flex; flex-direction: column; gap: 4px; }
+    /* List rows run edge to edge of the dropdown (cancel the body padding) */
+    .loc-list { display: flex; flex-direction: column; gap: 0; margin: -8px -24px; }
 
     .loc-item {
       display: flex;
@@ -1190,8 +1192,9 @@
       justify-content: flex-start;
       width: 100%;
       height: 40px;
-      padding: 0 14px;
-      border-radius: 10px;
+      padding: 0 24px;
+      border-radius: 0;
+      transition: background 0.2s var(--ease);
       font-family: var(--font-display);
       font-size: 14px;
       letter-spacing: -0.01em;
@@ -1201,7 +1204,7 @@
     }
 
     .loc-item:hover,
-    .loc-item.is-active { background: var(--ink-07); }
+    .loc-item.is-active { background: var(--paper); }
 
     .stepper-row {
       display: flex;
@@ -1639,19 +1642,18 @@
     .agent-profile__card { display: flex; align-items: center; gap: 16px; width: min(812px, 100%); background: #fff; border-radius: 16px; padding: 16px; text-align: left; }
     .agent-profile__photo { flex: none; width: 120px; height: 120px; border-radius: 16px; background: transparent; overflow: hidden; }
     .agent-profile__photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
-    .agent-profile__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+    .agent-profile__main { flex: 1; min-width: 0; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; padding: 8px 0; }
+    .agent-profile__info { display: flex; flex-direction: column; gap: 8px; }
     .agent-profile__name { margin: 0; font: 500 20px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
-    .agent-profile__role { margin: 4px 0 0; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
     .agent-profile__stats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; padding: 0; list-style: none; font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
     .agent-profile__stats li + li::before { content: "·"; margin-right: 10px; }
-    .agent-profile__side { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-    .agent-profile__phone { display: inline-flex; align-items: center; gap: 8px; font: 400 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; }
-    .agent-profile__mail { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
+    .agent-profile__phone { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font: 400 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; }
+    .agent-profile__mail { flex: none; align-self: center; display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 16px/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
     .agent-profile__mail:hover { background: var(--paper); }
     .chip--agent { gap: 8px; padding-left: 4px; }
     .chip__avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; object-position: top; background: #f2f1ee; }
     .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
-    @media (max-width: 720px) { .agent-profile__card { flex-direction: column; align-items: flex-start; } .agent-profile__side { align-items: flex-start; flex-direction: row; flex-wrap: wrap; align-items: center; } }
+    @media (max-width: 720px) { .agent-profile__card { flex-direction: column; align-items: flex-start; }  }
   </style>
 </head>
 <body>
@@ -1680,7 +1682,7 @@
     <div class="compact-bar" id="compactBar" aria-hidden="true">
       <div class="chip chip--agent" data-open-sheet id="agentChip"><img class="chip__avatar" id="agentChipImg" alt="" width="24" height="24"><span class="chip__label" id="agentChipName"></span></div>
       <div class="chip chip--query" data-open-sheet>
-        <span class="chip__label" id="compactQueryLabel">Modern house</span>
+        <span class="chip__label" id="compactQueryLabel"></span>
         <button class="chip__x" type="button" aria-label="Clear search" id="clearQueryChip">
           <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
         </button>
@@ -1759,7 +1761,7 @@
               <path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </span>
-          <input class="filter-query__input" id="searchInput" type="search" value="Modern house" placeholder="Search here" aria-label="Search">
+          <input class="filter-query__input" id="searchInput" type="search" value="" placeholder="Search listings" aria-label="Search">
           <button class="filter-query__clear" type="button" id="searchClearBtn" aria-label="Clear search">
             <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
           </button>
@@ -1830,17 +1832,17 @@
       <div class="filter-pop__body">
         <div class="range-track">
           <div class="range-track__fill" id="priceFill"></div>
-          <input type="range" id="priceMin" min="0" max="100000" step="100" value="200">
-          <input type="range" id="priceMax" min="0" max="100000" step="100" value="100000">
+          <input type="range" id="priceMin" min="0" max="10000000" step="50000" value="0">
+          <input type="range" id="priceMax" min="0" max="10000000" step="50000" value="10000000">
         </div>
         <div class="filter-row">
           <div class="filter-field">
             <label>Minimum</label>
-            <span class="filter-value" id="priceMinLabel">$200</span>
+            <span class="filter-value" id="priceMinLabel">$0</span>
           </div>
           <div class="filter-field">
             <label>Maximum</label>
-            <span class="filter-value" id="priceMaxLabel">$100.000+</span>
+            <span class="filter-value" id="priceMaxLabel">$10M+</span>
           </div>
         </div>
       </div>
@@ -1862,24 +1864,29 @@
       <div class="filter-pop__body">
         <label class="loc-search">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.4"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <input type="search" id="locSearch" placeholder="Search city or district of your property" autocomplete="off">
+          <input type="search" id="locSearch" placeholder="Search neighborhood" autocomplete="off">
         </label>
         <div class="loc-chips">
           <span class="loc-meta">Top regions:</span>
-          <button class="loc-chip" type="button" data-loc="German">German</button>
-          <button class="loc-chip" type="button" data-loc="Japan">Japan</button>
-          <button class="loc-chip" type="button" data-loc="New York">New York</button>
-          <button class="loc-chip" type="button" data-loc="Bali">Bali</button>
+          <button class="loc-chip" type="button" data-loc="Pacific Heights">Pacific Heights</button>
+          <button class="loc-chip" type="button" data-loc="Noe Valley">Noe Valley</button>
+          <button class="loc-chip" type="button" data-loc="Marina District">Marina District</button>
+          <button class="loc-chip" type="button" data-loc="Nob Hill">Nob Hill</button>
         </div>
-        <button class="filter-clear" type="button" id="useCurrentLoc" style="align-self:flex-start">Use current location</button>
         <div class="loc-list" id="locList">
-          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (226)</button>
-          <button class="loc-item" type="button" data-loc="New York">New york (32)</button>
-          <button class="loc-item" type="button" data-loc="Los Angeles">Los angeles (48)</button>
-          <button class="loc-item" type="button" data-loc="Texas">Texas (40)</button>
-          <button class="loc-item" type="button" data-loc="Chicago">Chicago (24)</button>
-          <button class="loc-item" type="button" data-loc="San Fierro">San Fierro (18)</button>
-          <button class="loc-item" type="button" data-loc="San Francisco">San Francisco (64)</button>
+          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (12)</button>
+          <button class="loc-item" type="button" data-loc="Pacific Heights">Pacific Heights (1)</button>
+          <button class="loc-item" type="button" data-loc="Russian Hill">Russian Hill (1)</button>
+          <button class="loc-item" type="button" data-loc="Presidio Heights">Presidio Heights (1)</button>
+          <button class="loc-item" type="button" data-loc="Cole Valley">Cole Valley (1)</button>
+          <button class="loc-item" type="button" data-loc="Noe Valley">Noe Valley (1)</button>
+          <button class="loc-item" type="button" data-loc="Nob Hill">Nob Hill (1)</button>
+          <button class="loc-item" type="button" data-loc="South Beach">South Beach (1)</button>
+          <button class="loc-item" type="button" data-loc="Rincon Hill">Rincon Hill (1)</button>
+          <button class="loc-item" type="button" data-loc="Sea Cliff">Sea Cliff (1)</button>
+          <button class="loc-item" type="button" data-loc="Marina District">Marina District (1)</button>
+          <button class="loc-item" type="button" data-loc="Inner Sunset">Inner Sunset (1)</button>
+          <button class="loc-item" type="button" data-loc="Bernal Heights">Bernal Heights (1)</button>
         </div>
       </div>
     </div>
@@ -1994,7 +2001,7 @@
             <span class="filter-query__icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             </span>
-            <input class="filter-query__input" id="sheetSearchInput" type="search" placeholder="Search here" aria-label="Search">
+            <input class="filter-query__input" id="sheetSearchInput" type="search" placeholder="Search listings" aria-label="Search">
             <button class="filter-query__clear" type="button" id="sheetSearchClearBtn" aria-label="Clear search">
               <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
             </button>
@@ -2023,6 +2030,8 @@
   <main class="listings" aria-label="Property listings">
     <div class="listings__grid" id="listingsGrid"></div>
     <p class="listings__empty" id="listingsEmpty" hidden>No listings match these filters.</p>
+    <p class="listings__empty" id="listingsEmpty" hidden>No listings match your search. Try different keywords or clear some filters.</p>
+    <nav class="pager" id="pager" aria-label="Pagination" hidden></nav>
   </main>
 
   <footer class="site-footer">
@@ -2158,6 +2167,7 @@
   <script src="assets/listings-store.js"></script>
   <script src="assets/agents.js"></script>
   <script src="listing-card.js"></script>
+  <script src="pager.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
   <script>
@@ -2167,25 +2177,14 @@
     document.title = AGENT.name + " — Havenlist";
     document.getElementById("agentProfile").innerHTML =
       '<div class="agent-profile__card"><div class="agent-profile__photo"><img src="' + AGENT.photo + '" alt="' + AGENT.name + '"></div>' +
-      '<div class="agent-profile__main"><div><h1 class="agent-profile__name">' + AGENT.name + '</h1><p class="agent-profile__role">' + AGENT.role + ' · ' + AGENT.location + '</p></div>' +
-      '<ul class="agent-profile__stats"><li>' + AGENT.years + '+ years</li><li>' + (AGENT.years * 18) + '+ families</li><li>' + AGENT.rating.toFixed(1) + ' rating</li></ul></div>' +
-      '<div class="agent-profile__side"><a class="agent-profile__phone" href="tel:' + AGENT.phone.replace(/\s/g, "") + '">' + HLAgents.PHONE + '<span>' + AGENT.phone + '</span></a>' +
-      '<a class="agent-profile__mail" href="mailto:' + AGENT.email + '">Email me</a></div></div>';
+      '<div class="agent-profile__main"><div class="agent-profile__info"><h1 class="agent-profile__name">' + AGENT.name + '</h1>' +
+      '<ul class="agent-profile__stats"><li>' + AGENT.role + '</li><li>' + AGENT.years + '+ years</li><li>' + (AGENT.years * 18) + '+ families</li><li>' + AGENT.rating.toFixed(1) + ' rating</li></ul></div>' +
+      '<a class="agent-profile__phone" href="tel:' + AGENT.phone.replace(/\s/g, "") + '">' + HLAgents.PHONE + '<span>' + AGENT.phone + '</span></a></div>' +
+      '<a class="agent-profile__mail" href="mailto:' + AGENT.email + '">Email me</a></div>';
     document.getElementById("agentChipImg").src = AGENT.photo;
     document.getElementById("agentChipName").textContent = AGENT.name;
     const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-    function renderListings() {
-      const q = state.query.toLowerCase();
-      const list = LISTINGS.filter((l) =>
-        (!q || (l.place + " " + l.addr + " " + l.badge).toLowerCase().includes(q)) &&
-        (state.beds <= 0 || (state.beds >= 5 ? l.beds >= 5 : l.beds === state.beds)) &&
-        (state.baths <= 0 || (state.baths >= 5 ? l.baths >= 5 : l.baths === state.baths)));
-      const key = list.map((l) => l.id).join();
-      if (renderListings.key !== key) { renderListings.key = key; HLCard.mount(document.getElementById("listingsGrid"), list); }
-      document.getElementById("listingsEmpty").hidden = list.length > 0;
-      return list.length;
-    }
 
 
 
@@ -2216,22 +2215,22 @@
 
     /* ----- Apply URL params from homepage search ----- */
     const params = new URLSearchParams(window.location.search);
-    /* ?q= (even empty) = all listings; no q at all keeps the demo query */
-    const initialQuery = "";
+    const initialQuery = (params.get("q") || "").trim();
     const initialType = params.get("type")?.trim() || "Rent";
 
     const state = {
       query: initialQuery,
       type: initialType,
       featured: false,
-      priceMin: 200,
-      priceMax: 100000,
+      priceMin: 0,
+      priceMax: 10000000,
       location: "",
       beds: 0, // 0 = All
       baths: 0,
       propType: "House",
       facilities: [],
-      listingCount: 104,
+      listingCount: LISTINGS.length,
+      page: 1,
     };
 
     const body = document.body;
@@ -2370,15 +2369,28 @@
       toastTimer = setTimeout(() => toastEl.classList.remove("is-visible"), 2200);
     }
 
+    const PRICE_MAX = 10000000;
     function formatPrice(n) {
-      if (n >= 100000) return "$100.000+";
-      return "$" + n.toLocaleString("de-DE");
+      if (n >= PRICE_MAX) return "$10M+";
+      if (n >= 1000000) return "$" + (n / 1000000).toFixed(n % 1000000 ? 2 : 0).replace(/0$/, "").replace(/\.$/, "") + "M";
+      return "$" + Math.round(n / 1000) + "K";
     }
 
     function bedsLabel(n) {
       return n <= 0 ? "All" : n >= 5 ? "5+" : String(n);
     }
 
+    function renderListings() {
+      const q = state.query.toLowerCase();
+      const list = LISTINGS.filter((l) =>
+        (!q || (l.place + " " + l.addr + " " + l.badge).toLowerCase().includes(q)) &&
+        (state.beds <= 0 || (state.beds >= 5 ? l.beds >= 5 : l.beds === state.beds)) &&
+        (state.baths <= 0 || (state.baths >= 5 ? l.baths >= 5 : l.baths === state.baths)));
+      const key = list.map((l) => l.id).join();
+      if (renderListings.key !== key) { renderListings.key = key; HLCard.mount(document.getElementById("listingsGrid"), list); }
+      document.getElementById("listingsEmpty").hidden = list.length > 0;
+      return list.length;
+    }
     function updateCount() {
       const n = renderListings();
       state.listingCount = n;
@@ -2392,12 +2404,12 @@
     }
 
     function updateLabels() {
-      const priceDefault = state.priceMin === 200 && state.priceMax === 100000;
+      const priceDefault = state.priceMin === 0 && state.priceMax === PRICE_MAX;
       const priceText = priceDefault ? "Price range" : `${formatPrice(state.priceMin)} – ${formatPrice(state.priceMax)}`;
       document.getElementById("labelPrice").textContent = priceText;
       document.getElementById("sheetLabelPrice").textContent = priceText;
       document.getElementById("compactPriceLabel").textContent =
-        priceDefault ? "$1000-10000" : `$${state.priceMin}-${state.priceMax >= 100000 ? "100000+" : state.priceMax}`;
+        priceDefault ? "Any price" : `${formatPrice(state.priceMin)}-${formatPrice(state.priceMax)}`;
 
       const locationText = state.location || "All neighborhoods";
       document.getElementById("labelLocation").textContent = locationText;
@@ -2424,7 +2436,7 @@
       if (a > b) [a, b] = [b, a];
       state.priceMin = a;
       state.priceMax = b;
-      const max = 100000;
+      const max = PRICE_MAX;
       priceFill.style.left = `${(a / max) * 100}%`;
       priceFill.style.width = `${((b - a) / max) * 100}%`;
       document.getElementById("priceMinLabel").textContent = formatPrice(a);
@@ -2491,7 +2503,6 @@
         item.style.display = item.textContent.toLowerCase().includes(q) ? "" : "none";
       });
     });
-    document.getElementById("useCurrentLoc").addEventListener("click", () => selectLocation("San Francisco"));
 
     /* ----- Beds / baths steppers ----- */
     function setStepper(kind, delta) {
@@ -2666,7 +2677,7 @@
       btn.addEventListener("click", () => {
         const kind = btn.dataset.clear;
         if (kind === "price") {
-          priceMin.value = 200; priceMax.value = 100000; syncPriceUI();
+          priceMin.value = 0; priceMax.value = PRICE_MAX; syncPriceUI();
         } else if (kind === "beds") {
           state.beds = 0; state.baths = 0;
           document.getElementById("bedsVal").textContent = "All";
@@ -2795,6 +2806,7 @@
     window.addEventListener("resize", evaluateCompact);
     evaluateCompact();
     updateLabels();
+    window.__hlReady = true;
     updateCount();
 
     /* ----- Full-page circle menu (same as homepage) ----- */

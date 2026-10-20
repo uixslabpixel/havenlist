@@ -1706,15 +1706,15 @@
     .ins-form .filter-more { transition: background 0.2s var(--ease); }
     .ins-form .filter-more:hover { background: var(--paper); }
     .ins-dd { position: relative; flex: none; }
-    .ins-dd__menu { position: absolute; z-index: 5; top: calc(100% + 8px); right: 0; width: 200px; padding: 8px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0s linear 0.3s; }
+    .ins-dd__menu { position: absolute; z-index: 5; top: calc(100% + 8px); right: 0; width: 200px; padding: 0; overflow: hidden; background: var(--white); border: 1px solid var(--ink-07); border-radius: 16px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08); opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), visibility 0s linear 0.3s; }
     .ins-dd.is-open .ins-dd__menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
     .ins-dd .chev { transition: transform 0.3s var(--ease); }
     .ins-dd.is-open .chev { transform: rotate(180deg); }
     .filter-select { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; height: 40px; padding: 0 12px 0 16px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 40px; font: 400 16px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; transition: background 0.2s var(--ease); }
     .filter-select:hover { background: var(--paper); }
     .filter-more { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; color: var(--ink); flex-shrink: 0; }
-    .loc-item { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: 40px; padding: 0 14px; border-radius: 10px; font: 400 14px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); text-align: left; }
-    .loc-item:hover, .loc-item.is-active { background: var(--ink-07); }
+    .loc-item { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: 40px; padding: 0 20px; border-radius: 0; transition: background 0.2s var(--ease); font: 400 14px/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); text-align: left; }
+    .loc-item:hover, .loc-item.is-active { background: var(--paper); }
     .ins-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 16px; }
     .ins-card { display: flex; flex-direction: column; gap: 16px; min-width: 0; color: inherit; text-decoration: none; }
     .ins-card .nb-card__media { height: auto; aspect-ratio: 1 / 1; }

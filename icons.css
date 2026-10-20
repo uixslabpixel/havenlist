@@ -32,6 +32,8 @@
 
 .ui-btn:hover .ui-arrow path,
 .ui-btn:focus-visible .ui-arrow path,
+.pager__nav:hover .ui-arrow path,
+.pager__nav:focus-visible .ui-arrow path,
 .back-link:hover .back-link__arrow path,
 .back-link:focus-visible .back-link__arrow path {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -58,28 +60,20 @@ button:focus-visible > .x-icon .x-icon__b {
 }
 
 
-/* ----- Filter chevrons, filter-lines and search glass: drawn on hover too ----- */
-.chev path, .lines path,
-.filter-query__icon circle, .filter-query__icon path {
+/* ----- Filter-lines icon button: drawn on hover. Input fields (search box, dropdown
+   fields and their chevrons) are deliberately NOT animated. ----- */
+.lines path {
   stroke-dasharray: 100;
   stroke-dashoffset: 0;
 }
 
-button:hover > .chev path,
-button:focus-visible > .chev path,
 .filter-more:hover .lines path,
-.filter-more:focus-visible .lines path,
-.filter-query:hover .filter-query__icon circle,
-.filter-query:focus-within .filter-query__icon circle,
-.filter-query:hover .filter-query__icon path,
-.filter-query:focus-within .filter-query__icon path {
+.filter-more:focus-visible .lines path {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .filter-more:hover .lines path:nth-child(2) { animation-delay: 0.1s; }
 .filter-more:hover .lines path:nth-child(3) { animation-delay: 0.2s; }
-.filter-query:hover .filter-query__icon path,
-.filter-query:focus-within .filter-query__icon path { animation-delay: 0.2s; }
 
 /* Hearts in the navbar: same redraw on hover on every page */
 .icon-btn--fav:hover .heart-outline { animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
@@ -88,5 +82,5 @@ button:focus-visible > .chev path,
 @media (prefers-reduced-motion: reduce) {
   .ui-arrow path,
   .back-link__arrow path,
-  .x-icon path, .chev path, .lines path, .filter-query__icon path, .filter-query__icon circle { animation: none !important; }
+  .x-icon path, .lines path { animation: none !important; }
 }

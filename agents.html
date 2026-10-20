@@ -801,6 +801,7 @@
     .listings {
       padding: 32px var(--page-pad) 48px;
     }
+    .listings__empty { margin: 0; padding: 64px 0; text-align: center; font: 400 16px/1.5 var(--font-ui); color: var(--ink-70); }
 
     .listings__grid {
       display: grid;
@@ -1182,7 +1183,8 @@
       color: rgba(30, 30, 30, 0.5);
     }
 
-    .loc-list { display: flex; flex-direction: column; gap: 4px; }
+    /* List rows run edge to edge of the dropdown (cancel the body padding) */
+    .loc-list { display: flex; flex-direction: column; gap: 0; margin: -8px -24px; }
 
     .loc-item {
       display: flex;
@@ -1190,8 +1192,9 @@
       justify-content: flex-start;
       width: 100%;
       height: 40px;
-      padding: 0 14px;
-      border-radius: 10px;
+      padding: 0 24px;
+      border-radius: 0;
+      transition: background 0.2s var(--ease);
       font-family: var(--font-display);
       font-size: 14px;
       letter-spacing: -0.01em;
@@ -1201,7 +1204,7 @@
     }
 
     .loc-item:hover,
-    .loc-item.is-active { background: var(--ink-07); }
+    .loc-item.is-active { background: var(--paper); }
 
     .stepper-row {
       display: flex;
@@ -1847,6 +1850,7 @@
   <main class="agents" aria-label="Agents">
     <div class="agents__grid" id="agentsGrid"></div>
     <p class="agents__empty" id="agentsEmpty" hidden>No agents match these filters.</p>
+    <nav class="pager" id="pager" aria-label="Pagination" hidden></nav>
   </main>
 
   <footer class="site-footer">
@@ -1982,6 +1986,7 @@
   <script src="assets/listings-store.js"></script>
   <script src="assets/agents.js"></script>
   <script src="listing-card.js"></script>
+  <script src="pager.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
     <script>
@@ -2047,11 +2052,20 @@
       else list.sort((a, b) => b.rating - a.rating);
       return list;
     }
+    const PAGE_SIZE = 8; let page = 1, listKey = "";
     function render() {
       const list = visible();
-      const key = list.map((g) => g.id).join();
-      if (key !== shownKey) { shownKey = key; HLAgents.mount(document.getElementById("agentsGrid"), list); }
+      const full = list.map((g) => g.id).join();
+      if (full !== listKey) { listKey = full; page = 1; }
+      const slice = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+      const key = slice.map((g) => g.id).join();
+      if (key !== shownKey) { shownKey = key; HLAgents.mount(document.getElementById("agentsGrid"), slice); }
       document.getElementById("agentsEmpty").hidden = list.length > 0;
+      HLPager.mount(document.getElementById("pager"), { total: list.length, pageSize: PAGE_SIZE, page: page, onChange: (p) => {
+        page = p; render();
+        const top = document.getElementById("agentsGrid").getBoundingClientRect().top + window.scrollY - 120;
+        window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      } });
       const n = list.length;
       document.getElementById("moreShowCount").textContent = `Show ${n} agent${n === 1 ? "" : "s"}`;
       document.getElementById("sheetTitle").textContent = `All agents (${n})`;
@@ -2348,7 +2362,8 @@
     window.addEventListener("resize", evaluateCompact);
     evaluateCompact();
     updateLabels();
-    render();
+    window.__hlReady = true;
+    updateCount();
 
     /* ----- Full-page circle menu (same as homepage) ----- */
     const megaMenu = document.getElementById("megaMenu");
