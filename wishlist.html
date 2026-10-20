@@ -1807,10 +1807,6 @@
 
   <main class="wl">
     <div class="wl__top">
-      <a class="back-link" href="index.html">
-        <span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
-        Back to home
-      </a>
       <h1 class="wl__title">My wishlist</h1>
     </div>
     <section class="wl__lists" id="wlLists" aria-label="Wishlists"></section>
@@ -2096,9 +2092,10 @@
         el.replaceChild(clip, node); clip.appendChild(label);
       });
     }
-    document.querySelectorAll(".back-link").forEach(addRise);
+    
   })();
   </script>
+  <script src="parallax.js"></script>
   <script src="rise.js"></script>
 </body>
 </html>

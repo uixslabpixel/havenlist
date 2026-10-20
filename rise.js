@@ -16,11 +16,44 @@
       el.replaceChild(clip, node); clip.appendChild(label); label.classList.add("rise__t");
     });
   }
-  function scan(root) { (root || document).querySelectorAll(SEL).forEach(wrap); }
+  /* ---- Letter-by-letter reveal: letters spread out, then close in, edges first ---- */
+  var LAB = ".rise__t, .link-rise";
+  function letters(el) {
+    var txt = el.dataset.text || el.textContent;
+    if (el.__fx === txt && el.querySelector(".tx")) return;
+    if (!txt.trim()) return;
+    var chars = Array.from(txt), n = chars.filter(function (c) { return c.trim(); }).length;
+    var c = (n - 1) / 2, k = 0, html = "";
+    chars.forEach(function (ch) {
+      if (!ch.trim()) { html += " "; return; }
+      var norm = c ? (k - c) / c : 0; k++;
+      html += '<span class="tx__c" aria-hidden="true" style="--o:' + (norm * 0.55).toFixed(3) + "em;--d:" + ((1 - Math.abs(norm)) * 0.22).toFixed(3) + 's">' +
+        ch.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
+    });
+    el.__fx = txt;
+    el.setAttribute("data-text", txt);
+    el.innerHTML = '<span class="tx" role="text" aria-label="' + txt.replace(/"/g, "&quot;") + '">' + html + "</span>";
+  }
+  function fx(root) {
+    (root || document).querySelectorAll(SEL).forEach(wrap);
+    (root || document).querySelectorAll(LAB).forEach(letters);
+  }
+  function scan(root) { fx(root); }
   scan();
+  var busy = false;
   new MutationObserver(function (ms) {
-    ms.forEach(function (m) { m.addedNodes.forEach(function (n) {
-      if (n.nodeType !== 1) return; if (n.matches && n.matches(SEL)) wrap(n); scan(n);
-    }); });
-  }).observe(document.documentElement, { childList: true, subtree: true });
+    if (busy) return; busy = true;
+    ms.forEach(function (m) {
+      var t = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+      var lab = t && t.closest && t.closest(LAB);
+      if (lab && lab.__fx !== undefined) letters(lab);
+      m.addedNodes.forEach(function (n) {
+        if (n.nodeType !== 1) return;
+        if (n.matches && n.matches(SEL)) wrap(n);
+        if (n.matches && n.matches(LAB)) letters(n);
+        scan(n);
+      });
+    });
+    setTimeout(function () { busy = false; }, 0);
+  }).observe(document.documentElement, { childList: true, subtree: true, characterData: true });
 })();

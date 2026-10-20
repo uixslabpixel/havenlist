@@ -26,7 +26,7 @@ window.HLParallax = (function () {
 
   /* Pick up cards that were rendered (or re-rendered) since the last scan */
   function scan() {
-    var frames = document.querySelectorAll(".card__media, .nb-card__media");
+    var frames = document.querySelectorAll(".card__media, .nb-card__media, .agent-card__media");
     for (var i = 0; i < frames.length; i++) {
       var f = frames[i];
       if (known.has(f)) continue;

@@ -58,3 +58,38 @@
   .ui-btn::after, .pager__btn::after, .agent-card__mail::after, .ins-read::after, .nbp__dir::after,
   .agent-profile__mail::after, .hl-btn--white .hl-btn__inner::after, .hlw-x::after, .hlw-opt::after { transition: none; }
 }
+
+/* ----- Heart: filled state turns red on white backgrounds (solid navbar, detail actions);
+   on photos / translucent chips (.card__fav) it stays white ----- */
+.icon-btn--fav .heart-outline { transition: fill 0.3s var(--hover-ease, ease), stroke 0.3s var(--hover-ease, ease); }
+.navbar.is-solid .icon-btn--fav.is-saved .heart-outline,
+.navbar.is-solid .icon-btn--fav.is-active .heart-outline,
+.detail__actions .icon-btn--fav.is-saved .heart-outline,
+.detail__actions .icon-btn--fav.is-active .heart-outline,
+.wl .icon-btn--fav.is-saved .heart-outline { fill: #E5484D; stroke: #E5484D; }
+
+/* ----- Text hover: letters spread from the edges and close in toward the centre.
+   Replaces the old "rise" copy (see rise.js). ----- */
+.rise { height: auto !important; overflow: visible !important; }
+.rise__t { text-shadow: none !important; transform: none !important; transition: none !important; }
+.link-rise::after { display: none !important; }
+a:hover > .link-rise, a:focus-visible > .link-rise { transform: none !important; }
+.nav-links a { overflow: visible !important; }
+.tx { display: inline; }
+.tx__c { display: inline-block; white-space: pre; }
+@keyframes txIn {
+  from { opacity: 0; transform: translate3d(var(--o, 0), 0, 0) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+a:hover .tx__c, button:hover .tx__c, a:focus-visible .tx__c, button:focus-visible .tx__c {
+  animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+@media (prefers-reduced-motion: reduce) { .tx__c { animation: none !important; } }
+
+/* ----- Small screens: the centre nav links collide with the logo/actions; the menu button
+   already carries the same links, so hide them and never let the page scroll sideways ----- */
+@media (max-width: 860px) {
+  .nav-links { display: none !important; }
+}
+html { overflow-x: clip; }
+.nav-links { padding-inline: 16px; }
