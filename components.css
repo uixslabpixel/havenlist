@@ -218,7 +218,7 @@
 .agent-card__id { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .agent-card__name { font: 500 20px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
 .agent-card__link::after { content: ""; position: absolute; inset: 0; }
-.agent-card__role { font: 400 16px/1.4 var(--font-display); color: var(--ink-70); }
+.agent-card__role { font: 400 16px/1.4 var(--font-ui); color: var(--ink-70); }
 .agent-card__icon {
   position: relative;
   z-index: 1;
