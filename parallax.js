@@ -8,8 +8,8 @@
    written when it moved by at least a fifth of a pixel. */
 window.HLParallax = (function () {
   var AMP = 0.10; // travel each way, as a share of the frame height (CSS: image is 120% tall)
-  /* Off for reduced motion and on touch screens (images simply stay centred in their frame) */
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(hover: none)").matches;
+  /* Off only for reduced motion; touch screens get the same gentle drift */
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var near = new Set();   // card frames close to the viewport
   var known = new WeakSet();
   var last = new WeakMap();
