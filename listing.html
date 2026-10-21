@@ -1407,11 +1407,10 @@
       var lmap = L.map(canvas, { center: geo, zoom: 15, minZoom: 12, maxZoom: 18, zoomControl: false });
       lmap.attributionControl.setPrefix(false);
       HLGeo.base(lmap, HLGeo.poly(item.place));
-      /* Free tile sources, in order. If one keeps failing (blocked, offline,
+      /* Free tile sources that need no API key, in order (CARTO now serves an "API key required" watermark). If one keeps failing (blocked, offline,
          rate-limited) the next takes over; with none left the offline SF base
          map drawn above stays visible. */
       var TILES = [
-        { url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", sub: "abcd", at: "&copy; OpenStreetMap contributors &copy; CARTO" },
         { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", sub: "abc", at: "&copy; OpenStreetMap contributors" },
         { url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", sub: "abc", at: "Tiles &copy; Esri" }
       ];
