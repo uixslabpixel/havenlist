@@ -13,9 +13,11 @@
        copy (its own text-shadow, 1.4em below) rises into place. Spans are
        added in JS (addRise), so live-updating labels keep working. */
 
-    .icon-btn:hover {
+    @media (hover: hover) {
+.icon-btn:hover{
       border-color: rgba(30, 30, 30, 0.18);
     }
+}
 
     /* Share: arrow then tray draw themselves on hover — same line language
        as the heart */
@@ -373,7 +375,9 @@
       transition: background 0.2s var(--ease);
     }
 
-    .map__zoom button:hover { background: var(--ink-07); }
+    @media (hover: hover) {
+.map__zoom button:hover{ background: var(--ink-07); }
+}
     .map__zoom button:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
     .map__zoom svg { width: 12px; fill: currentColor; }
     .map__zoom button + button { border-top: 1px solid var(--ink-07); }
@@ -664,16 +668,26 @@
     .wl__count { font: 400 var(--fs-body)/1.4 var(--font-ui); color: var(--ink-70); }
     .wl__del { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 36px; border: .7px solid rgba(255,255,255,.15); background: rgba(0,0,0,.28); backdrop-filter: blur(8px); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity .2s, background .2s; }
     .wl__list:hover .wl__del, .wl__del:focus-visible { opacity: 1; }
-    .wl__del:hover { background: rgba(0,0,0,.5); }
+    @media (hover: hover) {
+.wl__del:hover{ background: rgba(0,0,0,.5); }
+}
     .wl__del path { fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-dasharray: 100; }
-    .wl__del:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .wl__del:hover path + path { animation-delay: .14s; }
+    @media (hover: hover) {
+.wl__del:hover path{ animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
+}
+    @media (hover: hover) {
+.wl__del:hover path + path{ animation-delay: .14s; }
+}
     /* Add tile: the card itself stays still — only the plus draws, when the icon is hovered */
     .wl__add { align-self: start; width: 100%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid var(--ink-10); border-radius: var(--radius-lg); box-shadow: 0 2px 4px rgba(0,0,0,.05); cursor: pointer; font: 500 var(--fs-body) var(--font-ui); letter-spacing: -.01em; color: var(--ink); }
     .wl__add-ic { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
     .wl__add-ic path { stroke-dasharray: 100; stroke-dashoffset: 0; }
-    .wl__add-ic:hover path { animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
-    .wl__add-ic:hover path + path { animation-delay: .14s; }
+    @media (hover: hover) {
+.wl__add-ic:hover path{ animation: hl-draw .72s cubic-bezier(.4,0,.2,1) both; }
+}
+    @media (hover: hover) {
+.wl__add-ic:hover path + path{ animation-delay: .14s; }
+}
     .wl__sec { padding-top: 64px; }
     .wl__h2 { margin: 0 0 24px; font: 500 var(--fs-heading)/1.4 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
     .wl__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
@@ -681,7 +695,6 @@
     
     /* ----- Responsive ----- */
     @media (max-width: 1100px) {
-      .nav-actions .btn-sell { display: none; }
       .wl { padding: 96px 32px 72px; }
       .wl__title { font-size: 40px; }
       .wl__lists { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -950,7 +963,7 @@
         menuBtn.setAttribute("aria-expanded", "true");
         menuBtn.setAttribute("aria-label", "Close menu");
         document.body.classList.add("is-menu-open");
-        setTimeout(function () { menuBusy = false; }, 1100);
+        setTimeout(function () { menuBusy = false; }, 880);
       }
 
       function closeMenu() {
@@ -969,7 +982,7 @@
           megaMenu.classList.remove("is-closing");
           megaMenu.hidden = true;
           menuBusy = false;
-        }, 750);
+        }, 600);
       }
 
       menuBtn.addEventListener("click", function (e) {

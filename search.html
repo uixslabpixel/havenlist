@@ -47,9 +47,11 @@
        copy (its own text-shadow, 1.4em below) rises into place. Spans are
        added in JS (addRise), so live-updating labels keep working. */
 
-    .icon-btn:hover {
+    @media (hover: hover) {
+.icon-btn:hover{
       border-color: rgba(30, 30, 30, 0.18);
     }
+}
 
     /* Expanded filter form */
 
@@ -189,84 +191,9 @@
        navbar filters are desktop-only (JS gates it at 1100px). Below that the
        filter row scrolls sideways and each filter opens as a bottom sheet. */
     @media (max-width: 1100px) {
-      .nav-actions .btn-sell { display: none; }
       .listings__grid { grid-template-columns: repeat(3, 1fr); gap: 32px 16px; }
       .listings { padding-top: 24px; }
 
-      /* One scrollable row, bleeding to the screen edges */
-      .filter-form {
-        flex-wrap: nowrap;
-        justify-content: safe center;
-        width: calc(100% + var(--page-pad) * 2);
-        max-width: none;
-        margin: 0 calc(var(--page-pad) * -1);
-        padding: 2px var(--page-pad);
-        overflow-x: auto;
-        scrollbar-width: none;
-        }
-      .filter-form::-webkit-scrollbar { display: none; }
-      .filter-query { width: 250px; }
-
-      /* Filters rise from the bottom as a full-width card */
-      .filter-anchor { position: static; isolation: auto; }
-      .filter-anchor.is-front { z-index: auto; }
-      .filter-pop,
-      .filter-pop.is-open,
-      .filter-pop.is-measuring {
-        position: fixed;
-        z-index: 310;
-        top: auto;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100vw;
-        height: auto;
-        max-height: 85vh;
-        max-height: 85dvh;
-        display: flex;
-        flex-direction: column;
-        border: 0;
-        border-radius: 24px 24px 0 0;
-        box-shadow: 0 -16px 48px rgba(0, 0, 0, 0);
-        transform: translateY(104%);
-        transition: transform 0.6s cubic-bezier(0.5, 0, 0.75, 0), box-shadow 0.6s var(--ease), visibility 0s linear 0.6s;
-      }
-      /* Slow, soft landing: long ease-out so the card settles rather than snaps */
-      .filter-pop.is-open {
-        transform: translateY(0);
-        box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.14);
-        transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 1.1s var(--ease-out), visibility 0s;
-      }
-      .filter-pop.is-measuring { transition: none !important; }
-      /* Content follows the card up, one beat at a time */
-      .filter-pop > * {
-        width: 100%;
-        opacity: 0;
-        transform: translateY(18px);
-        transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
-      }
-      .filter-pop.is-open > * {
-        opacity: 1;
-        transform: none;
-        transition: opacity 0.8s var(--ease-out) 0.3s, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
-      }
-      .filter-pop.is-open > .filter-pop__body { transition-delay: 0.38s; }
-      .filter-pop.is-open > .filter-pop__foot { transition-delay: 0.46s; }
-      .filter-pop__body { flex: 1 1 auto; min-height: 0; height: auto; }
-      .filter-pop__foot { flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
-
-      body::after {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: 300;
-        background: rgba(30, 30, 30, 0.3);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.8s var(--ease-out);
-      }
-      body:has(.filter-pop.is-open)::after { opacity: 1; pointer-events: auto; }
-      body:has(.filter-pop.is-open) { overflow: hidden; }
     }
 
     @media (max-width: 760px) {
@@ -1484,7 +1411,7 @@
       menuBtn.setAttribute("aria-expanded", "true");
       menuBtn.setAttribute("aria-label", "Close menu");
       body.classList.add("is-menu-open");
-      setTimeout(() => { isAnimating = false; }, 1100);
+      setTimeout(() => { isAnimating = false; }, 880);
     }
 
     function closeMenu() {
@@ -1503,7 +1430,7 @@
         megaMenu.classList.remove("is-closing");
         megaMenu.hidden = true;
         isAnimating = false;
-      }, 750);
+      }, 600);
     }
 
     menuBtn.addEventListener("click", (e) => {

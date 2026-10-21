@@ -2425,17 +2425,17 @@ body.is-menu-open {
   --cx: calc(100% - 84px);
   --cy: 32px;
   clip-path: circle(0px at var(--cx) var(--cy));
-  transition: clip-path 1.37s var(--ease-out), visibility 0s linear 1.37s;
+  transition: clip-path 1.096s var(--ease-out), visibility 0s linear 1.096s;
 }
 .mega-menu.is-open {
   pointer-events: auto;
   visibility: visible;
   clip-path: circle(3000px at var(--cx) var(--cy));
-  transition: clip-path 1.37s var(--ease-out), visibility 0s linear 0s;
+  transition: clip-path 1.096s var(--ease-out), visibility 0s linear 0s;
 }
 .mega-menu.is-closing {
   clip-path: circle(0px at var(--cx) var(--cy));
-  transition: clip-path 0.72s var(--ease), visibility 0s linear 0.72s;
+  transition: clip-path 0.576s var(--ease), visibility 0s linear 0.576s;
 }
 .mega-menu__panel {
   position: absolute;
@@ -2457,7 +2457,7 @@ body.is-menu-open {
   height: 100%;
   opacity: 0;
   transform: translateY(28px);
-  transition: opacity 0.94s var(--ease-out) 0.75s, transform 0.94s var(--ease-out) 0.75s;
+  transition: opacity 0.752s var(--ease-out) 0.6s, transform 0.752s var(--ease-out) 0.6s;
 }
 .mega-menu.is-open .mega-menu__media {
   opacity: 1;
@@ -2496,7 +2496,7 @@ body.is-menu-open {
   margin-bottom: 18px;
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 0.85s var(--ease-out), transform 0.85s var(--ease-out);
+  transition: opacity 0.68s var(--ease-out), transform 0.68s var(--ease-out);
 }
 .mega-menu.is-open .mega-menu__group-label {
   opacity: 1;
@@ -2520,65 +2520,65 @@ body.is-menu-open {
   overflow: hidden;
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.94s var(--ease-out), transform 0.94s var(--ease-out);
+  transition: opacity 0.752s var(--ease-out), transform 0.752s var(--ease-out);
 }
 .mega-menu.is-open .mega-menu__links a {
   opacity: 1;
   transform: translateY(0);
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) .mega-menu__group-label {
-  transition-delay: 0.81s;
+  transition-delay: 0.648s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(2) .mega-menu__group-label {
-  transition-delay: 0.88s;
+  transition-delay: 0.704s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(3) .mega-menu__group-label {
-  transition-delay: 0.95s;
+  transition-delay: 0.76s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(4) .mega-menu__group-label {
-  transition-delay: 1.01s;
+  transition-delay: 0.808s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(1) a {
-  transition-delay: 0.88s;
+  transition-delay: 0.704s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(2) a {
-  transition-delay: 0.95s;
+  transition-delay: 0.76s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(3) a {
-  transition-delay: 1.01s;
+  transition-delay: 0.808s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(4) a {
-  transition-delay: 1.08s;
+  transition-delay: 0.864s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(5) a {
-  transition-delay: 1.14s;
+  transition-delay: 0.912s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(1) li:nth-child(6) a {
-  transition-delay: 1.21s;
+  transition-delay: 0.968s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(1) a {
-  transition-delay: 0.95s;
+  transition-delay: 0.76s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(2) a {
-  transition-delay: 1.01s;
+  transition-delay: 0.808s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(2) li:nth-child(3) a {
-  transition-delay: 1.08s;
+  transition-delay: 0.864s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(1) a {
-  transition-delay: 1.12s;
+  transition-delay: 0.896s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(2) a {
-  transition-delay: 1.18s;
+  transition-delay: 0.944s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(3) li:nth-child(3) a {
-  transition-delay: 1.25s;
+  transition-delay: 1s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(1) a {
-  transition-delay: 1.18s;
+  transition-delay: 0.944s;
 }
 .mega-menu.is-open .mega-menu__grid > div:nth-child(4) li:nth-child(2) a {
-  transition-delay: 1.25s;
+  transition-delay: 1s;
 }
 .mega-menu__contact {
   margin-top: auto;
@@ -2588,7 +2588,7 @@ body.is-menu-open {
   margin-bottom: 10px;
 }
 .mega-menu.is-open .mega-menu__contact .mega-menu__group-label {
-  transition-delay: 1.22s;
+  transition-delay: 0.976s;
 }
 .mega-menu__contact > a {
   display: inline-block;
@@ -2602,7 +2602,7 @@ body.is-menu-open {
   transform: translateY(22px);
   overflow: hidden;
   height: 1.2em;
-  transition: opacity 0.94s var(--ease-out) 1.29s, transform 0.94s var(--ease-out) 1.29s;
+  transition: opacity 0.752s var(--ease-out) 1.032s, transform 0.752s var(--ease-out) 1.032s;
 }
 .mega-menu.is-open .mega-menu__contact > a {
   opacity: 1;
@@ -2742,4 +2742,95 @@ body.is-menu-open {
   :is(.similar__grid, .wl__grid) .card__addr { font-size: 13px; }
   :is(.similar__grid, .wl__grid) .card__badge { top: 8px; left: 8px; height: 24px; padding: 0 8px; font-size: 12px; }
   :is(.similar__grid, .wl__grid) .card__fav { top: 8px; right: 8px; }
+}
+
+/* ---------- Navbar on phones: logo, saved, menu (Sell with us lives in the menu) ---------- */
+@media (max-width: 760px) {
+  .nav-actions .btn-sell { display: none; }
+}
+
+/* ---------- Filters on tablet / phone ----------
+   The filter row scrolls sideways when it doesn't fit, and each filter opens as
+   a full-width card rising from the bottom. The pages' openFilter() moves the
+   card to <body> so no scrolling ancestor can clip it. */
+@media (max-width: 1100px) {
+  /* One scrollable row, bleeding to the screen edges */
+  #filterForm {
+    flex-wrap: nowrap;
+    justify-content: safe center;
+    width: calc(100% + var(--page-pad) * 2);
+    max-width: none;
+    margin: 0 calc(var(--page-pad) * -1);
+    padding: 2px var(--page-pad);
+    overflow-x: auto;
+    scrollbar-width: none;
+    }
+  #filterForm::-webkit-scrollbar { display: none; }
+  #filterForm .filter-query { flex: 0 0 250px; width: 250px; }
+
+  /* Filters rise from the bottom as a full-width card */
+  .filter-anchor { position: static; isolation: auto; }
+  .filter-anchor.is-front { z-index: auto; }
+  .filter-pop,
+  .filter-pop.is-open,
+  .filter-pop.is-measuring {
+    position: fixed;
+    z-index: 310;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: auto;
+    max-height: 85vh;
+    max-height: 85dvh;
+    display: flex;
+    flex-direction: column;
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0);
+    transform: translateY(104%);
+    transition: transform 0.6s cubic-bezier(0.5, 0, 0.75, 0), box-shadow 0.6s var(--ease), visibility 0s linear 0.6s;
+  }
+  /* Slow, soft landing: long ease-out so the card settles rather than snaps */
+  .filter-pop.is-open {
+    transform: translateY(0);
+    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.14);
+    transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 1.1s var(--ease-out), visibility 0s;
+  }
+  .filter-pop.is-measuring { transition: none !important; }
+  /* Content follows the card up, one beat at a time */
+  .filter-pop > * {
+    width: 100%;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+  .filter-pop.is-open > * {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.8s var(--ease-out) 0.3s, transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+  }
+  .filter-pop.is-open > .filter-pop__body { transition-delay: 0.38s; }
+  .filter-pop.is-open > .filter-pop__foot { transition-delay: 0.46s; }
+  .filter-pop__body { flex: 1 1 auto; min-height: 0; height: auto; }
+  .filter-pop__foot { flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(30, 30, 30, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s var(--ease-out);
+  }
+  body:has(.filter-pop.is-open)::after { opacity: 1; pointer-events: auto; }
+  body:has(.filter-pop.is-open) { overflow: hidden; }
+}
+
+/* Page titles on phones share one size (matches section titles) */
+@media (max-width: 760px) {
+  .search-title { font-size: var(--fs-heading); }
 }
