@@ -44,9 +44,6 @@
       transform: translateY(0);
     }
 
-    /* Text rise for buttons & links: the label slides up while an identical
-       copy (its own text-shadow, 1.4em below) rises into place. Spans are
-       added in JS (addRise), so live-updating labels keep working. */
 
     @media (hover: hover) {
 .icon-btn:hover{
@@ -812,33 +809,12 @@
     <script src="circle-menu.js"></script>
   <script src="filter-ui.js"></script>
   <script src="toast.js"></script>
+  <script src="rise-wrap.js"></script>
   <script>
     const ALL = HLNeighborhoods.all();
 
     /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
-    function addRise(el) {
-      if (el.querySelector(".rise, .link-rise")) return;
-      const host = el.querySelector(".hl-btn__inner") || el;
-      Array.from(host.childNodes).forEach((node) => {
-        const isText = node.nodeType === 3 && node.textContent.trim();
-        const isLabel = node.nodeType === 1 && node.tagName === "SPAN" &&
-          !node.children.length && node.textContent.trim();
-        if (!isText && !isLabel) return;
-        const clip = document.createElement("span");
-        clip.className = "rise";
-        let label = node;
-        if (isText) {
-          label = document.createElement("span");
-          label.textContent = node.textContent.trim();
-        }
-        host.replaceChild(clip, node);
-        clip.appendChild(label);
-        label.classList.add("rise__t");
-      });
-    }
-
-    /* Text buttons and text links only — not the logo, tabs, pills or dropdowns */
-    document.querySelectorAll(".hl-btn, .back-link, .filter-clear, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+    HLWrapLabels();
 
     const state = { query: "", location: "", expertise: "", top: false, role: "", sort: "default" };
 

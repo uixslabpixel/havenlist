@@ -13,9 +13,6 @@
   <style>
     body { line-height: 1.4; }
 
-    /* Text rise for buttons & links: the label slides up while an identical
-       copy (its own text-shadow, 1.4em below) rises into place. Spans are
-       added in JS (addRise), so live-updating labels keep working. */
 
     @media (hover: hover) {
 .icon-btn:hover{
@@ -1151,6 +1148,7 @@
   <script src="parallax.js"></script>
   <script src="circle-menu.js"></script>
   <script src="toast.js"></script>
+  <script src="rise-wrap.js"></script>
   <script>
     (function () {
       "use strict";
@@ -1326,26 +1324,7 @@
       HLCard.mount($("similarGrid"), similar);
 
       /* ---------- text rise on buttons / links (see .rise CSS) ---------- */
-      function addRise(el) {
-        if (el.querySelector(".rise, .link-rise")) return;
-        var host = el.querySelector(".hl-btn__inner") || el;
-        Array.prototype.slice.call(host.childNodes).forEach(function (node) {
-          var isText = node.nodeType === 3 && node.textContent.trim();
-          var isLabel = node.nodeType === 1 && node.tagName === "SPAN" && !node.children.length && node.textContent.trim();
-          if (!isText && !isLabel) return;
-          var clip = document.createElement("span");
-          clip.className = "rise";
-          var label = node;
-          if (isText) {
-            label = document.createElement("span");
-            label.textContent = node.textContent.trim();
-          }
-          host.replaceChild(clip, node);
-          clip.appendChild(label);
-          label.classList.add("rise__t");
-        });
-      }
-      document.querySelectorAll(".hl-btn, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
+      HLWrapLabels(".hl-btn, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email");
 
       /* ---------- hearts: outline draws on hover (the click itself is handled by wishlist.js) ---------- */
       function bindHeart(btn) {
