@@ -193,7 +193,7 @@
     /* Whole card is the link (the title's anchor stretches over it) */
 
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       
       .nav-links { display: none; }
       .gallery__main { height: 280px; }
@@ -209,7 +209,7 @@
     .sl-panel__bg { position: absolute; inset: 0; border-radius: var(--radius-xl); background: #cfd3d6; }
     .sl-panel--l .sl-panel__bg::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, rgba(20, 20, 20, 0), rgba(20, 20, 20, 0.12)); pointer-events: none; }
     .sl-hero__copy { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px; text-align: center; max-width: 520px; color: var(--white); }
-    .sl-hero__copy h1 { margin: 0; font: 500 clamp(36px, 4.4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.18); }
+    .sl-hero__copy h1 { margin: 0; font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: -0.02em; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.18); }
     .sl-hero__copy p { margin: 0; font: 400 var(--fs-body)/1.4 var(--font-ui); letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.92); text-shadow: 0 1px 12px rgba(0, 0, 0, 0.2); }
     .sl-hero__cta { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
     .sl-link { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; font: 500 var(--fs-body)/1.4 var(--font-ui); letter-spacing: -0.01em; color: var(--white); border-radius: 40px; transition: background 0.3s var(--ease); }
@@ -220,7 +220,7 @@
     .sl-submit { display: flex; } .sl-submit .hl-btn__inner { flex: 1 1 auto; justify-content: center; text-align: center; }
     .sl-submit.is-busy { pointer-events: none; opacity: 0.7; }
 
-    .sl-why { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 80px var(--page-pad) 0; display: flex; flex-direction: column; gap: 32px; }
+    .sl-why { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: var(--section-y) var(--page-pad) 0; display: flex; flex-direction: column; gap: 32px; }
     .sl-why h2, .sl-how h2 { margin: 0; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .sl-why__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     .sl-why__card { display: flex; flex-direction: column; justify-content: space-between; gap: 96px; min-height: 340px; padding: 24px; background: var(--white); border: 1px solid var(--ink-07); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); }
@@ -233,7 +233,7 @@
     .sl-why__card h3 { margin: 0 0 8px; font: 500 var(--fs-title)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .sl-why__card p { margin: 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: var(--ink-70); }
 
-    .sl-how { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 96px var(--page-pad) 96px; display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr); gap: 24px; align-items: stretch; scroll-margin-top: var(--nav-h); }
+    .sl-how { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: var(--section-y) var(--page-pad); display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr); gap: 24px; align-items: stretch; scroll-margin-top: var(--nav-h); }
     .sl-how__left { display: flex; flex-direction: column; justify-content: space-between; gap: 48px; }
     .sl-steps { display: flex; flex-direction: column; gap: 4px; }
     .sl-step { border-radius: var(--radius-lg); transition: background-color 0.5s var(--ease), box-shadow 0.5s var(--ease); }
@@ -258,7 +258,7 @@
 
     /* How it works, phones: plain vertical list — picture, title, description */
     .sl-how__stack { display: none; }
-    @media (max-width: 720px) {
+    @media (max-width: 760px) {
       .sl-how__steps, .sl-how__media, .sl-steps { display: none; }
       .sl-how { display: flex; flex-direction: column; gap: 24px; }
       .sl-how__left { gap: 0; }
@@ -285,7 +285,7 @@
       .sl-why__card { flex: 0 0 min(72vw, 300px); min-height: 0; gap: 20px; justify-content: flex-start; scroll-snap-align: start; }
       .sl-how { grid-template-columns: 1fr; }
     }
-    @media (max-width: 720px) {
+    @media (max-width: 760px) {
       .sl-hero { padding: 12px 12px 0; } .sl-why, .sl-how { padding-left: 24px; padding-right: 24px; }
       .sl-form { width: calc(100% - 24px); margin: 24px 0; padding: 20px; } .sl-form__grid { grid-template-columns: 1fr; }
       .sl-why__grid { margin-inline: -24px; padding-inline: 24px; scroll-padding-inline: 24px; }

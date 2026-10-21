@@ -199,7 +199,7 @@
     /* Whole card is the link (the title's anchor stretches over it) */
 
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       
       .nav-links { display: none; }
       .gallery__main { height: 280px; }
@@ -209,8 +209,8 @@
   <style>
         /* ========== MARKET INSIGHTS ========== */
     .ins { background: var(--paper); padding-top: var(--nav-h); }
-    .ins-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 72px var(--page-pad) 40px; }
-    .ins-title { margin: 0; font: 500 40px/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .ins-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 48px var(--page-pad) 40px; }
+    .ins-title { margin: 0; font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ins-lead { text-wrap: balance; margin: 0; max-width: 612px; font: 400 var(--fs-body)/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
     .ins-cta { display: flex; gap: 12px; margin-top: 16px; }
 
@@ -238,7 +238,7 @@
     .ins-slide__foot { display: flex; align-items: center; justify-content: space-between; }
     .ins-ctrls { display: flex; gap: 8px; }
 
-    .ins-more { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 72px var(--page-pad) 96px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+    .ins-more { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: var(--section-y) var(--page-pad); display: flex; flex-direction: column; align-items: center; gap: 32px; }
     .ins-more__title { margin: 0; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); text-align: center; }
     .ins-form { display: flex; align-items: center; gap: 10px; width: min(640px, 100%); }
     .ins-search { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; height: 40px; padding: 4px 16px 4px 12px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02); color: var(--ink-70); }
@@ -255,11 +255,11 @@
     .filter-more { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; color: var(--ink); flex-shrink: 0;   /* reset shared-rule props this variant never had */ transition: none; }
     .loc-item { display: flex; align-items: center; justify-content: flex-start; width: 100%; height: 40px; padding: 0 20px; border-radius: 0; transition: background 0.2s var(--ease); font: 400 var(--fs-small)/1.4 var(--font-display); letter-spacing: -0.01em; color: var(--ink); text-align: left; }
     .loc-item:hover, .loc-item.is-active { background: var(--paper); }
-    .ins-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 16px; }
+    .ins-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--row-gap) var(--col-gap); }
 
     .ins-empty { margin: 0; padding: 48px 0; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
     @media (max-width: 1100px) { .ins-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ins-media { width: 40%; } }
-    @media (max-width: 720px) { .ins-hero, .ins-more { padding-left: 24px; padding-right: 24px; } .ins-feature { padding: 0 24px; } .ins-slides { height: auto; min-height: 560px; flex-direction: column; } .ins-media { width: 100%; height: 220px; } .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 12px; } }
+    @media (max-width: 760px) { .ins-hero, .ins-more { padding-left: 24px; padding-right: 24px; } .ins-feature { padding: 0 24px; } .ins-slides { height: auto; min-height: 560px; flex-direction: column; } .ins-media { width: 100%; height: 220px; } .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--row-gap) var(--col-gap); } }
 
     /* Same solid shadow as the homepage once listings scroll underneath */
     body.is-compact .navbar {

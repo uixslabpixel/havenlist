@@ -16,6 +16,7 @@ Open `http://127.0.0.1:8791`
 
 Leave a comment on any spot of any page, Figma style. No setup, no server, no login.
 
+0. The widget is hidden by default. Open any page with `?feedback=1` once to switch it on in your browser (`?feedback=0` hides it again).
 1. On the site press the floating **Feedback** button (or the **C** key), click a spot, write the comment, save.
    A numbered pin stays on that spot (in your browser). Click a pin to mark it **Selesai** or delete it.
 2. Press **Salin** (appears once there are comments): all open comments are copied as readable text plus data.

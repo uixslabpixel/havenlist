@@ -200,7 +200,7 @@
     /* Whole card is the link (the title's anchor stretches over it) */
 
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       
       .nav-links { display: none; }
       .gallery__main { height: 280px; }
@@ -212,10 +212,10 @@
     
     .ind { background: var(--paper); padding-top: var(--nav-h); }
     .ind-head { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 48px var(--page-pad) 32px; text-align: center; }
-    .ind-title { margin: 0; max-width: 900px; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .ind-title { margin: 0; max-width: 900px; font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ind-meta { justify-content: center; }
     .ind-sep { width: 1px; height: 14px; background: var(--ink-10); }
-    .ind-hero { margin: 0 var(--page-pad); height: clamp(280px, 51vw, 738px); border-radius: var(--radius-xl); background: #e8e6e1; }
+    .ind-hero { margin: 0 var(--edge); height: clamp(280px, 51vw, 738px); border-radius: var(--radius-xl); background: #e8e6e1; }
     .ind-body { display: grid; grid-template-columns: 406px minmax(0, 1fr); padding: 0 var(--page-pad); max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; }
     .ind-toc { padding: 40px 0; }
     .ind-toc nav { position: sticky; top: calc(var(--nav-h) + 40px); display: flex; flex-direction: column; gap: 8px; }
@@ -224,25 +224,25 @@
 .ind-toc a:hover{ color: rgba(30, 30, 30, 0.75); }
 }
     .ind-toc a.is-active { color: var(--ink); }
-    .ind-article { padding: 40px 0 40px; display: flex; flex-direction: column; gap: 40px; }
+    .ind-article { padding: 40px 0 0; display: flex; flex-direction: column; gap: 40px; }
     .ind-sec { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: calc(var(--nav-h) + 32px); }
     .ind-sec h2, .ind-news h2 { margin: 0; font: 500 var(--fs-title)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ind-sec p { margin: 0; font: 400 var(--fs-title-sm)/1.5 var(--font-ui); letter-spacing: -0.01em; color: rgba(30, 30, 30, 0.8); }
     .ind-news { display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--white); border-radius: var(--radius-lg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); scroll-margin-top: calc(var(--nav-h) + 32px); }
     .ind-news__row { display: flex; gap: 16px; align-items: flex-start; }
     .ind-news__row .ui-field { flex: 1 1 auto; }
-    .ind-related { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 40px var(--page-pad) 80px; display: flex; flex-direction: column; gap: 32px; }
+    .ind-related { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: var(--section-y) var(--page-pad); display: flex; flex-direction: column; gap: 32px; }
     .ind-related__head { display: flex; align-items: center; gap: 16px; }
     .ind-related__head h2 { margin: 0; font: 500 var(--fs-heading)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ind-related__head .ui-btn { transform: none; }
     .ind-related .ins-card .nb-card__media { height: auto; aspect-ratio: 1 / 1; }
     @media (max-width: 1100px) { .ind-body { grid-template-columns: 1fr; } .ind-toc { display: none; } .ind-article { padding-top: 32px; } .ind-related .ins-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 720px) { .ind-head, .ind-related { padding-left: 24px; padding-right: 24px; } .ind-hero { margin: 0 24px; } .ind-body { padding: 0 24px; } .ind-news__row { flex-direction: column; } .ind-related .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 12px; } }
+    @media (max-width: 760px) { .ind-head, .ind-related { padding-left: 24px; padding-right: 24px; } .ind-hero { margin: 0 24px; } .ind-body { padding: 0 24px; } .ind-news__row { flex-direction: column; } .ind-related .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--row-gap) var(--col-gap); } }
 
-    .ins-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 16px; }
+    .ins-grid { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--row-gap) var(--col-gap); }
 
 @media (max-width: 1100px){ .ins-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }}
-@media (max-width: 720px){ .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+@media (max-width: 760px){ .ins-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }}
 
   </style>
   <script src="vt.js"></script>

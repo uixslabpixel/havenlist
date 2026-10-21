@@ -4,6 +4,12 @@
    to paste into the Claude chat; the "feedback-triage" skill recaps them and fixes them in parallel. */
 (function () {
   "use strict";
+  /* Hidden by default. Open any page with ?feedback=1 to switch it on in this browser, ?feedback=0 to hide it again. */
+  try {
+    if (/[?&]feedback=1(&|$)/.test(location.search)) localStorage.setItem("hl.feedback.on", "1");
+    else if (/[?&]feedback=0(&|$)/.test(location.search)) localStorage.removeItem("hl.feedback.on");
+    if (localStorage.getItem("hl.feedback.on") !== "1") return;
+  } catch (e) { return; }
   var KEY = "hl.feedback.items.v3";
   var NAME = "hl.feedback.name";
 
@@ -12,7 +18,7 @@
     var p = location.pathname.replace(/\.html$/, "").replace(/\/+$/, "") || "/index";
     return p + location.search;
   }
-  function bp() { var w = window.innerWidth; return w <= 640 ? "mobile" : w <= 1024 ? "tablet" : "desktop"; }
+  function bp() { var w = window.innerWidth; return w <= 760 ? "mobile" : w <= 1100 ? "tablet" : "desktop"; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); }
   function getName() { try { return localStorage.getItem(NAME) || ""; } catch (e) { return ""; } }
   function setName(v) { try { localStorage.setItem(NAME, v); } catch (e) {} }

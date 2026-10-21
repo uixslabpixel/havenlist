@@ -483,16 +483,15 @@
       .nb-more { background: transparent; box-shadow: none; }
       .nb-more .search-title { font-size: var(--fs-title); }
     }
-    .nbs { padding: 16px var(--page-pad) 64px; }
-    .nbs__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; max-width: var(--content-w); margin: 0 auto; }
+    .nbs { padding: var(--grid-top) var(--page-pad) var(--grid-bottom); }
+    .nbs__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--row-gap) var(--col-gap); max-width: var(--content-w); margin: 0 auto; }
     .nbs__empty { max-width: var(--content-w); margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
     @media (max-width: 1100px) { .nbs__grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 760px) {
-      .nbs { padding-top: 24px; }
-      .nbs__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+      .nbs__grid { grid-template-columns: repeat(2, 1fr); gap: var(--row-gap) var(--col-gap); }
     }
     /* Phones: the featured carousel is swiped, so the arrows go */
-    @media (max-width: 640px) { .featured__nav { display: none; } .featured__fade { width: 24px; } }
+    @media (max-width: 760px) { .featured__nav { display: none; } .featured__fade { width: 24px; } }
   </style>
   <script src="vt.js"></script>
 </head>

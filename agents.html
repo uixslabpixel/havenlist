@@ -149,14 +149,13 @@
     /* Desktop-first: keep compact usable ≥1100 */
 
     /* ========== AGENTS PAGE ========== */
-    .agents { padding: 32px var(--page-pad) 64px; }
+    .agents { padding: var(--grid-top) var(--page-pad) var(--grid-bottom); }
     .agents__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: var(--content-w); margin: 0 auto; }
     .agents__empty { max-width: var(--content-w); margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
     .chip--top { width: 105px; }
     /* Tablet 3-up, phone 2-up (same breakpoints as Search) */
     @media (max-width: 1100px) { .agents__grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 760px) {
-      .agents { padding-top: 24px; }
       .agents__grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .agent-card__media { height: auto; aspect-ratio: 1 / 1; }
       .agent-card__body { gap: 8px; padding: 8px 8px 4px; }
