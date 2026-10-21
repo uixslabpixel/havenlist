@@ -4,16 +4,8 @@
    to paste into the Claude chat; the "feedback-triage" skill recaps them and fixes them in parallel. */
 (function () {
   "use strict";
-  /* Hidden by default. Open any page with ?feedback=1 to switch it on in this browser, ?feedback=0 to hide it again. */
-  try {
-    if (/[?&]feedback=1(&|$)/.test(location.search)) localStorage.setItem("hl.feedback.on", "1");
-    else if (/[?&]feedback=0(&|$)/.test(location.search)) localStorage.removeItem("hl.feedback.on");
-    if (localStorage.getItem("hl.feedback.on") !== "1") return;
-  } catch (e) { return; }
   var KEY = "hl.feedback.items.v2";
   var NAME = "hl.feedback.name";
-  var CATS = [["layout", "Tampilan"], ["bug", "Bug"], ["copy", "Teks"], ["idea", "Ide"]];
-  var PRIOS = [["low", "Rendah"], ["med", "Sedang"], ["high", "Tinggi"]];
 
   /* ---------- helpers ---------- */
   function pageKey() {
@@ -33,7 +25,7 @@
     if (s < 86400) return Math.floor(s / 3600) + " jam lalu";
     return Math.floor(s / 86400) + " hari lalu";
   }
-  function labelOf(list, k) { for (var i = 0; i < list.length; i++) if (list[i][0] === k) return list[i][1]; return ""; }
+  
 
   /* Short, stable-ish CSS path: tag#id or tag.class, :nth-of-type when siblings share the tag */
   function selectorOf(el) {
@@ -94,26 +86,13 @@
     '<div class="bar" role="status">Klik untuk berkomentar · Esc selesai</div>' +
     '<form class="card compose" aria-label="Komentar baru"><h4>Komentar baru</h4><p class="sub"></p>' +
     '<textarea class="ct" maxlength="2000" placeholder="Apa yang ingin diubah di sini?" aria-label="Komentar"></textarea>' +
-    '<span class="lab">Jenis</span><div class="seg" data-k="cat"></div><span class="lab">Prioritas</span><div class="seg" data-k="prio"></div>' +
-    '<span class="lab">Nama (opsional)</span><input class="nm" maxlength="40" autocomplete="name" placeholder="Nama Anda">' +
-    '<p class="err" role="alert"></p><div class="row"><button type="button" data-a="cancel">Batal</button><button class="go" type="submit">Simpan</button></div></form>' +
+    '<p class="err" role="alert"></p><div class="row"><button type="button" data-a="cancel">Batal</button><button class="go" type="submit">Kirim</button></div></form>' +
     '<div class="card thread" aria-label="Komentar"></div>' +
     '<div class="toast" role="status"></div>';
 
   var $ = function (s) { return root.querySelector(s); };
   var fab = $(".fab"), copyBtn = $(".copy"), bar = $(".bar"), pinsEl = $(".pins"), compose = $("form.compose"), thread = $(".thread"), toastEl = $(".toast");
-  var ct = $(".ct"), nm = $(".nm"), err = compose.querySelector(".err"), sub = compose.querySelector(".sub");
-  var form = { cat: "layout", prio: "med" };
-  [["cat", CATS], ["prio", PRIOS]].forEach(function (pair) {
-    var k = pair[0], wrap = $('.seg[data-k="' + k + '"]');
-    wrap.innerHTML = pair[1].map(function (o) { return '<button type="button" data-v="' + o[0] + '" aria-pressed="' + (form[k] === o[0]) + '">' + o[1] + "</button>"; }).join("");
-    wrap.addEventListener("click", function (e) {
-      var b = e.target.closest("button"); if (!b) return;
-      form[k] = b.getAttribute("data-v");
-      Array.prototype.forEach.call(wrap.children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-    });
-  });
-
+  var ct = $(".ct"), err = compose.querySelector(".err"), sub = compose.querySelector(".sub");
   var tT = 0;
   function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tT); tT = setTimeout(function () { toastEl.classList.remove("on"); }, 3200); }
   function inUI(t) { return t === host || (t && host.contains && host.contains(t)); }
@@ -204,7 +183,7 @@
   function openCompose() {
     closeThread();
     sub.textContent = draft.element.section ? draft.element.section + " · " + draft.element.tag : draft.anchor.selector;
-    err.textContent = ""; ct.value = ""; nm.value = getName();
+    err.textContent = ""; ct.value = "";
     compose.classList.add("on"); paintPins(); placeCard(compose, draft.anchor);
     setTimeout(function () { ct.focus({ preventScroll: true }); }, 30);
   }
@@ -216,17 +195,17 @@
     e.preventDefault();
     var text = ct.value.trim();
     if (!text) { err.textContent = "Tulis komentarnya dulu."; ct.focus(); return; }
-    var name = nm.value.trim().slice(0, 40); setName(name);
+    var name = getName();
     var d = draft;
     all.push({
       id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
-      page: pageKey(), title: document.title.slice(0, 120), text: text, author: name, cat: form.cat, prio: form.prio, at: Date.now(), done: false,
+      page: pageKey(), title: document.title.slice(0, 120), text: text, author: name, cat: "layout", prio: "med", at: Date.now(), done: false,
       anchor: d.anchor,
       element: { selector: d.anchor.selector, tag: d.element.tag, text: d.element.text, section: d.element.section, scrollY: Math.round(scrollY) },
       env: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1, bp: bp(), touch: matchMedia("(hover: none)").matches }
     });
     saveAll(all);
-    compose.classList.remove("on"); draft = null; paintPins(); toast("Tersimpan · tekan Salin untuk kirim ke Claude");
+    compose.classList.remove("on"); draft = null; paintPins(); toast("Terkirim · tekan Salin untuk tempel ke Claude");
   });
 
   /* ---------- threads ---------- */
@@ -234,7 +213,7 @@
     var c = byId(id); if (!c) return;
     closeCompose(); openId = id;
     thread.innerHTML = '<button type="button" class="x" data-a="close" aria-label="Tutup">×</button>' +
-      '<p class="tags">#' + numberOf(c) + " · " + esc(labelOf(CATS, c.cat)) + " · " + esc(labelOf(PRIOS, c.prio)) + " · " + esc(c.env.bp) + " " + c.env.w + "×" + c.env.h + "</p>" +
+      '<p class="tags">#' + numberOf(c) + " · " + esc(c.env.bp) + " " + c.env.w + "×" + c.env.h + "</p>" +
       '<div class="who">' + esc(c.author || "Anonim") + "<small>" + esc(ago(c.at)) + '</small></div><p class="txt">' + esc(c.text) + "</p>" +
       '<div class="row"><button type="button" data-a="del">Hapus</button><button class="go" type="button" data-a="done">Selesai</button></div>';
     thread.classList.add("on"); paintPins(); placeCard(thread, c.anchor);
@@ -267,7 +246,7 @@
     Object.keys(byPage).forEach(function (p) {
       lines.push("## " + p);
       byPage[p].forEach(function (c) {
-        lines.push(numberOf(c) + ". [" + labelOf(CATS, c.cat) + " · " + labelOf(PRIOS, c.prio) + " · " + c.env.bp + " " + c.env.w + "×" + c.env.h + (c.env.touch ? " sentuh" : "") + "] " + c.text.replace(/\s*\n\s*/g, " ") +
+        lines.push(numberOf(c) + ". [" + c.env.bp + " " + c.env.w + "×" + c.env.h + (c.env.touch ? " sentuh" : "") + "] " + c.text.replace(/\s*\n\s*/g, " ") +
           "\n   bagian: " + (c.element.section || "-") + " — `" + c.element.selector + "`" + (c.author ? " (dari " + c.author + ")" : ""));
       });
       lines.push("");

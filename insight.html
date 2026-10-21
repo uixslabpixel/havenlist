@@ -61,7 +61,7 @@
 
     /* ========== DETAIL PAGE ========== */
     .detail {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 80px var(--page-pad) 0;
       display: grid;
@@ -562,7 +562,7 @@
 
     /* Similar properties */
     .similar {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 24px var(--page-pad) 48px;
     }
@@ -621,7 +621,7 @@
     .ind-meta { justify-content: center; }
     .ind-sep { width: 1px; height: 14px; background: var(--ink-10); }
     .ind-hero { margin: 0 var(--page-pad); height: clamp(280px, 51vw, 738px); border-radius: var(--radius-xl); background: #e8e6e1; }
-    .ind-body { display: grid; grid-template-columns: 406px minmax(0, 1fr); padding: 0 var(--page-pad); max-width: 1440px; margin: 0 auto; }
+    .ind-body { display: grid; grid-template-columns: 406px minmax(0, 1fr); padding: 0 var(--page-pad); max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; }
     .ind-toc { padding: 40px 0; }
     .ind-toc nav { position: sticky; top: calc(var(--nav-h) + 40px); display: flex; flex-direction: column; gap: 8px; }
     .ind-toc a { font: 500 var(--fs-body)/1.5 var(--font-ui); letter-spacing: -0.01em; color: var(--ink-40); transition: color 0.35s var(--ease); }
@@ -636,7 +636,7 @@
     .ind-news { display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--white); border-radius: var(--radius-lg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); scroll-margin-top: calc(var(--nav-h) + 32px); }
     .ind-news__row { display: flex; gap: 16px; align-items: flex-start; }
     .ind-news__row .ui-field { flex: 1 1 auto; }
-    .ind-related { max-width: 1440px; margin: 0 auto; padding: 40px var(--page-pad) 80px; display: flex; flex-direction: column; gap: 32px; }
+    .ind-related { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 40px var(--page-pad) 80px; display: flex; flex-direction: column; gap: 32px; }
     .ind-related__head { display: flex; align-items: center; gap: 16px; }
     .ind-related__head h2 { margin: 0; font: 500 var(--fs-heading)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ind-related__head .ui-btn { transform: none; }
@@ -759,7 +759,7 @@
       </article>
     </div>
     <section class="ind-related" aria-label="Related articles">
-      <div class="ind-related__head"><h2>Related articles</h2><a class="ui-btn" href="insights.html" aria-label="All insights"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a></div>
+      <div class="ind-related__head"><h2>Related articles</h2><a class="ui-btn" href="insights.html" aria-label="All insights"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a></div>
       <div class="ins-grid" id="indRelated"></div>
     </section>
   </main>

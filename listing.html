@@ -63,7 +63,7 @@
 
     /* ========== DETAIL PAGE ========== */
     .detail {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 80px var(--page-pad) 0;
       display: grid;
@@ -692,7 +692,7 @@
 
     /* Similar properties */
     .similar {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 24px var(--page-pad) 48px;
     }
@@ -1000,8 +1000,8 @@
       </button>
     </div>
     <div class="lb__track" id="lbTrack"></div>
-    <button class="lb__nav lb__nav--prev" type="button" id="lbPrev" aria-label="Previous photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M16.25 6H1.9M6.9 0.9L1.9 6L6.9 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <button class="lb__nav lb__nav--next" type="button" id="lbNext" aria-label="Next photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="lb__nav lb__nav--prev" type="button" id="lbPrev" aria-label="Previous photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M16.25 6H1.9L6.9 0.9L1.9 6L6.9 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="lb__nav lb__nav--next" type="button" id="lbNext" aria-label="Next photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
 
   <section class="similar" aria-label="Similar properties">
@@ -1323,7 +1323,7 @@
       var rotated = all.slice(position + 1).concat(all.slice(0, position));
       var similar = rotated.filter(function (l) { return l.collection === item.collection; })
         .concat(rotated.filter(function (l) { return l.collection !== item.collection; }))
-        .slice(0, 4);
+        .slice(0, 6);
 
       HLCard.mount($("similarGrid"), similar);
 
@@ -1412,7 +1412,8 @@
          map drawn above stays visible. */
       var TILES = [
         { url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", sub: "abcd", at: "&copy; OpenStreetMap contributors &copy; CARTO" },
-        { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", sub: "abc", at: "&copy; OpenStreetMap contributors" }
+        { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", sub: "abc", at: "&copy; OpenStreetMap contributors" },
+        { url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", sub: "abc", at: "Tiles &copy; Esri" }
       ];
       var tileIdx = -1, tileLayer = null, tileErrs = 0, tileOk = 0;
       function nextTiles() {

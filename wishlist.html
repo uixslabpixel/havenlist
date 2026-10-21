@@ -60,7 +60,7 @@
 
     /* ========== DETAIL PAGE ========== */
     .detail {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 80px var(--page-pad) 0;
       display: grid;
@@ -561,7 +561,7 @@
 
     /* Similar properties */
     .similar {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 24px var(--page-pad) 48px;
     }
@@ -653,7 +653,7 @@
     @media (max-width: 700px) { .soon { padding-top: 120px; } }
   
     /* ========== WISHLIST PAGE ========== */
-    .wl { max-width: 1440px; margin: 0 auto; padding: 64px var(--page-pad) 96px; }
+    .wl { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 64px var(--page-pad) 96px; }
     .wl__top { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0 24px; }
     .wl__title { margin: 0; font: 500 40px/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
     .wl__lists { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 259px)); gap: 16px; }
