@@ -693,14 +693,14 @@
     .lb__nav { position: absolute; top: 50%; transform: translateY(-50%); display: none; }
     .lb__nav--prev { left: 24px; }
     .lb__nav--next { right: 24px; }
-    @media (hover: hover) and (min-width: 701px) { .lb__nav { display: inline-flex; } }
+    @media (hover: hover) and (min-width: 761px) { .lb__nav { display: inline-flex; } }
     body.is-lb-open { overflow: hidden; }
 
     /* Similar properties */
     .similar {
       max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
-      padding: 24px var(--page-pad) 48px;
+      padding: var(--grid-top) var(--page-pad) var(--grid-bottom);
     }
 
     .similar__title {
@@ -716,7 +716,7 @@
     .similar__grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 32px 16px;
+      gap: var(--row-gap) var(--col-gap);
     }
 
     @media (max-width: 1100px) {
@@ -731,7 +731,7 @@
 
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       /* Small map: legend runs along the bottom so it doesn't cover the pins */
       .map:not(.is-expanded) .map__legend { top: auto; bottom: 12px; left: 12px; right: 64px; flex-direction: row; flex-wrap: wrap; gap: 4px 12px; padding: 8px 10px; }
 
@@ -810,7 +810,7 @@
       .gallery__thumb { flex: 1 1 calc(50% - 6px); height: 140px; }
       .features__card { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
       .form__row { flex-direction: column; }
-      .similar__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+      .similar__grid { grid-template-columns: repeat(2, 1fr); gap: var(--row-gap) var(--col-gap); }
       .similar__title { font-size: 24px; }
     }
 
@@ -1294,7 +1294,7 @@
 
       /* ---------- phones: sticky agent bar + inquiry bottom sheet ---------- */
       var bar = $("inqBar");
-      var phone = window.matchMedia("(max-width: 700px)");
+      var phone = window.matchMedia("(max-width: 760px)");
       var footerEl = document.querySelector(".site-footer");
       var barTick = false;
       $("barPhoto").src = agent.photo;

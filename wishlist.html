@@ -579,7 +579,7 @@
     .similar__grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 32px 16px;
+      gap: var(--row-gap) var(--col-gap);
     }
 
     /* Whole card is the link (the title's anchor stretches over it) */
@@ -596,7 +596,7 @@
 
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       
       .detail { padding-inline: 24px; }
       .similar { padding-inline: 24px; }
@@ -650,12 +650,12 @@
       color: var(--ink-70);
     }
     
-    @media (max-width: 700px) { .soon { padding-top: 120px; } }
+    @media (max-width: 760px) { .soon { padding-top: 120px; } }
   
     /* ========== WISHLIST PAGE ========== */
     .wl { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 64px var(--page-pad) 96px; }
     .wl__top { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 0 24px; }
-    .wl__title { margin: 0; font: 500 40px/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
+    .wl__title { margin: 0; font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
     .wl__lists { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 259px)); gap: 16px; }
     .wl__list { position: relative; display: flex; flex-direction: column; }
     .wl__hit { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
@@ -690,13 +690,12 @@
 }
     .wl__sec { padding-top: 64px; }
     .wl__h2 { margin: 0 0 24px; font: 500 var(--fs-heading)/1.4 var(--font-display); letter-spacing: -.02em; color: var(--ink); }
-    .wl__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
+    .wl__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--row-gap) var(--col-gap); }
     /* Photos fill the frame's full height; the width follows the image's own scale */
     
     /* ----- Responsive ----- */
     @media (max-width: 1100px) {
       .wl { padding: 96px 32px 72px; }
-      .wl__title { font-size: 40px; }
       .wl__lists { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .wl__grid { grid-template-columns: repeat(3, 1fr); }
       .wl__sec { padding-top: 48px; }
@@ -704,9 +703,9 @@
     @media (max-width: 760px) {
       .wl { padding: 88px 24px 56px; }
       .wl__top { padding: 8px 0 16px; }
-      .wl__title { font-size: 32px; text-align: center; }
+      .wl__title { text-align: center; }
       .wl__lists { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
-      .wl__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+      .wl__grid { grid-template-columns: repeat(2, 1fr); gap: var(--row-gap) var(--col-gap); }
       .wl__name { font-size: var(--fs-body); }
       .wl__count { font-size: var(--fs-small); }
       .wl__h2 { font-size: 24px; }

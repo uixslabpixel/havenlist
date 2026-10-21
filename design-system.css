@@ -73,6 +73,12 @@
   --space-10: 40px;
   --space-16: 64px;
   --page-pad: 64px;
+  /* Vertical rhythm + card-grid gaps: one scale for every page (tablet and phone values set below) */
+  --section-y: 96px;       /* top/bottom padding of a content section */
+  --grid-top: 32px;        /* space between a filter header and the first row of cards */
+  --grid-bottom: 64px;     /* space under the last row of cards */
+  --col-gap: 16px;
+  --row-gap: 32px;
   --nav-h: 64px;
   /* Content width and the distance from the screen edge to it; both grow on large monitors */
   --content-w: 1312px;
@@ -97,16 +103,16 @@
   --pop-gap: 10px;
   --pop-shadow: 0.12;
 }
-/* Breakpoints (media queries can't read variables, so these three numbers are the rule):
-     mobile  ≤ 640px    1 column, --page-pad 24px
-     tablet  641–1024px 2 columns, --page-pad 32px
-     desktop ≥ 1025px   full layout, --page-pad 64px
+/* Breakpoints (media queries can't read variables, so these numbers are the rule; every page uses them):
+     mobile  ≤ 760px     2-up grids / swipe rows, --page-pad 24px
+     tablet  761–1100px  3-up grids, --page-pad 32px
+     desktop ≥ 1101px    4-up grids and full layout, --page-pad 64px (5-up from 1920px)
    Type and spacing between those points flow with clamp(). */
-@media (max-width: 1024px) {
-  :root { --page-pad: 32px; }
+@media (max-width: 1100px) {
+  :root { --page-pad: 32px; --section-y: 72px; --grid-top: 24px; --grid-bottom: 48px; }
 }
-@media (max-width: 640px) {
-  :root { --page-pad: 24px; }
+@media (max-width: 760px) {
+  :root { --page-pad: 24px; --section-y: 56px; --col-gap: 12px; --row-gap: 28px; }
 }
 /* Large monitors: the content column widens in steps (--edge keeps the navbar lined up with it) */
 @media (min-width: 1920px) {
@@ -849,13 +855,13 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 .dots__dot.is-active { opacity: 1; transform: scale(1.25); }
 
 /* ---------- Page sections: head (title + arrow), 4-up card row, stats, insight card extras ---------- */
-.page-section { padding: 96px var(--page-pad); }
+.page-section { padding: var(--section-y) var(--page-pad); }
 .section-head { display: flex; align-items: center; gap: var(--space-4); max-width: var(--content-w); margin: 0 auto var(--space-8); }
 .section-title { font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
 /* .card-row: 4-up grid on desktop, swipe row on tablet and mobile (works for .card and .ins-card) */
-.card-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 16px; max-width: var(--content-w); margin: 0 auto; }
+.card-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--row-gap) var(--col-gap); max-width: var(--content-w); margin: 0 auto; }
 /* .stats: big numbers with a label, next to a heading (About, homepage) */
-.stats { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 80px var(--page-pad); display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.stats { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: var(--section-y) var(--page-pad); display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
 .stats h2 { margin: 0; max-width: 420px; font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
 .stats__list { list-style: none; margin: 0; padding: 0; }
 .stats__list li { display: grid; grid-template-columns: 258px 1fr; align-items: center; gap: 0; padding: 24px 0; border-top: 1px solid var(--ink-10); }
@@ -867,15 +873,13 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 .ins-meta span { display: inline-flex; align-items: center; gap: 4px; }
 .ins-cal { flex: none; color: rgba(30, 30, 30, 0.8); }
 .ins-tag { position: absolute; z-index: 2; left: 16px; top: 16px; display: inline-flex; align-items: center; height: 32px; padding: 0 10px; background: var(--white); border: 1px solid var(--ink-10); border-radius: var(--radius-sm); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); font: 400 var(--fs-small)/1.2 var(--font-ui); color: rgba(30, 30, 30, 0.9); }
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .stats { grid-template-columns: 1fr; gap: var(--space-8); }
   .card-row { display: flex; gap: var(--space-4); max-width: none; margin-inline: calc(var(--page-pad) * -1); padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
   .card-row::-webkit-scrollbar { display: none; }
   .card-row > * { flex: 0 0 min(68vw, 300px); scroll-snap-align: center; }
 }
-@media (max-width: 640px) {
-  .page-section { padding: 56px var(--page-pad); }
-  .stats { padding: 56px var(--page-pad); }
+@media (max-width: 760px) {
   .stats__list li { grid-template-columns: 1fr; gap: var(--space-2); }
   .stats__list b { font-size: 48px; }
 }
@@ -1375,6 +1379,7 @@ input {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   padding: 16px var(--page-pad) 32px;
 }
+@media (max-width: 760px) { .search-header { padding-bottom: 24px; } }
 .search-header__inner {
   max-width: 1200px;
   margin: 0 auto;
@@ -1394,7 +1399,7 @@ input {
   text-align: center;
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: clamp(36px, 4vw, 40px);
+  font-size: var(--fs-section);
   letter-spacing: -0.02em;
   line-height: 1.2;
   color: var(--ink);
@@ -2675,7 +2680,7 @@ body.is-menu-open {
 }
 
 .mega-menu__sell { display: none; }
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .mega-menu__panel { gap: 20px; padding: 80px var(--page-pad) 32px; }
   .mega-menu__media { display: none; }
   .mega-menu__body { padding: 0; }
@@ -2923,7 +2928,7 @@ body.is-menu-open {
 
 /* Page titles on phones share one size (matches section titles) */
 @media (max-width: 760px) {
-  .search-title { font-size: var(--fs-heading); }
+  .search-title { font-size: var(--fs-section); }
 }
 
 /* Phones: scroll reveals off — content is simply there (lighter, no pop-in while scrolling) */
@@ -2942,7 +2947,7 @@ body.is-menu-open {
 
 /* ---------- Sticky profile bar (agent + neighborhood detail, phones) ---------- */
 .pf-bar { display: none; }
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .pf-bar {
     display: flex; align-items: center; gap: 12px;
     position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 90;
@@ -2962,8 +2967,8 @@ body.is-menu-open {
 @media (max-width: 1919px) { :is(.similar__grid, #indRelated) > :nth-child(n + 5) { display: none; } }
 @media (min-width: 1920px) and (max-width: 2559px) { :is(.similar__grid, #indRelated) > :nth-child(n + 6) { display: none; } }
 @media (min-width: 1920px) {
-  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid, .agents__grid) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @media (min-width: 2560px) {
-  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid, .agents__grid) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }

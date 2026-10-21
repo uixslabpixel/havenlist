@@ -12,7 +12,7 @@
     var p = location.pathname.replace(/\.html$/, "").replace(/\/+$/, "") || "/index";
     return p + location.search;
   }
-  function bp() { var w = window.innerWidth; return w <= 640 ? "mobile" : w <= 1024 ? "tablet" : "desktop"; }
+  function bp() { var w = window.innerWidth; return w <= 760 ? "mobile" : w <= 1100 ? "tablet" : "desktop"; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); }
   function getName() { try { return localStorage.getItem(NAME) || ""; } catch (e) { return ""; } }
   function setName(v) { try { localStorage.setItem(NAME, v); } catch (e) {} }
