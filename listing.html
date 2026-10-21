@@ -447,6 +447,17 @@
       justify-content: center;
     }
 
+    .map__locate {
+      position: absolute; right: 16px; top: 56px; z-index: 6; width: 32px; height: 32px; border-radius: 200px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0)), var(--white);
+      border: 1px solid var(--ink-10); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+    }
+    .map__locate svg { width: 16px; height: 16px; }
+    .map__locate.is-busy { opacity: 0.5; pointer-events: none; }
+    .map__locate.is-on { color: #1a73e8; }
+    .hl-me { background: #1a73e8; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(26, 115, 232, 0.5); }
+
     .map__expand svg { width: 13px; height: 13px; fill: currentColor; }
     .map__expand .icon-collapse,
     .map.is-expanded .map__expand .icon-expand { display: none; }
@@ -912,6 +923,9 @@
             <button class="map__expand" type="button" id="mapToggle" aria-label="Expand map">
               <svg class="icon-expand" viewBox="0 0 13 13" aria-hidden="true"><use href="#i-expand"/></svg>
               <svg class="icon-collapse" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
+            </button>
+            <button class="map__locate" type="button" id="mapLocate" aria-label="Show my location">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             </button>
             <div class="map__zoom" role="group" aria-label="Zoom">
               <button type="button" id="zoomIn" aria-label="Zoom in"><svg viewBox="0 0 13 13" aria-hidden="true"><use href="#i-plus"/></svg></button>
@@ -1553,7 +1567,7 @@
       }
 
       map.addEventListener("click", function (e) {
-        if (e.target.closest(".map__zoom")) return;
+        if (e.target.closest(".map__zoom, .map__locate")) return;
         if (e.target.closest("#mapToggle")) { if (mapOpen) closeMap(); else openMap(); return; }
         if (!mapOpen) openMap();
       });
@@ -1572,6 +1586,37 @@
       $("zoomOut").addEventListener("click", function () { lmap.zoomOut(); });
       lmap.on("zoomend", syncZoomButtons);
       syncZoomButtons();
+
+      /* ---------- "My location": the browser's geolocation, shown with the distance to the property ---------- */
+      var meLayer = null;
+      function km(a, b) {
+        var R = 6371, r = Math.PI / 180, dLat = (b[0] - a[0]) * r, dLng = (b[1] - a[1]) * r;
+        var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return 2 * R * Math.asin(Math.sqrt(x));
+      }
+      $("mapLocate").addEventListener("click", function () {
+        var btn = this;
+        if (!navigator.geolocation || !window.isSecureContext) { toast("Location needs a secure (https) page and a browser that supports it"); return; }
+        btn.classList.add("is-busy");
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          btn.classList.remove("is-busy");
+          var me = [pos.coords.latitude, pos.coords.longitude];
+          var d = km(me, geo);
+          if (meLayer) lmap.removeLayer(meLayer);
+          meLayer = L.layerGroup([
+            L.circle(me, { radius: Math.min(pos.coords.accuracy || 50, 500), color: "#1a73e8", weight: 1, fillOpacity: 0.1, interactive: false }),
+            L.marker(me, { icon: L.divIcon({ className: "", html: '<span class="hl-me" style="display:block;width:16px;height:16px"></span>', iconSize: [16, 16], iconAnchor: [8, 8] }), keyboard: false })
+              .bindTooltip("<strong>You are here</strong><small>" + (d < 10 ? d.toFixed(1) : Math.round(d)) + " km from this property</small>", { direction: "top", offset: [0, -10], className: "hl-tip" })
+          ]).addTo(lmap);
+          btn.classList.add("is-on");
+          if (d > 40) { toast("You're " + Math.round(d).toLocaleString() + " km from this property"); return; }
+          if (!mapOpen) openMap();
+          lmap.fitBounds(L.latLngBounds([me, geo]).pad(0.35), { maxZoom: 16, animate: true });
+        }, function (err) {
+          btn.classList.remove("is-busy");
+          toast(err && err.code === 1 ? "Location permission was denied" : "Couldn't get your location");
+        }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+      });
 
       /* ---------- navbar: section tabs + listing pill ---------- */
       $("pillPrice").textContent = item.price;
