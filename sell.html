@@ -660,6 +660,27 @@
     .sl-how__img { position: absolute; inset: 0; overflow: hidden; visibility: hidden; will-change: clip-path; }
     .sl-how__img.is-active { visibility: visible; z-index: 1; }
     .sl-how__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); will-change: transform; }
+
+    /* How it works, phones: plain vertical list — picture, title, description */
+    .sl-how__stack { display: none; }
+    @media (max-width: 720px) {
+      .sl-how__steps, .sl-how__media, .sl-steps { display: none; }
+      .sl-how { display: flex; flex-direction: column; gap: 24px; }
+      .sl-how__left { gap: 0; }
+      .sl-how__stack { display: flex; flex-direction: column; gap: 32px; }
+      .sl-how__item { display: flex; flex-direction: column; gap: 16px; }
+      .sl-how__item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-lg); background: #dcdcdc; }
+      .sl-how__item h3 { margin: 0; font: 500 var(--fs-title)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+      .sl-how__item p { margin: 8px 0 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: var(--ink-70); }
+
+      /* Why sell with us: 48px between the heading and the cards */
+      .sl-why { gap: 48px; }
+
+      /* Hero panel: no dark veil, the photo shows as it is */
+      .sl-panel--l .sl-panel__bg::after { display: none; }
+      .sl-link { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.4); }
+    }
+
     @media (max-width: 1100px) {
       .sl-hero { grid-template-columns: 1fr; }
       .sl-panel--l { min-height: 460px; }
@@ -1067,6 +1088,29 @@
     })();
   </script>
   <script src="fx.js"></script>
+
+  <script>
+    /* How it works (phones): build the plain picture + title + description list from the steps and images above */
+    (function () {
+      var steps = document.querySelectorAll("#slSteps .sl-step");
+      var imgs = document.querySelectorAll("#slMedia .sl-how__img img");
+      var left = document.querySelector(".sl-how__left");
+      if (!steps.length || !left) return;
+      var stack = document.createElement("div");
+      stack.className = "sl-how__stack";
+      steps.forEach(function (s, i) {
+        var item = document.createElement("div"); item.className = "sl-how__item";
+        var img = document.createElement("img");
+        if (imgs[i]) { img.src = imgs[i].getAttribute("src"); img.alt = imgs[i].alt || ""; img.loading = "lazy"; img.decoding = "async"; }
+        var text = document.createElement("div");
+        var h = document.createElement("h3"); h.textContent = s.querySelector(".sl-step__title").textContent;
+        var p = document.createElement("p"); p.textContent = s.querySelector(".sl-step__body p").textContent;
+        text.appendChild(h); text.appendChild(p);
+        item.appendChild(img); item.appendChild(text); stack.appendChild(item);
+      });
+      left.appendChild(stack);
+    })();
+  </script>
   <script src="nav-links.js"></script>
   <script src="rise.js"></script>
   <script src="feedback.js" defer></script>
