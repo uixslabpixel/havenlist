@@ -4,6 +4,12 @@
    to paste into the Claude chat; the "feedback-triage" skill recaps them and fixes them in parallel. */
 (function () {
   "use strict";
+  /* Hidden by default. Open any page with ?feedback=1 to switch it on in this browser, ?feedback=0 to hide it again. */
+  try {
+    if (/[?&]feedback=1(&|$)/.test(location.search)) localStorage.setItem("hl.feedback.on", "1");
+    else if (/[?&]feedback=0(&|$)/.test(location.search)) localStorage.removeItem("hl.feedback.on");
+    if (localStorage.getItem("hl.feedback.on") !== "1") return;
+  } catch (e) { return; }
   var KEY = "hl.feedback.items.v2";
   var NAME = "hl.feedback.name";
   var CATS = [["layout", "Tampilan"], ["bug", "Bug"], ["copy", "Teks"], ["idea", "Ide"]];
