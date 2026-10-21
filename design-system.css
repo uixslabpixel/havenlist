@@ -1027,8 +1027,13 @@ html, html body { overflow-x: clip; }
 
 .navbar { view-transition-name: hl-navbar; }
 
-::view-transition-old(root) { animation: hl-page-out 0.2s cubic-bezier(0.4, 0, 1, 1) both; }
-::view-transition-new(root) { animation: hl-page-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* Ordinary page changes wipe in from the right; card -> detail (vt.js adds .vt-shared) keeps the quick fade */
+:root.vt-shared::view-transition-old(root) { animation: hl-page-out 0.2s cubic-bezier(0.4, 0, 1, 1) both; }
+:root.vt-shared::view-transition-new(root) { animation: hl-page-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+:root:not(.vt-shared)::view-transition-old(root),
+:root:not(.vt-shared)::view-transition-new(root) { mix-blend-mode: normal; }
+:root:not(.vt-shared)::view-transition-old(root) { animation: hl-wipe-out 0.6s cubic-bezier(0.65, 0, 0.2, 1) both; }
+:root:not(.vt-shared)::view-transition-new(root) { animation: hl-wipe-in 0.6s cubic-bezier(0.65, 0, 0.2, 1) both; }
 ::view-transition-group(hl-navbar) { animation-duration: 0.35s; }
 
 /* Shared element (vt.js): a card's picture grows into the detail page's main picture */
@@ -1036,6 +1041,8 @@ html, html body { overflow-x: clip; }
 ::view-transition-old(hl-hero), ::view-transition-new(hl-hero) { width: 100%; height: 100%; object-fit: cover; }
 @media (hover: none) { ::view-transition-group(hl-hero) { animation-duration: 0.3s; } }
 
+@keyframes hl-wipe-in { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes hl-wipe-out { from { transform: none; filter: none; } to { transform: translate3d(-6%, 0, 0); filter: brightness(0.9); } }
 @keyframes hl-page-out { to { opacity: 0; } }
 @keyframes hl-page-in { from { opacity: 0; transform: translate3d(0, 12px, 0); } }
 
@@ -2479,6 +2486,8 @@ body.is-menu-open {
   grid-template-columns: minmax(320px, 0.95fr) 1.15fr;
   gap: 64px;
   padding: 40px var(--edge) 48px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .mega-menu__media {
   border-radius: 28px;
@@ -2803,6 +2812,15 @@ body.is-menu-open {
   :is(.similar__grid, .wl__grid, .listings__grid, .nbs__grid) .card__fav { top: 8px; right: 8px; }
 }
 
+/* ---------- Navbar on desktop: saved, Sell with us and the menu button share one frame ---------- */
+@media (min-width: 1025px) {
+  .navbar .nav-actions { gap: 4px; padding: 4px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 100px; box-shadow: var(--shadow-xs); color: var(--ink); }
+  .navbar .nav-actions .icon-btn { border-color: transparent; }
+  .navbar .nav-actions .btn-sell.hl-btn.hl-btn--black { border: 1px solid var(--ink); border-radius: 100px; background: var(--ink); color: #fff; box-shadow: none; }
+  .navbar .nav-actions .btn-sell.hl-btn.hl-btn--black .hl-btn__inner { background: var(--ink); border-color: transparent; border-radius: 100px; color: #fff; }
+  .menu-btn:not(.is-open), .menu-btn.is-solid-tone:not(.is-open) { right: calc(var(--edge) + 5px); color: var(--ink); }
+}
+
 /* ---------- Navbar on phones: logo, saved, menu (Sell with us lives in the menu) ---------- */
 @media (max-width: 760px) {
   .nav-actions .btn-sell { display: none; }
@@ -2934,9 +2952,12 @@ body.is-menu-open {
 }
 
 /* ---------- Large monitors: the listing grids gain columns as the content widens ---------- */
+/* "Similar properties" renders six cards; only as many as the columns show */
+@media (max-width: 1919px) { .similar__grid > :nth-child(n + 5) { display: none; } }
+@media (min-width: 1920px) and (max-width: 2559px) { .similar__grid > :nth-child(n + 6) { display: none; } }
 @media (min-width: 1920px) {
-  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @media (min-width: 2560px) {
-  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }

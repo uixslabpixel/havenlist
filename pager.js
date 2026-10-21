@@ -2,7 +2,7 @@
    HLPager.mount(navEl, { total, pageSize, page, onChange }) draws prev / numbers / next
    and hides itself when everything fits on one page. */
 window.HLPager = (function () {
-  var ARROW = '<span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>';
+  var ARROW = '<span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>';
 
   function pageList(cur, pages) {
     if (pages <= 7) { var all = []; for (var i = 1; i <= pages; i++) all.push(i); return all; }

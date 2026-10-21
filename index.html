@@ -107,6 +107,12 @@
       pointer-events: none;
     }
 
+    /* Big monitors: the photo scales with the width, so the roof climbs into the title. Lower the photo, lift the title. */
+    @media (min-width: 1600px) {
+      .hero-photo { top: -8%; }
+      .hero-title { top: 16%; }
+    }
+
     /* White fade at bottom edge of the image frame */
     .hero-fade {
       position: absolute;
@@ -346,7 +352,7 @@
     .menu-btn {
       position: fixed;
       top: 12px;
-      right: var(--page-pad);
+      right: var(--edge);
       z-index: 220;
       width: 40px;
       height: 40px;
@@ -856,7 +862,7 @@
       object-fit: cover;
       object-position: center;
       opacity: 0;
-      /* Uses the pre-blurred thumbnail (-blur.webp): scaling it up gives the soft
+      /* Uses the pre-softened image (-soft.webp): scaling it up gives the soft
          backdrop for free, where a live blur(16px) on five viewport-sized
          layers made scrolling through this section stutter. */
       transform: translateZ(0) scale(1.02);
@@ -1060,8 +1066,8 @@
       width: 100%;
       max-width: none;
       margin: 0;
-      height: 100vh;
-      min-height: 100vh;
+      height: 80vh;
+      min-height: 80vh;
       background: var(--paper);
       padding: 0;
       display: flex;
@@ -1261,11 +1267,11 @@
     }
 
     .featured__nav--prev {
-      left: max(24px, calc((100% - 1440px) / 2 + 64px));
+      left: var(--edge);
     }
 
     .featured__nav--next {
-      right: max(24px, calc((100% - 1440px) / 2 + 64px));
+      right: var(--edge);
     }
 
     .featured__meta {
@@ -1356,8 +1362,8 @@
       width: 100%;
       max-width: none;
       margin: 0;
-      height: 100vh;
-      min-height: 100vh;
+      height: 80vh;
+      min-height: 80vh;
       padding: 48px var(--page-pad);
       background: var(--paper);
       box-sizing: border-box;
@@ -1365,7 +1371,7 @@
       flex-direction: column;
       justify-content: center;
       content-visibility: auto;
-      contain-intrinsic-size: auto 100vh;
+      contain-intrinsic-size: auto 80vh;
     }
 
     .agents__head {
@@ -1550,10 +1556,10 @@
       width: 100%;
       max-width: none;
       margin: 0;
-      height: 100vh;
-      min-height: 100vh;
+      height: 80vh;
+      min-height: 80vh;
       content-visibility: auto;
-      contain-intrinsic-size: auto 100vh;
+      contain-intrinsic-size: auto 80vh;
       padding: 48px var(--page-pad);
       background: var(--paper);
       box-sizing: border-box;
@@ -2211,7 +2217,7 @@
         <div class="featured__title-row">
           <h2 class="featured__title">Featured Listings</h2>
           <a class="ui-btn ui-btn--raised featured__all" href="#" aria-label="View all listings">
-            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
           </a>
         </div>
       </div>
@@ -2221,10 +2227,10 @@
         <div class="featured__fade featured__fade--right" aria-hidden="true"></div>
 
         <button class="ui-btn featured__nav featured__nav--prev" type="button" id="featuredPrev" aria-label="Previous listing">
-          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </button>
         <button class="ui-btn featured__nav featured__nav--next" type="button" id="featuredNext" aria-label="Next listing">
-          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </button>
 
         <div class="featured__viewport" id="featuredViewport">
@@ -2245,7 +2251,7 @@
       <div class="section-head">
         <h2 class="section-title" id="newlTitle">New listings</h2>
         <a class="ui-btn ui-btn--raised" href="search.html?q=" aria-label="View all listings">
-          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </a>
       </div>
       <div class="card-row" id="newListings"></div>
@@ -2269,7 +2275,7 @@
               >
                 <span class="categories__label">Rent (142)</span>
                 <span class="ui-btn categories__go" aria-hidden="true">
-                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
                 </span>
               </div>
               <div
@@ -2278,7 +2284,7 @@
               >
                 <span class="categories__label">Buy (38)</span>
                 <span class="ui-btn categories__go" aria-hidden="true">
-                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
                 </span>
               </div>
               <div
@@ -2287,7 +2293,7 @@
               >
                 <span class="categories__label">Commercial (12)</span>
                 <span class="ui-btn categories__go" aria-hidden="true">
-                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+                  <span class="ui-arrow"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
                 </span>
               </div>
             </nav>
@@ -2324,11 +2330,11 @@
     >
       <div class="neighborhoods__pin">
         <div class="neighborhoods__bgs" id="neighborhoodsBgs" aria-hidden="true">
-          <img class="neighborhoods__bg is-active" src="assets/neighborhood-pacific-heights-blur.webp" alt="" data-index="0" width="400" height="530" loading="lazy" decoding="async">
-          <img class="neighborhoods__bg" src="assets/neighborhood-noe-valley-blur.webp" alt="" data-index="1" width="400" height="530" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-marina-blur.webp" alt="" data-index="2" width="400" height="530" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-sausalito-blur.webp" alt="" data-index="3" width="400" height="530" decoding="async" loading="lazy">
-          <img class="neighborhoods__bg" src="assets/neighborhood-san-antonio-blur.webp" alt="" data-index="4" width="400" height="530" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg is-active" src="assets/neighborhood-pacific-heights-soft.webp" alt="" data-index="0" width="603" height="800" loading="lazy" decoding="async">
+          <img class="neighborhoods__bg" src="assets/neighborhood-noe-valley-soft.webp" alt="" data-index="1" width="603" height="800" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-marina-soft.webp" alt="" data-index="2" width="603" height="800" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-sausalito-soft.webp" alt="" data-index="3" width="603" height="800" decoding="async" loading="lazy">
+          <img class="neighborhoods__bg" src="assets/neighborhood-san-antonio-soft.webp" alt="" data-index="4" width="603" height="800" decoding="async" loading="lazy">
         </div>
         <div class="neighborhoods__scrim" aria-hidden="true"></div>
 
@@ -2369,7 +2375,7 @@
                 <span class="neighborhoods__count is-show" id="neighborhoodsCount">(32 Listings)</span>
               </div>
               <a class="ui-btn neighborhoods__go" href="neighborhood.html?id=pacific-heights" aria-label="View Pacific Heights listings">
-                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </a>
             </div>
           </div>
@@ -2381,7 +2387,7 @@
       <div class="agents__head">
         <h2 class="agents__title">Meet our agents</h2>
         <a class="ui-btn ui-btn--raised agents__all" href="agents.html" aria-label="View all agents">
-          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
         </a>
       </div>
 
@@ -2530,10 +2536,10 @@ said about us</h2>
 
             <div class="testimonials__arrows">
               <button class="ui-btn testimonials__nav testimonials__nav--prev" type="button" id="testimonialsPrev" aria-label="Previous testimonial" disabled>
-                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </button>
               <button class="ui-btn testimonials__nav testimonials__nav--next" type="button" id="testimonialsNext" aria-label="Next testimonial">
-                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+                <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
               </button>
             </div>
           </div>
@@ -2546,7 +2552,7 @@ said about us</h2>
         <div class="mi__head">
           <h2 class="mi__title" id="miTitle">Market insights</h2>
           <a class="ui-btn ui-btn--raised" href="insights.html" aria-label="View all insights">
-            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
           </a>
         </div>
         <div class="mi__body" id="miBody"></div>

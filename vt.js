@@ -28,6 +28,7 @@
   window.addEventListener("pageswap", function (e) {
     try {
       var vt = e.viewTransition, act = e.activation;
+      document.documentElement.classList.remove("vt-shared");
       if (!vt || !act || !act.entry || act.navigationType === "traverse" || act.navigationType === "reload") return;
       var kind = kindOf(new URL(act.entry.url).pathname);
       if (!kind || !last || !last.closest) return;
@@ -35,10 +36,13 @@
       var el = card && (card.matches(".featured-card") ? card : card.querySelector(MEDIA));
       if (!el) return;
       var clear = name(el);
+      document.documentElement.classList.add("vt-shared");
       try { sessionStorage.setItem(STORE, kind + "|" + Date.now()); } catch (x) {}
       vt.finished.then(clear, clear);
     } catch (x) {}
   });
+
+  window.addEventListener("pageshow", function (e) { if (e.persisted) document.documentElement.classList.remove("vt-shared"); });
 
   window.addEventListener("pagereveal", function (e) {
     try {
@@ -51,6 +55,7 @@
       if (!kind || !mark || mark[0] !== kind || Date.now() - Number(mark[1]) > 8000) return;
       var el = document.querySelector(DEST[kind]);
       if (!el) return;
+      document.documentElement.classList.add("vt-shared");
       el.removeAttribute("data-clip"); el.removeAttribute("data-reveal"); /* no entrance effect while it morphs */
       var clear = name(el);
       vt.finished.then(clear, clear);

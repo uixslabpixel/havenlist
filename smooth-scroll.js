@@ -29,6 +29,18 @@ window.HLScroll = (function () {
     if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].indexOf(e.key) !== -1) stop();
   });
 
+  /* While the full-screen menu is open the page behind it stays put (body overflow alone doesn't stop the
+     root scroller). Only the menu panel may scroll, and only when it is taller than the screen. */
+  const menuOpen = () => document.body && document.body.classList.contains("is-menu-open");
+  const panelOf = (t) => (t && t.closest ? t.closest(".mega-menu__panel") : null);
+  const scrollable = (p) => p && p.scrollHeight > p.clientHeight + 1;
+  ["wheel", "touchmove"].forEach((evt) =>
+    window.addEventListener(evt, (e) => { if (menuOpen() && !scrollable(panelOf(e.target))) e.preventDefault(); }, { passive: false })
+  );
+  window.addEventListener("keydown", (e) => {
+    if (menuOpen() && ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].indexOf(e.key) !== -1 && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) e.preventDefault();
+  });
+
   /* Glide to a page position: eased, duration scales with distance */
   function to(y) {
     y = clamp(y, 0, maxY());

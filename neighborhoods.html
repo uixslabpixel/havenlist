@@ -215,8 +215,8 @@
       width: 100%;
       max-width: none;
       margin: 0;
-      height: 100vh;
-      min-height: 100vh;
+      height: 80vh;
+      min-height: 680px;
       background: var(--paper);
       padding: 0;
       display: flex;
@@ -416,11 +416,11 @@
     }
 
     .featured__nav--prev {
-      left: max(24px, calc((100% - 1440px) / 2 + 64px));
+      left: var(--edge);
     }
 
     .featured__nav--next {
-      right: max(24px, calc((100% - 1440px) / 2 + 64px));
+      right: var(--edge);
     }
 
     .featured__meta {
@@ -531,7 +531,7 @@
     .nbf { padding-top: var(--nav-h); }
     @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 16px); } }
     /* Same header band as Search and Agents (white, soft shadow, same title); it sits mid-page, so no navbar offset */
-    .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); }
+    .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); background: var(--paper); box-shadow: none; }
     /* Phones: tighter featured text block, quieter 'More' header band */
     @media (max-width: 760px) {
       .featured__meta { gap: 4px; padding: 16px 16px 32px; min-height: 0; }
@@ -608,8 +608,8 @@
     <div class="featured__stage">
       <div class="featured__fade featured__fade--left" aria-hidden="true"></div>
       <div class="featured__fade featured__fade--right" aria-hidden="true"></div>
-      <button class="ui-btn featured__nav featured__nav--prev" type="button" id="featuredPrev" aria-label="Previous neighborhood"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
-      <button class="ui-btn featured__nav featured__nav--next" type="button" id="featuredNext" aria-label="Next neighborhood"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+      <button class="ui-btn featured__nav featured__nav--prev" type="button" id="featuredPrev" aria-label="Previous neighborhood"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+      <button class="ui-btn featured__nav featured__nav--next" type="button" id="featuredNext" aria-label="Next neighborhood"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
       <div class="featured__viewport" id="featuredViewport"><div class="featured__track" id="featuredTrack" aria-live="polite"></div></div>
     </div>
     <div class="featured__meta"><div class="featured__meta-copy"><h2 class="featured__name" id="featuredName"></h2><p class="featured__address" id="featuredAddress"></p><div class="featured__stats" id="featuredStats"></div></div></div>
