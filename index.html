@@ -1908,7 +1908,7 @@
       .categories .touch-dots { display: flex; margin-top: 16px; color: var(--ink); }
 
       .neighborhoods__inner { height: auto; padding: 56px 0 56px; display: flex; flex-direction: column; gap: 24px; }
-      .neighborhoods__title { justify-self: auto; padding-inline: var(--page-pad); font-size: var(--fs-heading); }
+      .neighborhoods__title { justify-self: auto; padding-inline: var(--page-pad); font-size: var(--fs-section); }
       .neighborhoods__stage { display: flex; flex-direction: column; align-items: center; gap: 20px; height: auto; }
       .neighborhoods__media { order: 1; width: 100%; height: auto; aspect-ratio: auto; margin: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; }
       .neighborhoods__slides { position: static; inset: auto; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
@@ -1926,6 +1926,7 @@
       /* ----- Agents: equal cards in a swipe row, details always visible ----- */
       .agents { height: auto; min-height: 0; padding: 56px 0 56px; content-visibility: visible; }
       .agents__head { padding-inline: var(--page-pad); margin-bottom: 24px; }
+      .agents__title, .testimonials__title { font-size: var(--fs-section); }
       .agents__row { height: auto; max-height: none; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
       .agents__row::-webkit-scrollbar { display: none; }
       .agents__card, .agents__card.is-active { flex: 0 0 min(72vw, 320px); height: min(112vw, 440px); scroll-snap-align: center; }
