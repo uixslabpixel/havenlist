@@ -92,7 +92,15 @@
   --pop-gap: 10px;
   --pop-shadow: 0.12;
 }
-@media (max-width: 700px) {
+/* Breakpoints (media queries can't read variables, so these three numbers are the rule):
+     mobile  ≤ 640px    1 column, --page-pad 24px
+     tablet  641–1024px 2 columns, --page-pad 32px
+     desktop ≥ 1025px   full layout, --page-pad 64px
+   Type and spacing between those points flow with clamp(). */
+@media (max-width: 1024px) {
+  :root { --page-pad: 32px; }
+}
+@media (max-width: 640px) {
   :root { --page-pad: 24px; }
 }
 
@@ -368,13 +376,17 @@ img { display: block; max-width: 100%; }
 .back-link__arrow path { stroke: currentColor; }
 .ui-btn--raised .ui-arrow path { stroke: url(#hlArrowGradient); }
 
-.ui-btn:hover .ui-arrow path,
 .ui-btn:focus-visible .ui-arrow path,
-.pager__nav:hover .ui-arrow path,
 .pager__nav:focus-visible .ui-arrow path,
-.back-link:hover .back-link__arrow path,
 .back-link:focus-visible .back-link__arrow path {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@media (hover: hover) {
+.ui-btn:hover .ui-arrow path,
+.pager__nav:hover .ui-arrow path,
+.back-link:hover .back-link__arrow path {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
 }
 
 /* ----- Close X (.x-icon): two strokes, each drawn from its bottom end ----- */
@@ -387,14 +399,22 @@ img { display: block; max-width: 100%; }
   stroke-dashoffset: 0;
 }
 
-button:hover > .x-icon .x-icon__a,
 button:focus-visible > .x-icon .x-icon__a {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+@media (hover: hover) {
+button:hover > .x-icon .x-icon__a {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+}
 
-button:hover > .x-icon .x-icon__b,
 button:focus-visible > .x-icon .x-icon__b {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) 0.14s both;
+}
+@media (hover: hover) {
+button:hover > .x-icon .x-icon__b {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) 0.14s both;
+}
 }
 
 
@@ -405,16 +425,26 @@ button:focus-visible > .x-icon .x-icon__b {
   stroke-dashoffset: 0;
 }
 
-.filter-more:hover .lines path,
 .filter-more:focus-visible .lines path {
   animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+@media (hover: hover) {
+.filter-more:hover .lines path {
+  animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+}
 
+@media (hover: hover) {
 .filter-more:hover .lines path:nth-child(2) { animation-delay: 0.1s; }
+}
+@media (hover: hover) {
 .filter-more:hover .lines path:nth-child(3) { animation-delay: 0.2s; }
+}
 
 /* Hearts in the navbar: same redraw on hover on every page */
+@media (hover: hover) {
 .icon-btn--fav:hover .heart-outline { animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+}
 .icon-btn--fav.is-active .heart-outline { animation: none; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -488,7 +518,9 @@ button:focus-visible > .x-icon .x-icon__b {
       transition: background 0.25s var(--ease);
     }
 
-    .card__fav:hover { background: rgba(0, 0, 0, 0.22); }
+    @media (hover: hover) {
+.card__fav:hover { background: rgba(0, 0, 0, 0.22); }
+}
 
     /* Heart outline draws from the top cleft on hover — as in the navbar */
     .card__fav .heart-outline {
@@ -497,9 +529,11 @@ button:focus-visible > .x-icon .x-icon__b {
       stroke-dashoffset: 0;
     }
 
-    .card__fav:hover .heart-outline {
+    @media (hover: hover) {
+.card__fav:hover .heart-outline {
       animation: draw-heart-outline 1.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
+}
 
     .card__body {
       display: flex;
@@ -569,7 +603,9 @@ button:focus-visible > .x-icon .x-icon__b {
 
     .card__badge { pointer-events: none; }
     .card__media img { transition: transform 0.9s var(--ease-soft); }
-    .card:hover .card__media img { transform: scale(1.035); }
+    @media (hover: hover) {
+.card:hover .card__media img { transform: scale(1.035); }
+}
 
     .back-link {
       display: inline-flex;
@@ -585,7 +621,9 @@ button:focus-visible > .x-icon .x-icon__b {
       transition: opacity 0.2s var(--ease);
     }
 
-    .back-link:hover { opacity: 1; }
+    @media (hover: hover) {
+.back-link:hover { opacity: 1; }
+}
 
     /* Mirrored arrow-swap: leaves to the left, the next one forms from the
        right — same tempo as the label rising */
@@ -633,7 +671,9 @@ button:focus-visible > .x-icon .x-icon__b {
   will-change: translate;
   transition: transform 0.9s var(--ease-soft);
 }
+@media (hover: hover) {
 .agent-card:hover .agent-card__media img { transform: scale(1.035); }
+}
 .agent-card__fade {
   position: absolute;
   left: 0;
@@ -671,7 +711,9 @@ button:focus-visible > .x-icon .x-icon__b {
   font: 400 var(--fs-body)/1.3 var(--font-ui);
   color: rgba(30, 30, 30, 0.8);
 }
+@media (hover: hover) {
 .agent-card__phone:hover { color: var(--ink); }
+}
 .agent-card__mail {
   position: relative;
   z-index: 1;
@@ -696,7 +738,9 @@ button:focus-visible > .x-icon .x-icon__b {
 .nb-card:not(.ins-card) .nb-card__body { padding: 8px 16px 16px; }
 .nb-card__media { position: relative; height: 320px; border-radius: var(--radius-lg); overflow: hidden; background: transparent; }
 .nb-card__media img { position: absolute; left: 0; top: -10%; width: 100%; height: 120%; object-fit: cover; translate: 0 var(--py, 0px); will-change: translate; transition: transform 0.9s var(--ease-soft); }
+@media (hover: hover) {
 .nb-card:hover .nb-card__media img { transform: scale(1.035); }
+}
 .nb-card__body { display: flex; flex-direction: column; gap: 8px; }
 .nb-card__name { margin: 0; font: 500 var(--fs-title)/1.2 var(--font-display, var(--font-ui)); letter-spacing: -0.02em; color: var(--ink); }
 .nb-card__meta { margin: 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.9); }
@@ -711,7 +755,9 @@ button:focus-visible > .x-icon .x-icon__b {
 .pager[hidden] { display: none; }
 .pager__list { display: flex; align-items: center; gap: 0; }
 .pager__btn { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; min-width: 40px; height: 40px; padding: 0 12px; border: 1px solid transparent; border-radius: 40px; background: transparent; font: 400 var(--fs-body)/1 var(--font-ui); color: var(--ink-70); transition: color 0.3s var(--ease); }
+@media (hover: hover) {
 .pager__btn:hover { color: var(--ink); }
+}
 .pager__btn[aria-current="page"], .pager__nav {
   color: var(--ink);
   border-color: var(--ink-07);
@@ -744,6 +790,34 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 .ui-field.is-error .ui-input { border-color: var(--heart); }
 .ui-field__error { display: none; font: 400 13px/1.3 var(--font-ui); color: var(--heart); }
 .ui-field.is-error .ui-field__error { display: block; }
+
+/* ---------- Touch carousels ---------- */
+/* .snap-row: a horizontal swipe row; children snap to the centre, the next one peeks in */
+.snap-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-inline: var(--page-pad);
+  scroll-padding-inline: var(--page-pad);
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.snap-row::-webkit-scrollbar { display: none; }
+.snap-row > * { flex: 0 0 auto; scroll-snap-align: center; }
+/* .dots: position indicator under a carousel; colour follows currentColor */
+.dots { display: flex; justify-content: center; align-items: center; gap: var(--space-2); }
+.dots__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.25;
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.dots__dot.is-active { opacity: 1; transform: scale(1.25); }
 
 /* ==================== 7. HOVER LANGUAGE ==================== */
 /* Havenlist hover fill — one hover language for every white / grey control
@@ -789,14 +863,34 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
   pointer-events: none;
 }
 
-.filter-query:hover::after, .filter-select:hover::after, .filter-pill:hover::after, .filter-more:hover::after,
-.compact-select:hover::after, .compact-more:hover::after, .chip:hover::after, .type-chip:hover::after,
-.loc-chip:hover::after, .filter-pop__close:hover::after, .stepper button:hover::after,
-.navbar.is-solid .icon-btn:hover::after, .detail__actions .icon-btn:hover::after, .ui-btn:hover::after,
-.pager__btn:hover::after, .agent-card__mail:hover::after, .ins-read:hover::after, .nbp__dir:hover::after,
-.agent-profile__mail:hover::after, .hl-btn--white:hover .hl-btn__inner::after, .hlw-x:hover::after, .hlw-opt:hover::after,
-.agents__action:hover::after, .agent-card__icon:hover::after, .ab-member__social a:hover::after {
+@media (hover: hover) {
+.filter-query:hover::after,
+.filter-select:hover::after,
+.filter-pill:hover::after,
+.filter-more:hover::after,
+.compact-select:hover::after,
+.compact-more:hover::after,
+.chip:hover::after,
+.type-chip:hover::after,
+.loc-chip:hover::after,
+.filter-pop__close:hover::after,
+.stepper button:hover::after,
+.navbar.is-solid .icon-btn:hover::after,
+.detail__actions .icon-btn:hover::after,
+.ui-btn:hover::after,
+.pager__btn:hover::after,
+.agent-card__mail:hover::after,
+.ins-read:hover::after,
+.nbp__dir:hover::after,
+.agent-profile__mail:hover::after,
+.hl-btn--white:hover .hl-btn__inner::after,
+.hlw-x:hover::after,
+.hlw-opt:hover::after,
+.agents__action:hover::after,
+.agent-card__icon:hover::after,
+.ab-member__social a:hover::after {
   transform: translateY(-40%);
+}
 }
 
 .pager__btn:disabled::after, .ui-btn:disabled::after { display: none; }
@@ -824,7 +918,10 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 .rise { height: auto !important; overflow: visible !important; }
 .rise__t { text-shadow: none !important; transform: none !important; transition: none !important; }
 .link-rise::after { display: none !important; }
-a:hover > .link-rise, a:focus-visible > .link-rise { transform: none !important; }
+a:focus-visible > .link-rise { transform: none !important; }
+@media (hover: hover) {
+a:hover > .link-rise { transform: none !important; }
+}
 .nav-links a { overflow: visible !important; }
 .tx { display: inline; }
 .tx__c { display: inline-block; white-space: pre; }
@@ -832,8 +929,15 @@ a:hover > .link-rise, a:focus-visible > .link-rise { transform: none !important;
   from { opacity: 0; transform: translate3d(var(--o, 0), 0, 0) scale(0.92); }
   to { opacity: 1; transform: none; }
 }
-a:hover .tx__c, button:hover .tx__c, a:focus-visible .tx__c, button:focus-visible .tx__c {
+a:focus-visible .tx__c,
+button:focus-visible .tx__c {
   animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+@media (hover: hover) {
+a:hover .tx__c,
+button:hover .tx__c {
+  animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
 }
 @media (prefers-reduced-motion: reduce) { .tx__c { animation: none !important; } }
 
@@ -887,10 +991,15 @@ html, html body { overflow-x: clip; }
   top: 100%;
   white-space: nowrap;
 }
-a:hover > .link-rise,
 a:focus-visible > .link-rise {
   transform: translateY(-100%);
   transition: transform var(--dur) var(--ease-soft);
+}
+@media (hover: hover) {
+a:hover > .link-rise {
+  transform: translateY(-100%);
+  transition: transform var(--dur) var(--ease-soft);
+}
 }
 .rise {
   display: inline-block;
@@ -904,12 +1013,17 @@ a:focus-visible > .link-rise {
   text-shadow: 0 1.4em 0 currentColor;
   transition: none;
 }
-a:hover .rise__t,
-button:hover .rise__t,
 a:focus-visible .rise__t,
 button:focus-visible .rise__t {
   transform: translateY(-1.4em);
   transition: transform var(--dur) var(--ease-soft);
+}
+@media (hover: hover) {
+a:hover .rise__t,
+button:hover .rise__t {
+  transform: translateY(-1.4em);
+  transition: transform var(--dur) var(--ease-soft);
+}
 }
 
 /* ---------- 9. Icons ---------- */
@@ -981,13 +1095,21 @@ button:focus-visible .rise__t {
 .hl-btn__icon svg:last-child {
   transform: translateX(-120%);
 }
-.hl-btn:hover .hl-btn__icon svg:first-child,
 .hl-btn:focus-visible .hl-btn__icon svg:first-child {
   transform: translateX(120%);
 }
-.hl-btn:hover .hl-btn__icon svg:last-child,
+@media (hover: hover) {
+.hl-btn:hover .hl-btn__icon svg:first-child {
+  transform: translateX(120%);
+}
+}
 .hl-btn:focus-visible .hl-btn__icon svg:last-child {
   transform: translateX(0);
+}
+@media (hover: hover) {
+.hl-btn:hover .hl-btn__icon svg:last-child {
+  transform: translateX(0);
+}
 }
 .hl-btn--black {
   border: 1px solid var(--ink);
@@ -999,8 +1121,10 @@ button:focus-visible .rise__t {
   border: 1px solid var(--ink);
   color: #fff;
 }
+@media (hover: hover) {
 .hl-btn--black:hover {
   filter: brightness(1.12);
+}
 }
 .hl-btn--black:active {
   transform: scale(0.97);
@@ -1086,8 +1210,10 @@ button:focus-visible .rise__t {
   overflow: hidden;
   transition: box-shadow 0.35s var(--ease);
 }
+@media (hover: hover) {
 .ui-btn:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 }
 .ui-btn:disabled,
 .ui-btn[aria-disabled="true"] {
@@ -1131,8 +1257,10 @@ button:focus-visible .rise__t {
   border-color: var(--ink-07);
   box-shadow: var(--shadow-xs);
 }
+@media (hover: hover) {
 .detail__actions .icon-btn:hover {
   background: var(--paper);
+}
 }
 .detail__actions .icon-btn svg {
   fill: currentColor;
@@ -1296,8 +1424,10 @@ input {
   opacity: 0.34;
   color: var(--ink);
 }
+@media (hover: hover) {
 .chip__x:hover {
   opacity: 0.7;
+}
 }
 .loc-chip {
   height: 28px;
@@ -1552,8 +1682,10 @@ body.is-compact .compact-bar > *:nth-child(5) {
   color: var(--ink-40);
   border-radius: 50%;
 }
+@media (hover: hover) {
 .filter-query__clear:hover {
   color: var(--ink-70);
+}
 }
 .filter-query.has-value .filter-query__clear {
   display: inline-flex;
@@ -1691,8 +1823,10 @@ body.is-compact .compact-bar > *:nth-child(5) {
   color: var(--ink-40);
   border-radius: var(--radius-xs);
 }
+@media (hover: hover) {
 .filter-pop__close:hover {
   color: var(--ink);
+}
 }
 .filter-pop__body {
   padding: 20px 24px;
@@ -1717,8 +1851,10 @@ body.is-compact .compact-bar > *:nth-child(5) {
   color: var(--ink-70);
   letter-spacing: -0.01em;
 }
+@media (hover: hover) {
 .filter-clear:hover {
   color: var(--ink);
+}
 }
 .filter-field {
   display: flex;
@@ -1996,8 +2132,10 @@ body.is-compact .compact-bar > *:nth-child(5) {
   flex-shrink: 0;
   transition: opacity 0.25s var(--ease);
 }
+@media (hover: hover) {
 .logo:hover {
   opacity: 0.85;
+}
 }
 .nav-links {
   position: absolute;
@@ -2106,8 +2244,10 @@ body.is-compact .compact-bar > *:nth-child(5) {
   color: var(--ink);
   transition: background 0.2s var(--ease);
 }
+@media (hover: hover) {
 .nav-pill__btn:hover {
   background: var(--paper);
+}
 }
 @media (min-width: 1280px) {
   .nav-pill {
@@ -2184,14 +2324,20 @@ body.is-compact .compact-bar > *:nth-child(5) {
 .menu-btn__burger {
   transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
 }
+@media (hover: hover) {
 .menu-btn:not(.is-open):hover .menu-btn__line--top {
   animation: draw-line 0.7s var(--ease-out) forwards;
 }
+}
+@media (hover: hover) {
 .menu-btn:not(.is-open):hover .menu-btn__line--bot {
   animation: draw-line 0.7s var(--ease-out) 0.22s forwards;
 }
+}
+@media (hover: hover) {
 .menu-btn:not(.is-open):not(:hover) .menu-btn__line {
   animation: none;
+}
 }
 .menu-btn__x {
   position: absolute;
@@ -2436,6 +2582,22 @@ body.is-menu-open {
   }
 }
 
+.mega-menu__sell { display: none; }
+@media (max-width: 640px) {
+  .mega-menu__panel { gap: 20px; padding: 80px var(--page-pad) 32px; }
+  .mega-menu__media { display: none; }
+  .mega-menu__body { padding: 0; }
+  .mega-menu__grid { grid-template-columns: 1fr 1fr; column-gap: 24px; row-gap: 32px; margin-top: 0; }
+  .mega-menu__grid > div:first-child { grid-column: 1 / -1; }
+  .mega-menu__group-label { margin-bottom: 10px; }
+  .mega-menu__links { gap: 4px; }
+  .mega-menu__links--lg a { font-size: var(--fs-heading); }
+  .mega-menu__links--md a { font-size: var(--fs-title); }
+  .mega-menu__contact > a { font-size: var(--fs-title); }
+  .mega-menu__sell { display: inline-flex; width: 100%; margin-top: var(--space-6); }
+  .mega-menu__sell .hl-btn__inner { width: 100%; }
+}
+
 /* ---------- 9. Toast ---------- */
 
 .toast {
@@ -2458,4 +2620,16 @@ body.is-menu-open {
 .toast.is-visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+/* ==================== 10. TOUCH ==================== */
+/* Hover rules above only apply under (hover: hover). On touch a tap gives a quick press response instead,
+   and the round controls grow to a 44px target. */
+@media (hover: none) {
+  .hl-btn:active, .icon-btn:active, .ui-btn:active, .chip:active, .type-chip:active, .loc-chip:active,
+  .filter-pill:active, .filter-select:active, .filter-more:active, .pager__btn:active, .back-link:active { opacity: 0.7; }
+  .icon-btn, .ui-btn, .filter-more { width: 44px; height: 44px; }
+  .pager__btn { min-width: 44px; height: 44px; }
+  .menu-btn { top: 10px; width: 44px; height: 44px; }
+  .menu-btn-spacer { width: 44px; height: 44px; }
 }
