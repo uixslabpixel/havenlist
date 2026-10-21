@@ -1,6 +1,6 @@
 /* Havenlist feedback — pin a comment to any part of any page.
-   Off for everyone by default. Open any page once with ?feedback=KODE to switch it on in this
-   browser (?feedback=off switches it off again). Comments are sent to /api/feedback, which files
+   A small "Feedback" button floats on every page; tapping it asks for the code once (saved in this
+   browser). ?feedback=KODE also unlocks it, ?feedback=off locks it again. Comments are sent to /api/feedback, which files
    them as GitHub issues; the "feedback-triage" skill reads them back. */
 (function () {
   "use strict";
@@ -25,8 +25,6 @@
     var qs = params.toString();
     try { history.replaceState(history.state, "", location.pathname + (qs ? "?" + qs : "") + location.hash); } catch (e) {}
   }
-  if (!st.code) return;
-
   /* ---------- helpers ---------- */
   function esc(s) { return String(s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); }
   function pageKey() { return location.pathname + location.search; }
@@ -85,7 +83,7 @@
     ":host{font:400 14px/1.4 system-ui,-apple-system,'Segoe UI',sans-serif;color:#1e1e1e}" +
     "*{box-sizing:border-box}button{font:inherit;color:inherit;cursor:pointer}" +
     ".fab{pointer-events:auto;position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));height:40px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:#1e1e1e;color:#fff;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.25)}" +
-    ".fab b{min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:10px;background:#e5484d;font-size:12px}" +
+    ".fab b[hidden]{display:none}.fab b{min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:10px;background:#e5484d;font-size:12px}" +
     ".menu{pointer-events:auto;position:fixed;left:12px;bottom:calc(60px + env(safe-area-inset-bottom,0px));min-width:220px;padding:6px;background:#fff;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.2);display:none}" +
     ".menu.on{display:block}.menu button{display:block;width:100%;padding:11px 12px;text-align:left;background:none;border:0;border-radius:8px}.menu button:hover{background:#f2f2f0}" +
     ".bar{pointer-events:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);padding:10px 16px;background:#1e1e1e;color:#fff;border-radius:999px;font-weight:500;display:none;text-align:center}" +
@@ -93,18 +91,21 @@
     ".hi{position:fixed;display:none;border:2px solid #e5484d;background:rgba(229,72,77,.12);border-radius:4px;pointer-events:none}" +
     ".hi.on{display:block}.hi.sel{background:rgba(229,72,77,.06)}" +
     ".panel{pointer-events:auto;position:fixed;width:min(340px,calc(100vw - 24px));padding:16px;background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.28);display:none}" +
-    ".panel.on{display:block}" +
+    ".panel.on{display:block}.panel.code{left:12px;top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px))}" +
     "@media(max-width:760px){.panel{left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%;border-radius:20px 20px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}}" +
     ".panel h4{margin:0 0 4px;font-size:15px;line-height:1.3;font-weight:600}.where{margin:0 0 12px;color:#6b6b68;font-size:12px;word-break:break-all}" +
     ".lab{display:block;margin:10px 0 6px;font-size:12px;color:#6b6b68}" +
     ".seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{padding:7px 12px;border:1px solid #dcdcd8;border-radius:999px;background:#fff}.seg button[aria-pressed=true]{background:#1e1e1e;border-color:#1e1e1e;color:#fff}" +
     "textarea{width:100%;min-height:92px;padding:10px 12px;border:1px solid #dcdcd8;border-radius:12px;font:inherit;resize:vertical}textarea:focus{outline:2px solid #1e1e1e;outline-offset:1px}" +
     ".row{display:flex;gap:8px;margin-top:12px}.row button{flex:1;height:42px;border-radius:999px;border:1px solid #dcdcd8;background:#fff;font-weight:500}.row .go{background:#1e1e1e;border-color:#1e1e1e;color:#fff}.row button:disabled{opacity:.5;cursor:default}" +
-    ".err{margin:8px 0 0;color:#c4262b;font-size:12px;min-height:0}" +
+    ".codein{width:100%;height:44px;padding:0 14px;border:1px solid #dcdcd8;border-radius:999px;font:inherit}.codein:focus{outline:2px solid #1e1e1e;outline-offset:1px}.err{margin:8px 0 0;color:#c4262b;font-size:12px;min-height:0}" +
     ".toast{pointer-events:none;position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:10px 16px;background:#1e1e1e;color:#fff;border-radius:999px;opacity:0;transition:opacity .2s}.toast.on{opacity:1}" +
     "</style>" +
     '<button class="fab" type="button" aria-haspopup="true">Feedback <b hidden>0</b></button>' +
     '<div class="menu" role="menu"><button type="button" data-a="add">Tambah feedback…</button><button type="button" data-a="pins"></button><button type="button" data-a="off">Matikan mode feedback</button></div>' +
+    '<form class="panel code" aria-label="Kode feedback"><h4>Masukkan kode feedback</h4><p class="where">Kode ini hanya diminta sekali di browser ini.</p>' +
+    '<input class="codein" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Kode" aria-label="Kode feedback">' +
+    '<p class="err" role="alert"></p><div class="row"><button type="button" data-a="codecancel">Batal</button><button class="go" type="submit">Aktifkan</button></div></form>' +
     '<div class="bar" role="status">Pilih bagian yang ingin diberi feedback · Esc untuk batal</div>' +
     '<div class="hi"></div>' +
     '<form class="panel" aria-label="Kirim feedback"><h4>Feedback untuk bagian ini</h4><p class="where"></p>' +
@@ -115,8 +116,9 @@
     '<div class="toast" role="status"></div>';
 
   var $ = function (s) { return root.querySelector(s); };
-  var fab = $(".fab"), menu = $(".menu"), bar = $(".bar"), hi = $(".hi"), panel = $(".panel"), toastEl = $(".toast");
-  var ta = $("textarea"), errEl = $(".err"), whereEl = $(".where"), goBtn = $(".go");
+  var fab = $(".fab"), menu = $(".menu"), bar = $(".bar"), hi = $(".hi"), panel = $("form.panel:not(.code)"), codeForm = $("form.code"), toastEl = $(".toast");
+  var ta = $("textarea"), errEl = panel.querySelector(".err"), whereEl = panel.querySelector(".where"), goBtn = panel.querySelector(".go");
+  var codeIn = $(".codein"), codeErr = codeForm.querySelector(".err"), codeGo = codeForm.querySelector(".go");
   var form = { cat: "layout", prio: "med" };
   function seg(k, opts) {
     var wrap = $('.seg[data-k="' + k + '"]');
@@ -132,7 +134,7 @@
   var tT = 0;
   function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tT); tT = setTimeout(function () { toastEl.classList.remove("on"); }, 2600); }
   function badge() {
-    var n = st.list.filter(function (p) { return p.page === pageKey(); }).length, b = fab.querySelector("b");
+    var n = st.code ? st.list.filter(function (p) { return p.page === pageKey(); }).length : 0, b = fab.querySelector("b");
     b.hidden = !n; b.textContent = n;
   }
   function paintMenu() { menu.querySelector('[data-a="pins"]').textContent = st.pins === false ? "Tampilkan pin feedback" : "Sembunyikan pin feedback"; }
@@ -235,7 +237,7 @@
     clearTimeout(pinTimer);
     pinTimer = setTimeout(function () {
       Array.prototype.slice.call(pinRoot.querySelectorAll(".p")).forEach(function (n) { n.remove(); });
-      if (st.pins === false) return;
+      if (st.pins === false || !st.code) return;
       st.list.forEach(function (p) {
         if (p.page !== pageKey()) return;
         var el; try { el = document.querySelector(p.sel); } catch (e) { el = null; }
@@ -250,12 +252,32 @@
 
   /* ---------- menu + mount ---------- */
   function closeMenu() { menu.classList.remove("on"); fab.setAttribute("aria-expanded", "false"); }
-  fab.addEventListener("click", function (e) { e.stopPropagation(); if (picking) { stop(); return; } paintMenu(); var on = menu.classList.toggle("on"); fab.setAttribute("aria-expanded", String(on)); });
+  /* Locked: the button asks for the code (checked by the server before it is kept) */
+  function openCode() { closeMenu(); codeErr.textContent = ""; codeIn.value = ""; codeGo.disabled = false; codeGo.textContent = "Aktifkan"; codeForm.classList.add("on"); setTimeout(function () { codeIn.focus({ preventScroll: true }); }, 30); }
+  function closeCode() { codeForm.classList.remove("on"); }
+  codeForm.addEventListener("click", function (e) { if (e.target.getAttribute("data-a") === "codecancel") closeCode(); });
+  codeForm.addEventListener("keydown", function (e) { if (e.key === "Escape") closeCode(); e.stopPropagation(); });
+  codeForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var v = codeIn.value.trim(); if (!v) { codeErr.textContent = "Isi kodenya dulu."; return; }
+    codeGo.disabled = true; codeGo.textContent = "Memeriksa…"; codeErr.textContent = "";
+    fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: v, check: true }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (r) {
+        if (r.s === 200 && r.j.ok) { st.code = v; save(); closeCode(); badge(); pins(); toast("Mode feedback aktif"); }
+        else {
+          codeErr.textContent = r.s === 401 ? "Kode salah." : r.s === 429 ? "Terlalu sering. Coba lagi sebentar." : r.s === 503 ? "Server belum disetel (FEEDBACK_CODE / GITHUB_TOKEN)." : "Gagal memeriksa. Coba lagi.";
+          codeGo.disabled = false; codeGo.textContent = "Aktifkan";
+        }
+      })
+      .catch(function () { codeErr.textContent = "Tidak ada koneksi. Coba lagi."; codeGo.disabled = false; codeGo.textContent = "Aktifkan"; });
+  });
+  fab.addEventListener("click", function (e) { e.stopPropagation(); if (!st.code) { codeForm.classList.contains("on") ? closeCode() : openCode(); return; } if (picking) { stop(); return; } paintMenu(); var on = menu.classList.toggle("on"); fab.setAttribute("aria-expanded", String(on)); });
   menu.addEventListener("click", function (e) {
     var a = e.target.getAttribute("data-a"); if (!a) return;
     if (a === "add") start();
     if (a === "pins") { st.pins = st.pins === false; save(); closeMenu(); pins(); }
-    if (a === "off") { st.code = ""; save(); closeMenu(); host.remove(); pinLayer.remove(); toast("Mode feedback dimatikan"); }
+    if (a === "off") { stop(); st.code = ""; save(); closeMenu(); badge(); pins(); toast("Mode feedback dimatikan"); }
   });
   document.addEventListener("click", function (e) { if (!inUI(e.target)) closeMenu(); });
 

@@ -1,6 +1,6 @@
 /* POST /api/feedback — files a feedback comment as a GitHub issue.
    Env (Vercel → Settings → Environment Variables):
-     FEEDBACK_CODE   secret that unlocks the widget (?feedback=CODE)
+     FEEDBACK_CODE   secret that unlocks the widget (?feedback=CODE or the floating button)
      GITHUB_TOKEN    fine-grained token, repository access: this repo only, permission "Issues: Read and write"
      FEEDBACK_REPO   optional, "owner/repo" (default uixslabpixel/havenlist)
      FEEDBACK_DRY_RUN=1  optional, returns the issue instead of creating it (local testing) */
@@ -74,6 +74,8 @@ module.exports = async function handler(req, res) {
   const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "?";
   if (limited(ip)) return res.status(429).json({ error: "rate-limited" });
   if (!same(b.code || "", code)) return res.status(401).json({ error: "unauthorized" });
+
+  if (b.check === true) return res.status(200).json({ ok: true, check: true });
 
   const issue = build(b);
   if (!issue) return res.status(400).json({ error: "bad-request" });
