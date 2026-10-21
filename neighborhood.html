@@ -217,6 +217,8 @@
     .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
     @media (max-width: 720px) { .nbp { flex-direction: column; align-items: flex-start; } .nbp__main { width: 100%; align-self: auto; } .nbp__row { flex-wrap: wrap; } }
   </style>
+  <script src="vt.js"></script>
+  <link rel="expect" href="#heroPhoto" blocking="render">
 </head>
 <body>
   <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
@@ -747,7 +749,7 @@
     })();
     document.title = NB.name + " — Havenlist";
     document.getElementById("agentProfile").innerHTML =
-      '<div class="nbp"><div class="nbp__thumb"><img src="' + NB.image + '" alt="' + NB.name + '" decoding="async"></div>' +
+      '<div class="nbp"><div class="nbp__thumb" id="heroPhoto"><img src="' + NB.image + '" alt="' + NB.name + '" decoding="async"></div>' +
       '<div class="nbp__main"><div class="nbp__row"><div><h1 class="nbp__name">' + NB.name + '</h1><p class="nbp__addr">' + NB.name + ', San Francisco, CA</p></div>' +
       '<a class="nbp__dir" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=' + NB.ll[0] + "," + NB.ll[1] + '">Show directions</a></div>' +
       '<p class="nbp__stats"><span>' + HLNeighborhoods.price(NB) + ' Avg price</span><span>(' + NB.count + ' Listings)</span></p></div></div>';
