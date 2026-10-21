@@ -629,7 +629,7 @@
 .ind-toc a:hover{ color: rgba(30, 30, 30, 0.75); }
 }
     .ind-toc a.is-active { color: var(--ink); }
-    .ind-article { padding: 40px 0 40px; display: flex; flex-direction: column; gap: 40px; max-width: 842px; }
+    .ind-article { padding: 40px 0 40px; display: flex; flex-direction: column; gap: 40px; }
     .ind-sec { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: calc(var(--nav-h) + 32px); }
     .ind-sec h2, .ind-news h2 { margin: 0; font: 500 var(--fs-title)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ind-sec p { margin: 0; font: 400 var(--fs-title-sm)/1.5 var(--font-ui); letter-spacing: -0.01em; color: rgba(30, 30, 30, 0.8); }
@@ -775,8 +775,8 @@
           <span class="hl-btn__inner">
             Get started
             <span class="hl-btn__icon" aria-hidden="true">
-              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
           </span>
         </button>
@@ -916,7 +916,7 @@
         $("indImg").src = art.img;
       }
       var CAL = '<svg class="ins-cal" width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>';
-      var rel = DATA.filter(function (a) { return !art || a.id !== art.id; }).slice(0, 4);
+      var rel = DATA.filter(function (a) { return !art || a.id !== art.id; }).slice(0, 6);
       $("indRelated").innerHTML = rel.map(function (c, i) {
         return '<a class="ins-card nb-card" href="insight.html?id=' + c.id + '" data-reveal data-reveal-delay="' + (i * 90) + '"><div class="nb-card__media"><img src="' + c.img + '" alt="" loading="lazy"><span class="ins-tag">' + esc(c.type) + '</span></div>' +
           '<div class="ins-card__body"><h3 class="ins-card__title">' + esc(c.title) + '</h3><div class="ins-meta"><span>' + CAL + c.date + '</span></div></div></a>';

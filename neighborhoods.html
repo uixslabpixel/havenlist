@@ -215,8 +215,8 @@
       width: 100%;
       max-width: none;
       margin: 0;
-      height: 80vh;
-      min-height: 680px;
+      height: auto;
+      min-height: 80vh;
       background: var(--paper);
       padding: 0;
       display: flex;
@@ -528,7 +528,7 @@
     }
 
     /* Same section as the homepage's Featured Listings; the page's own navbar offset is added on top */
-    .nbf { padding-top: var(--nav-h); }
+    .nbf { padding-top: calc(var(--nav-h) + 40px); }
     @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 16px); } }
     /* Same header band as Search and Agents (white, soft shadow, same title); it sits mid-page, so no navbar offset */
     .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); background: var(--paper); box-shadow: none; }
@@ -737,8 +737,8 @@
           <span class="hl-btn__inner">
             Get started
             <span class="hl-btn__icon" aria-hidden="true">
-              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
           </span>
         </button>

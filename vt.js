@@ -44,7 +44,23 @@
 
   window.addEventListener("pageshow", function (e) { if (e.persisted) document.documentElement.classList.remove("vt-shared"); });
 
+  /* Menu order: a page further down the menu rises from below, one further up drops in from above */
+  var RANK = { index: 0, search: 1, listing: 1.5, agents: 2, agent: 2.5, neighborhoods: 3, neighborhood: 3.5, insights: 4, insight: 4.5, about: 5, sell: 6, wishlist: 7, "wishlist-detail": 7.5 };
+  function rankOf(path) {
+    var m = /^\/?([^/]*?)(?:\.html)?\/?$/.exec(path);
+    var k = m ? (m[1] || "index") : "";
+    return RANK.hasOwnProperty(k) ? RANK[k] : null;
+  }
+
   window.addEventListener("pagereveal", function (e) {
+    try {
+      var root = document.documentElement;
+      root.classList.remove("vt-next", "vt-prev");
+      if (window.navigation && navigation.activation && navigation.activation.from) {
+        var from = rankOf(new URL(navigation.activation.from.url).pathname), to = rankOf(location.pathname);
+        if (from !== null && to !== null && from !== to) root.classList.add(to > from ? "vt-next" : "vt-prev");
+      }
+    } catch (x) {}
     try {
       var vt = e.viewTransition;
       if (!vt || !window.navigation || !navigation.activation || !navigation.activation.from) return;
