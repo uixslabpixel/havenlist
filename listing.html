@@ -786,9 +786,6 @@
     <div class="detail__main">
       <div class="detail__top">
         <div class="detail__head">
-          <a class="ui-btn ui-btn--raised detail__back" id="backBtn" href="search.html" aria-label="Back to results">
-            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
-          </a>
           <div class="detail__titles">
             <h1 class="detail__title" id="detailTitle"></h1>
             <p class="detail__addr" id="detailAddr"></p>
@@ -1197,16 +1194,6 @@
       $("saveBtn").setAttribute("data-wl-id", item.id);
       HLWishlist.visit(item.id);
       HLWishlist.sync();
-
-      /* Back goes to the results the user came from, if any */
-      $("backBtn").addEventListener("click", function (e) {
-        try {
-          if (document.referrer && new URL(document.referrer).origin === window.location.origin && window.history.length > 1) {
-            e.preventDefault();
-            window.history.back();
-          }
-        } catch (err) {}
-      });
 
       /* ---------- map ---------- */
       /* Real map: Leaflet + OpenStreetMap data (CARTO light tiles), places from Overpass */
