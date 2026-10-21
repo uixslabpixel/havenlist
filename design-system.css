@@ -20,8 +20,10 @@
 :root {
   /* Colour — ink is the only text colour; alpha steps for secondary text, lines and fills */
   --ink: #1e1e1e;
+  --ink-80: rgba(30, 30, 30, 0.8);
   --ink-70: rgba(30, 30, 30, 0.7);
   --ink-40: rgba(30, 30, 30, 0.4);
+  --ink-20: rgba(30, 30, 30, 0.2);
   --ink-10: rgba(30, 30, 30, 0.1);
   --ink-07: rgba(30, 30, 30, 0.07);
   --paper: #fafaf9;          /* page background */
@@ -849,6 +851,20 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
   .stats { padding: 56px var(--page-pad); }
   .stats__list li { grid-template-columns: 1fr; gap: var(--space-2); }
   .stats__list b { font-size: 48px; }
+}
+
+.ins-read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--ink-07);
+  border-radius: 36px;
+  background: transparent;
+  font: 400 var(--fs-body)/1 var(--font-ui);
+  color: var(--ink);
+  transition: background 0.2s var(--ease);
 }
 
 /* ==================== 7. HOVER LANGUAGE ==================== */
