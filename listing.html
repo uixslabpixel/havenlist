@@ -654,6 +654,14 @@
       body.is-pill .nav-pill > :nth-child(4) { transition-delay: 0.56s; }
     }
 
+
+    /* Agent bar + inquiry bottom sheet (phones only) */
+    .inq-bar, .inq-scrim, .inquiry__close { display: none; }
+
+    /* Pins and legend are visible on the small map too (it opens full screen on tap) */
+    .map:not(.is-expanded) .map__legend { left: 12px; top: 12px; gap: 4px; padding: 8px 10px; font-size: 12px; }
+    .map:not(.is-expanded) .map__legend .pin { width: 14px; }
+
     /* Similar properties */
     .similar {
       max-width: 1440px;
@@ -690,6 +698,72 @@
     }
 
     @media (max-width: 700px) {
+      /* Small map: legend runs along the bottom so it doesn't cover the pins */
+      .map:not(.is-expanded) .map__legend { top: auto; bottom: 12px; left: 12px; right: 64px; flex-direction: row; flex-wrap: wrap; gap: 4px 12px; padding: 8px 10px; }
+
+      /* Agent bar: follows the page once the gallery is behind you */
+      .detail__main { padding-bottom: 0; }
+      .similar { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+      .inq-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        z-index: 90;
+        padding: 8px 8px 8px 8px;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--ink-07);
+        border-radius: 56px;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+        transform: translateY(160%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s var(--ease);
+      }
+      .inq-bar.is-on { transform: none; opacity: 1; pointer-events: auto; }
+      .inq-bar__photo { width: 40px; height: 40px; flex: none; border-radius: 50%; object-fit: cover; object-position: center top; }
+      .inq-bar__text { flex: 1 1 auto; min-width: 0; }
+      .inq-bar__name { font: 500 var(--fs-small)/1.3 var(--font-ui); letter-spacing: -0.01em; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .inq-bar__price { font: 400 var(--fs-small)/1.3 var(--font-ui); letter-spacing: -0.01em; color: var(--ink-70); }
+
+      /* The inquiry card becomes a bottom sheet — same slow rise as the filters */
+      .detail__aside {
+        position: fixed;
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 310;
+        max-height: 90vh;
+        max-height: 90dvh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 0;
+        background: var(--white);
+        border-radius: 24px 24px 0 0;
+        box-shadow: 0 -16px 48px rgba(0, 0, 0, 0);
+        transform: translateY(104%);
+        visibility: hidden;
+        transition: transform 0.6s cubic-bezier(0.5, 0, 0.75, 0), box-shadow 0.6s var(--ease), visibility 0s linear 0.6s;
+      }
+      body.is-inq-open .detail__aside {
+        transform: none;
+        visibility: visible;
+        box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.14);
+        transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 1.1s var(--ease-out), visibility 0s;
+      }
+      .inquiry { border: 0; border-radius: 0; box-shadow: none; padding: 24px 24px calc(24px + env(safe-area-inset-bottom, 0px)); position: relative; }
+      .inquiry__top { padding-right: 40px; }
+      .inquiry__close { display: inline-flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; width: 32px; height: 32px; color: var(--ink-40); }
+      .inq-scrim { display: block; position: fixed; inset: 0; z-index: 300; background: rgba(30, 30, 30, 0.3); opacity: 0; pointer-events: none; transition: opacity 0.8s var(--ease-out); }
+      body.is-inq-open .inq-scrim { opacity: 1; pointer-events: auto; }
+      body.is-inq-open { overflow: hidden; }
+      body.is-map-open .inq-bar { opacity: 0; pointer-events: none; }
+
       
       .detail { padding-inline: 24px; }
       .similar { padding-inline: 24px; }
@@ -833,6 +907,9 @@
 
     <aside class="detail__aside" aria-label="Contact the agent">
       <div class="inquiry">
+        <button class="inquiry__close" type="button" id="inqClose" aria-label="Close">
+          <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+        </button>
         <div class="inquiry__top">
           <p class="inquiry__price" id="inqPrice"></p>
           <div class="inquiry__specs" id="inqSpecs"></div>
@@ -870,6 +947,17 @@
       </div>
     </aside>
   </main>
+
+  <!-- Phones: the agent stays one tap away. The bar follows the page; the inquiry card above opens as a bottom sheet. -->
+  <div class="inq-bar" id="inqBar">
+    <img class="inq-bar__photo" id="barPhoto" alt="" width="40" height="40" decoding="async">
+    <div class="inq-bar__text">
+      <p class="inq-bar__name" id="barName"></p>
+      <p class="inq-bar__price" id="barPrice"></p>
+    </div>
+    <button class="hl-btn hl-btn--black hl-btn--sm" type="button" id="inqOpen"><span class="hl-btn__inner">Contact</span></button>
+  </div>
+  <div class="inq-scrim" id="inqScrim"></div>
 
   <section class="similar" aria-label="Similar properties">
     <h2 class="similar__title">Similar properties</h2>
@@ -1111,7 +1199,41 @@
         if (!form.checkValidity()) { form.reportValidity(); return; }
         toast("Message sent to " + agent.name.split(" ")[0]);
         form.reset();
+        closeInq();
       });
+
+      /* ---------- phones: sticky agent bar + inquiry bottom sheet ---------- */
+      var bar = $("inqBar");
+      var phone = window.matchMedia("(max-width: 700px)");
+      var footerEl = document.querySelector(".site-footer");
+      var barTick = false;
+      $("barPhoto").src = agent.photo;
+      $("barName").textContent = agent.name;
+      $("barPrice").textContent = item.price;
+
+      function updateBar() {
+        barTick = false;
+        var b = document.body;
+        var show = phone.matches && window.scrollY > 360 && !b.classList.contains("is-inq-open") &&
+          !b.classList.contains("is-map-open") && footerEl.getBoundingClientRect().top > window.innerHeight - 24;
+        bar.classList.toggle("is-on", show);
+      }
+      function queueBar() { if (!barTick) { barTick = true; requestAnimationFrame(updateBar); } }
+      function openInq() {
+        document.body.classList.add("is-inq-open");
+        updateBar();
+      }
+      function closeInq() {
+        document.body.classList.remove("is-inq-open");
+        queueBar();
+      }
+      $("inqOpen").addEventListener("click", openInq);
+      $("inqClose").addEventListener("click", closeInq);
+      $("inqScrim").addEventListener("click", closeInq);
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeInq(); });
+      window.addEventListener("scroll", queueBar, { passive: true });
+      window.addEventListener("resize", function () { if (!phone.matches) closeInq(); queueBar(); });
+      updateBar();
 
       /* ---------- similar properties (same card as the search results) ---------- */
       var rotated = all.slice(position + 1).concat(all.slice(0, position));
@@ -1252,6 +1374,12 @@
         ;
       group.addTo(lmap);
 
+      /* Frame the property and the places around it (small map and after closing the full-screen one) */
+      function frameAll() {
+        if (group.getLayers().length > 1) lmap.fitBounds(group.getBounds(), { padding: [48, 48], maxZoom: 16, animate: false });
+        else lmap.setView(geo, 15, { animate: false });
+      }
+
       HLGeo.pois(geo, item.id, function (places) {
         var used = {};
         places.sort(function (a, b) { return a.d - b.d; }).forEach(function (p, n) {
@@ -1266,6 +1394,8 @@
             return '<span><span class="pin pin--legend"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg>' +
               '<span class="pin__dot" style="background-color:' + c.color + '"><svg class="pin__icon" viewBox="' + VB[c.icon] + '" aria-hidden="true"><use href="#' + c.icon + '"/></svg></span></span>' + esc(c.label) + "</span>";
           }).join("");
+        frameAll();
+        $("map").classList.add("is-pins");
       });
 
       var map = $("map");
@@ -1337,7 +1467,6 @@
         clearTimeout(mapTimer);
         var r = slot.getBoundingClientRect();
         setInteractive(false);
-        map.classList.remove("is-pins");
         map.classList.remove("is-expanded");
         map.setAttribute("aria-expanded", "false");
         map.setAttribute("aria-label", "Open the map");
@@ -1350,7 +1479,7 @@
           document.body.classList.remove("is-map-dissolve");
           navDefault = false;
           evaluateNav();
-          lmap.setView(geo, 15, { animate: false });
+          frameAll();
           mapBusy = false;
         }, GROW);
       }
