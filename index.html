@@ -1889,8 +1889,8 @@
       .featured__meta { padding: 24px var(--page-pad) 40px; }
 
       /* ----- Browse by type / Explore neighborhoods: no pin, swipe row + dots ----- */
-      .categories, .neighborhoods { height: auto; }
-      .categories__pin, .neighborhoods__pin { position: static; height: auto; overflow: visible; }
+      .categories { height: auto; }
+      .categories__pin { position: static; height: auto; overflow: visible; }
 
       .categories__inner { flex-direction: column; height: auto; padding: 56px 0 48px; gap: 24px; }
       .categories__copy { flex: none; height: auto; padding-inline: var(--page-pad); gap: 16px; }
@@ -1907,21 +1907,6 @@
       .categories__cap .categories__go .ui-arrow { opacity: 1; transform: none; }
       .categories .touch-dots { display: flex; margin-top: 16px; color: var(--ink); }
 
-      .neighborhoods__inner { height: auto; padding: 56px 0 56px; display: flex; flex-direction: column; gap: 24px; }
-      .neighborhoods__title { justify-self: auto; padding-inline: var(--page-pad); font-size: var(--fs-section); }
-      .neighborhoods__stage { display: flex; flex-direction: column; align-items: center; gap: 20px; height: auto; }
-      .neighborhoods__media { order: 1; width: 100%; height: auto; aspect-ratio: auto; margin: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; }
-      .neighborhoods__slides { position: static; inset: auto; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
-      .neighborhoods__slides::-webkit-scrollbar { display: none; }
-      .neighborhoods__slide { position: relative !important; inset: auto; flex: 0 0 min(72vw, 380px); aspect-ratio: 1 / 1; border-radius: 24px; scroll-snap-align: center; clip-path: none !important; visibility: visible !important; z-index: auto !important; pointer-events: auto; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28); will-change: auto; }
-      .neighborhoods__slide img { transform: none !important; will-change: auto; }
-      .neighborhoods .touch-dots { display: flex; margin-top: 20px; color: var(--white); }
-      .neighborhoods__bg { transition: opacity 0.5s var(--ease); }
-      .neighborhoods__list { order: 3; width: 100%; align-items: center; text-align: center; padding-inline: var(--page-pad); }
-      .neighborhoods__item { display: none; padding: 0; text-align: center; }
-      .neighborhoods__item.is-active { display: block; }
-      .neighborhoods__label { font-size: var(--fs-section); opacity: 1; transition: none; }
-      .neighborhoods__meta { order: 4; justify-content: center; }
 
       /* ----- Agents: equal cards in a swipe row, details always visible ----- */
       .agents { height: auto; min-height: 0; padding: 56px 0 56px; content-visibility: visible; }
@@ -1955,12 +1940,11 @@
       .hero-photo { object-position: center 88%; }
       .hero-title { top: 15%; left: var(--page-pad); right: var(--page-pad); transform: none; width: auto; max-width: none; white-space: nowrap; font-size: clamp(28px, 9.4vw, 56px); line-height: 1.1; }
       .search-card { margin-top: calc(var(--hero-h) - 56px); padding: 36px 16px 20px; gap: 16px; border-radius: 28px; }
-      .search-form { flex-direction: column; align-items: stretch; height: auto; padding: 0; gap: 12px; border: 0; background: transparent; box-shadow: none; }
+      .search-form { flex-direction: row; align-items: center; height: auto; padding: 0; gap: 8px; border: 0; background: transparent; box-shadow: none; }
       .search-form:focus-within { border-color: transparent; box-shadow: none; }
-      .search-field { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 8px 0 18px; border: 1px solid var(--ink-10); border-radius: 46px; background: var(--white); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.03); transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease); }
+      .search-field { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 8px 0 18px; border: 1px solid var(--ink-10); border-radius: 46px; background: var(--white); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.03); transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease); }
       .search-field:focus-within { border-color: rgba(30, 30, 30, 0.28); box-shadow: 0 5px 16px rgba(0, 0, 0, 0.06); }
-      .btn-search { width: 100%; }
-      .btn-search .hl-btn__inner { width: 100%; }
+      .btn-search.hl-btn { flex: 0 0 auto; width: auto; min-width: 0; height: 56px; }
       .suggestions { flex-wrap: nowrap; justify-content: flex-start; align-self: stretch; width: auto; margin-inline: -16px; padding-inline: 16px; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent); }
       .suggestions::-webkit-scrollbar { display: none; }
       .suggestions .chip { flex: 0 0 auto; }
@@ -2037,7 +2021,47 @@
       .mi-card { min-height: 0; }
       .mi-card__media { flex: 0 0 40%; aspect-ratio: 4 / 3; }
     }
+    /* Explore neighborhoods: swipe row + dots on tablets; pinned scroll story on phones (below) */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .neighborhoods { height: auto; }
+      .neighborhoods__pin { position: static; height: auto; overflow: visible; }
+      .neighborhoods__inner { height: auto; padding: 56px 0 56px; display: flex; flex-direction: column; gap: 24px; }
+      .neighborhoods__title { justify-self: auto; padding-inline: var(--page-pad); font-size: var(--fs-section); }
+      .neighborhoods__stage { display: flex; flex-direction: column; align-items: center; gap: 20px; height: auto; }
+      .neighborhoods__media { order: 1; width: 100%; height: auto; aspect-ratio: auto; margin: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; }
+      .neighborhoods__slides { position: static; inset: auto; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+      .neighborhoods__slides::-webkit-scrollbar { display: none; }
+      .neighborhoods__slide { position: relative !important; inset: auto; flex: 0 0 min(72vw, 380px); aspect-ratio: 1 / 1; border-radius: 24px; scroll-snap-align: center; clip-path: none !important; visibility: visible !important; z-index: auto !important; pointer-events: auto; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28); will-change: auto; }
+      .neighborhoods__slide img { transform: none !important; will-change: auto; }
+      .neighborhoods .touch-dots { display: flex; margin-top: 20px; color: var(--white); }
+      .neighborhoods__bg { transition: opacity 0.5s var(--ease); }
+      .neighborhoods__list { order: 3; width: 100%; align-items: center; text-align: center; padding-inline: var(--page-pad); }
+      .neighborhoods__item { display: none; padding: 0; text-align: center; }
+      .neighborhoods__item.is-active { display: block; }
+      .neighborhoods__label { font-size: var(--fs-section); opacity: 1; transition: none; }
+      .neighborhoods__meta { order: 4; justify-content: center; }
+    }
     @media (max-width: 640px) {
+      /* Browse by type: three cards stacked vertically, no swipe, no dots */
+      .categories__slides { flex-direction: column; overflow: visible; scroll-snap-type: none; gap: 24px; }
+      .categories__slide { flex: none; width: 100%; }
+      .categories .touch-dots { display: none; }
+
+      /* Explore neighborhoods: pinned; scroll changes the neighborhood (same story as desktop) */
+      .neighborhoods { height: calc(100svh + (var(--neighborhoods-count, 5) - 1) * var(--stack-len, 100vh)); }
+      .neighborhoods__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+      .neighborhoods__inner { height: 100%; padding: 88px var(--page-pad) 40px; display: grid; grid-template-rows: auto 1fr; gap: 16px; }
+      .neighborhoods__title { justify-self: center; text-align: center; padding-inline: 0; font-size: var(--fs-section); }
+      .neighborhoods__stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; height: 100%; }
+      .neighborhoods__media { order: 1; position: relative; width: min(78vw, 46svh); height: min(78vw, 46svh); aspect-ratio: 1 / 1; margin: 0 auto; border-radius: 24px; overflow: hidden; background: rgba(255, 255, 255, 0.08); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28); }
+      .neighborhoods__slides { position: absolute; inset: 0; display: block; overflow: visible; padding: 0; scroll-snap-type: none; }
+      .neighborhoods__slide { position: absolute; inset: 0; flex: none; aspect-ratio: auto; border-radius: 0; }
+      .neighborhoods__list { order: 2; width: 100%; align-items: center; text-align: center; padding-inline: 0; }
+      .neighborhoods__item { display: none; padding: 0; text-align: center; }
+      .neighborhoods__item.is-active { display: block; }
+      .neighborhoods__label { font-size: var(--fs-section); opacity: 1; transition: none; }
+      .neighborhoods__meta { order: 3; justify-content: center; }
+      .neighborhoods .touch-dots { display: none; }
       /* New listings on phones: one swipe row of the first four cards */
       .newl .card-row { grid-template-rows: auto; }
       .newl .card-row > :nth-child(n+5) { display: none; }
@@ -3283,7 +3307,9 @@ said about us</h2>
       /* Touch widths (≤1024px): the pinned sections become swipe rows with dots. The scroll-driven
          version stays for desktop; this keeps the same "active item" UI in step with the swipe. */
       const touchMQ = window.matchMedia("(max-width: 1024px)");
+      const tabletMQ = window.matchMedia("(min-width: 641px) and (max-width: 1024px)");
       function initSwipeRow(o) {
+        const mq = o.mq || touchMQ;
         const track = o.track, slides = o.slides;
         const dots = document.createElement("div");
         dots.className = "dots touch-dots";
@@ -3305,7 +3331,7 @@ said about us</h2>
           return best;
         }
         function sync(force) {
-          if (!touchMQ.matches) return;
+          if (!mq.matches) return;
           const i = nearest();
           if (i === idx && !force) return;
           idx = i;
@@ -3323,12 +3349,12 @@ said about us</h2>
           ticking = true;
           requestAnimationFrame(() => { ticking = false; sync(); });
         }, { passive: true });
-        o.items.forEach((item, i) => item.addEventListener("click", () => { if (touchMQ.matches) goTo(i); }));
-        touchMQ.addEventListener("change", () => {
-          if (touchMQ.matches) { track.scrollLeft = 0; sync(true); }
+        o.items.forEach((item, i) => item.addEventListener("click", () => { if (mq.matches) goTo(i); }));
+        mq.addEventListener("change", () => {
+          if (mq.matches) { track.scrollLeft = 0; sync(true); }
           else { idx = -1; o.onWide(); }
         });
-        if (touchMQ.matches) sync(true);
+        if (mq.matches) sync(true);
       }
 
       /* Categories — pinned scroll, scroll-driven only (swipe row on touch widths) */
@@ -3447,12 +3473,13 @@ said about us</h2>
           },
         });
 
-        const drive = (instant) => { if (!touchMQ.matches) stack.setTarget(stack.posFromScroll(), instant); };
+        const drive = (instant) => { if (!tabletMQ.matches) stack.setTarget(stack.posFromScroll(), instant); };
         ANIM.listeners.push(() => drive());
         drive(true);
         onScrollFrame(() => drive());
         window.addEventListener("resize", () => drive());
         initSwipeRow({
+          mq: tabletMQ,
           track: slidesRoot, slides: slides, items: items, host: slidesRoot.parentNode,
           onIndex: (idx) => {
             setActiveMenu(idx);

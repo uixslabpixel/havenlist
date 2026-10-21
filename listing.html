@@ -88,7 +88,7 @@
 
     .detail__head {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 16px;
     }
 
@@ -662,6 +662,23 @@
     .map:not(.is-expanded) .map__legend { left: 12px; top: 12px; gap: 4px; padding: 8px 10px; font-size: 12px; }
     .map:not(.is-expanded) .map__legend .pin { width: 14px; }
 
+
+    /* Photo lightbox: full-screen, swipe sideways (arrows + keys on desktop) */
+    .lb { position: fixed; inset: 0; z-index: 330; display: flex; flex-direction: column; background: #0e0e0e; opacity: 0; visibility: hidden; transition: opacity 0.5s var(--ease-out), visibility 0s linear 0.5s; }
+    .lb.is-open { opacity: 1; visibility: visible; transition: opacity 0.5s var(--ease-out), visibility 0s; }
+    .lb__bar { display: flex; align-items: center; justify-content: space-between; padding: 12px var(--page-pad); color: #fff; }
+    .lb__count { font: 400 var(--fs-small)/1 var(--font-ui); letter-spacing: -0.01em; opacity: 0.8; font-variant-numeric: tabular-nums; }
+    .lb__close, .lb__nav { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: #fff; background: rgba(255, 255, 255, 0.12); }
+    .lb__track { flex: 1 1 auto; min-height: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior: contain; scrollbar-width: none; }
+    .lb__track::-webkit-scrollbar { display: none; }
+    .lb__slide { flex: 0 0 100%; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; padding: 0 12px 24px; }
+    .lb__slide img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 16px; user-select: none; -webkit-user-drag: none; }
+    .lb__nav { position: absolute; top: 50%; transform: translateY(-50%); display: none; }
+    .lb__nav--prev { left: 24px; }
+    .lb__nav--next { right: 24px; }
+    @media (hover: hover) and (min-width: 701px) { .lb__nav { display: inline-flex; } }
+    body.is-lb-open { overflow: hidden; }
+
     /* Similar properties */
     .similar {
       max-width: 1440px;
@@ -959,6 +976,18 @@
   </div>
   <div class="inq-scrim" id="inqScrim"></div>
 
+  <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo gallery" aria-hidden="true">
+    <div class="lb__bar">
+      <span class="lb__count" id="lbCount" aria-live="polite"></span>
+      <button class="lb__close" type="button" id="lbClose" aria-label="Close gallery">
+        <svg class="x-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 10L10 2"/><path class="x-icon__b" pathLength="100" d="M10 10L2 2"/></svg>
+      </button>
+    </div>
+    <div class="lb__track" id="lbTrack"></div>
+    <button class="lb__nav lb__nav--prev" type="button" id="lbPrev" aria-label="Previous photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M16.25 6H1.9M6.9 0.9L1.9 6L6.9 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button class="lb__nav lb__nav--next" type="button" id="lbNext" aria-label="Next photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+
   <section class="similar" aria-label="Similar properties">
     <h2 class="similar__title">Similar properties</h2>
     <div class="similar__grid" id="similarGrid"></div>
@@ -1164,8 +1193,47 @@
           "</button>";
         }).join("") +
         "</div>";
+      /* ---------- photo lightbox ---------- */
+      var PHOTOS = ["main"].concat(THUMBS);
+      var lb = $("lb"), lbTrack = $("lbTrack"), lbIdx = 0;
+      lbTrack.innerHTML = PHOTOS.map(function (name, i) {
+        return '<div class="lb__slide"><img src="assets/detail/' + name + '.webp" alt="' + esc(item.place) + " photo " + (i + 1) + '" decoding="async"' + (i ? ' loading="lazy"' : "") + "></div>";
+      }).join("");
+      function lbGo(i, instant) {
+        lbIdx = Math.max(0, Math.min(PHOTOS.length - 1, i));
+        lbTrack.scrollTo({ left: lbIdx * lbTrack.clientWidth, behavior: instant ? "auto" : "smooth" });
+        $("lbCount").textContent = (lbIdx + 1) + " / " + PHOTOS.length;
+      }
+      function lbOpen(i) {
+        lb.classList.add("is-open");
+        lb.setAttribute("aria-hidden", "false");
+        document.body.classList.add("is-lb-open");
+        lbGo(i, true);
+        $("lbClose").focus({ preventScroll: true });
+      }
+      function lbClose() {
+        lb.classList.remove("is-open");
+        lb.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("is-lb-open");
+      }
+      lbTrack.addEventListener("scroll", function () {
+        var i = Math.round(lbTrack.scrollLeft / lbTrack.clientWidth);
+        if (i !== lbIdx) { lbIdx = i; $("lbCount").textContent = (i + 1) + " / " + PHOTOS.length; }
+      }, { passive: true });
+      $("lbClose").addEventListener("click", lbClose);
+      $("lbPrev").addEventListener("click", function () { lbGo(lbIdx - 1); });
+      $("lbNext").addEventListener("click", function () { lbGo(lbIdx + 1); });
+      document.addEventListener("keydown", function (e) {
+        if (!lb.classList.contains("is-open")) return;
+        if (e.key === "Escape") lbClose();
+        else if (e.key === "ArrowRight") lbGo(lbIdx + 1);
+        else if (e.key === "ArrowLeft") lbGo(lbIdx - 1);
+      });
       $("gallery").addEventListener("click", function (e) {
-        if (e.target.closest("button")) toast("Photo gallery is coming soon");
+        var btn = e.target.closest("button");
+        if (!btn) return;
+        var all = Array.prototype.slice.call($("gallery").querySelectorAll("button"));
+        lbOpen(all.indexOf(btn));
       });
 
       /* ---------- features ---------- */
@@ -1214,7 +1282,7 @@
       function updateBar() {
         barTick = false;
         var b = document.body;
-        var show = phone.matches && window.scrollY > 360 && !b.classList.contains("is-inq-open") &&
+        var show = phone.matches && !b.classList.contains("is-inq-open") &&
           !b.classList.contains("is-map-open") && footerEl.getBoundingClientRect().top > window.innerHeight - 24;
         bar.classList.toggle("is-on", show);
       }
