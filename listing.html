@@ -788,7 +788,6 @@
         <div class="detail__head">
           <div class="detail__titles">
             <h1 class="detail__title" id="detailTitle"></h1>
-            <p class="detail__addr" id="detailAddr"></p>
           </div>
           <div class="detail__actions">
             <button class="icon-btn" type="button" id="shareBtn" aria-label="Share this listing">
@@ -1011,6 +1010,7 @@
   <script src="assets/listings-store.js"></script>
   <script src="assets/vendor/leaflet/leaflet.js"></script>
   <script src="assets/sf-base.js"></script>
+  <script src="assets/poi-data.js"></script>
   <script src="assets/geo.js"></script>
   <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
@@ -1059,7 +1059,6 @@
       /* ---------- header, gallery, copy ---------- */
       document.title = item.place + " — Havenlist";
       $("detailTitle").textContent = item.place;
-      $("detailAddr").textContent = item.addr;
       $("locationAddr").textContent = item.addr;
       $("detailDesc").textContent = "Stunning residence in the heart of " + item.place +
         ". This meticulously updated home features an open-concept main floor with chef’s kitchen, floor-to-ceiling windows, and a private garden terrace. The primary suite includes a spa-like bathroom and walk-in closet. Walking distance to neighborhood shops and parks.";
@@ -1202,9 +1201,34 @@
       var lmap = L.map(canvas, { center: geo, zoom: 15, minZoom: 12, maxZoom: 18, zoomControl: false });
       lmap.attributionControl.setPrefix(false);
       HLGeo.base(lmap, HLGeo.poly(item.place));
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd", maxZoom: 19, attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
-      }).addTo(lmap);
+      /* Free tile sources, in order. If one keeps failing (blocked, offline,
+         rate-limited) the next takes over; with none left the offline SF base
+         map drawn above stays visible. */
+      var TILES = [
+        { url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", sub: "abcd", at: "&copy; OpenStreetMap contributors &copy; CARTO" },
+        { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", sub: "abc", at: "&copy; OpenStreetMap contributors" }
+      ];
+      var tileIdx = -1, tileLayer = null, tileErrs = 0, tileOk = 0;
+      function nextTiles() {
+        tileIdx++;
+        if (tileLayer) lmap.removeLayer(tileLayer);
+        if (tileIdx >= TILES.length) {
+          if (window.console) console.warn("[Havenlist map] no tile server reachable — showing the offline map");
+          lmap.attributionControl.addAttribution("Offline map &middot; live tiles unavailable");
+          return;
+        }
+        var src = TILES[tileIdx];
+        tileErrs = 0; tileOk = 0;
+        tileLayer = L.tileLayer(src.url, { subdomains: src.sub, maxZoom: 19, attribution: src.at }).addTo(lmap);
+        tileLayer.on("tileload", function () { tileOk++; });
+        tileLayer.on("tileerror", function () {
+          if (++tileErrs >= 4 && !tileOk) {
+            if (window.console) console.warn("[Havenlist map] tiles failed from " + src.url + " — trying the next source");
+            nextTiles();
+          }
+        });
+      }
+      nextTiles();
       var HANDLERS = ["dragging", "scrollWheelZoom", "doubleClickZoom", "touchZoom", "boxZoom", "keyboard"];
       function setInteractive(on) { HANDLERS.forEach(function (h) { lmap[h][on ? "enable" : "disable"](); }); }
       setInteractive(false);
