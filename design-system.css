@@ -958,11 +958,10 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
   .agents__action::after, .agent-card__icon::after, .ab-member__social a::after { transition: none; }
 }
 
-/* ----- Heart: filled state turns red on white backgrounds (solid navbar, detail actions);
-   on photos / translucent chips (.card__fav) it stays white ----- */
+/* ----- Heart: filled state turns red on white backgrounds (detail actions, wishlist page);
+   on photos / translucent chips (.card__fav) it stays white. The navbar heart is navigation,
+   not a toggle: it never fills, it carries a count badge instead (.fav-badge, wishlist.js) ----- */
 .icon-btn--fav .heart-outline { transition: fill 0.3s var(--hover-ease, ease), stroke 0.3s var(--hover-ease, ease); }
-.navbar.is-solid .icon-btn--fav.is-saved .heart-outline,
-.navbar.is-solid .icon-btn--fav.is-active .heart-outline,
 .detail__actions .icon-btn--fav.is-saved .heart-outline,
 .detail__actions .icon-btn--fav.is-active .heart-outline,
 .wl .icon-btn--fav.is-saved .heart-outline { fill: var(--heart); stroke: var(--heart); }
@@ -2704,13 +2703,38 @@ body.is-menu-open {
   /* Short phones: tighten the menu so it still fits without scrolling */
   @media (max-width: 760px) and (max-height: 760px) {
     .mega-menu--m .mega-menu__panel { gap: 16px; padding-top: 80px; }
-    .mega-menu--m .mega-menu__media { display: none; }
+    /* The picture shrinks with the screen (never disappears) */
+    .mega-menu--m .mega-menu__media { flex: 1 1 72px; min-height: 64px; max-height: 187px; }
     .mega-menu--m .mega-menu__links { gap: 8px; }
     .mega-menu--m .mega-menu__group-label { margin-bottom: 10px; }
     .mega-menu--m .mega-menu__grid { row-gap: 16px; }
     .mega-menu--m .mega-menu__contact { margin-top: 16px; }
   }
 }
+
+/* Navbar wishlist: red count badge on the heart (hidden at 0) */
+.fav-anchor { position: relative; display: inline-flex; flex: none; }
+.fav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 2;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: var(--heart);
+  box-shadow: 0 0 0 2px var(--white);
+  color: #fff;
+  font: 600 11px/1 var(--font-ui);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.fav-badge[hidden] { display: none; }
 
 /* ---------- 9. Toast ---------- */
 

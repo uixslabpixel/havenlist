@@ -238,8 +238,31 @@
     };
   }
 
+  /* ---------- navbar badge: how many homes are saved (the heart itself only navigates) ---------- */
+  function savedCount() {
+    var seen = {};
+    load().lists.forEach(function (l) { l.items.forEach(function (id) { seen[id] = 1; }); });
+    return Object.keys(seen).length;
+  }
+  function badge() {
+    var nav = document.getElementById("favBtn");
+    if (!nav) return;
+    var host = nav.parentNode;
+    if (!host.classList || !host.classList.contains("fav-anchor")) {
+      host = document.createElement("span"); host.className = "fav-anchor";
+      nav.parentNode.insertBefore(host, nav); host.appendChild(nav);
+    }
+    var b = host.querySelector(".fav-badge");
+    if (!b) { b = document.createElement("span"); b.className = "fav-badge"; b.setAttribute("aria-hidden", "true"); host.appendChild(b); }
+    var n = savedCount();
+    b.textContent = n > 99 ? "99+" : String(n);
+    b.hidden = n === 0;
+    nav.setAttribute("aria-label", n ? "Saved homes, " + n + " saved" : "Saved homes");
+  }
+
   /* ---------- hearts ---------- */
   function sync(root) {
+    badge();
     (root || document).querySelectorAll("[data-wl-id]").forEach(function (b) {
       var on = isSaved(b.getAttribute("data-wl-id"));
       b.classList.toggle("is-saved", on);
