@@ -189,6 +189,7 @@
        navbar filters are desktop-only (JS gates it at 1100px). Below that the
        filter row scrolls sideways and each filter opens as a bottom sheet. */
     @media (max-width: 1100px) {
+      .nav-actions .btn-sell { display: none; }
       .listings__grid { grid-template-columns: repeat(3, 1fr); gap: 32px 16px; }
       .listings { padding-top: 24px; }
 
@@ -202,8 +203,7 @@
         padding: 2px var(--page-pad);
         overflow-x: auto;
         scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
+        }
       .filter-form::-webkit-scrollbar { display: none; }
       .filter-query { width: 250px; }
 
@@ -241,7 +241,7 @@
       .filter-pop__body { flex: 1 1 auto; min-height: 0; height: auto; }
       .filter-pop__foot { flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
 
-      .search-header::after {
+      body::after {
         content: "";
         position: fixed;
         inset: 0;
@@ -251,7 +251,7 @@
         pointer-events: none;
         transition: opacity 0.3s var(--ease-out);
       }
-      .search-header:has(.filter-pop.is-open)::after { opacity: 1; pointer-events: auto; }
+      body:has(.filter-pop.is-open)::after { opacity: 1; pointer-events: auto; }
       body:has(.filter-pop.is-open) { overflow: hidden; }
     }
 
@@ -262,8 +262,20 @@
       .tabs { width: 100%; max-width: 400px; }
       .facilities { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
-      /* Navbar: logo, saved, menu only */
-      .nav-actions .btn-sell { display: none; }
+      /* Full-screen menu: one link size, two balanced columns, no Sell CTA */
+      .mega-menu__panel { gap: 0; padding: 88px var(--page-pad) 32px; }
+      .mega-menu__grid { grid-template-columns: 1fr 1fr; column-gap: 24px; row-gap: 36px; align-content: start; flex: 0 0 auto; }
+      .mega-menu__grid > div:first-child { grid-column: auto; }
+      .mega-menu__grid > div:nth-child(3) { order: 4; }
+      .mega-menu__grid > div:nth-child(4) { order: 3; }
+      .mega-menu__group-label { font-size: var(--fs-small); margin-bottom: 12px; }
+      .mega-menu__links { gap: 10px; }
+      .mega-menu__links--lg a,
+      .mega-menu__links--md a,
+      .mega-menu__contact > a { font-size: var(--fs-title-sm); }
+      .mega-menu__links a { height: 1.3em; line-height: 1.3; }
+      .mega-menu__grid li:has(a[href="#sell"], a[href*="sell"]) { display: none; }
+      .mega-menu__contact { margin-top: 36px; }
 
       /* Price always on its own line below beds / baths / size */
       .card__meta { flex-wrap: wrap; row-gap: 6px; }
@@ -272,8 +284,11 @@
 
     @media (max-width: 560px) {
       .listings { padding-bottom: 32px; }
-      .listings__grid { grid-template-columns: 1fr; gap: 28px; }
-      .card__media { aspect-ratio: 4 / 3; }
+      .listings__grid { gap: 24px 12px; }
+      .card__place { font-size: var(--fs-body); }
+      .card__addr { font-size: 13px; }
+      .card__badge { top: 8px; left: 8px; height: 24px; padding: 0 8px; font-size: 12px; }
+      .card__fav { top: 8px; right: 8px; }
     }
   </style>
 </head>
@@ -1217,7 +1232,9 @@
       const pop = pops[name];
       if (!pop) return;
       const anchor = (anchorEl && anchorEl.closest(".filter-anchor")) || anchors[name];
-      if (anchor && pop.parentElement !== anchor) anchor.appendChild(pop);
+      /* Bottom sheets live on <body> so no scrolling ancestor can clip or offset them */
+      const host = window.innerWidth <= 1100 ? document.body : anchor;
+      if (host && pop.parentElement !== host) host.appendChild(pop);
       clearTimeout(anchor._frontTimer);
       anchor.classList.add("is-front");
 
