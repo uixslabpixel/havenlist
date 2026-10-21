@@ -2812,15 +2812,6 @@ body.is-menu-open {
   :is(.similar__grid, .wl__grid, .listings__grid, .nbs__grid) .card__fav { top: 8px; right: 8px; }
 }
 
-/* ---------- Navbar on desktop: saved, Sell with us and the menu button share one frame ---------- */
-@media (min-width: 1025px) {
-  .navbar .nav-actions { gap: 4px; padding: 4px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 100px; box-shadow: var(--shadow-xs); color: var(--ink); }
-  .navbar .nav-actions .icon-btn { border-color: transparent; }
-  .navbar .nav-actions .btn-sell.hl-btn.hl-btn--black { border: 1px solid var(--ink); border-radius: 100px; background: var(--ink); color: #fff; box-shadow: none; }
-  .navbar .nav-actions .btn-sell.hl-btn.hl-btn--black .hl-btn__inner { background: var(--ink); border-color: transparent; border-radius: 100px; color: #fff; }
-  .menu-btn:not(.is-open), .menu-btn.is-solid-tone:not(.is-open) { right: calc(var(--edge) + 5px); color: var(--ink); }
-}
-
 /* ---------- Navbar on phones: logo, saved, menu (Sell with us lives in the menu) ---------- */
 @media (max-width: 760px) {
   .nav-actions .btn-sell { display: none; }
