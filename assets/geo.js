@@ -69,38 +69,66 @@
     return null;
   }
 
+  /* Overpass JSON -> the nearest few places per category, topped up from the sample set */
+  function parse(j, center) {
+    var all = (j.elements || []).map(function (e) {
+      var tags = e.tags || {}, cat = classify(tags);
+      var lat = e.lat != null ? e.lat : e.center && e.center.lat, lng = e.lon != null ? e.lon : e.center && e.center.lon;
+      return cat && lat != null && tags.name ? { cat: cat, name: tags.name, lat: lat, lng: lng, src: "osm" } : null;
+    }).filter(Boolean);
+    var list = nearest(all, center, 3);
+    /* any category OpenStreetMap had nothing for nearby is filled from the sample set */
+    CATS.forEach(function (c) {
+      if (!list.some(function (p) { return p.cat === c.key; })) {
+        nearest(SAMPLE.filter(function (p) { return p.cat === c.key; }).map(function (p) { return Object.assign({}, p); }), center, 2).forEach(function (p) { list.push(p); });
+      }
+    });
+    return list;
+  }
+
+  /* Free public Overpass servers, tried in turn: the next one starts if the
+     previous hasn't answered in 2.5s, and the first good answer wins. */
+  var ENDPOINTS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  ];
+
+  /* Order of use: 1) places baked into assets/poi-data.js (no network, see
+     scripts/build-poi.mjs)  2) live Overpass  3) the sample landmarks. */
   function pois(center, key, cb) {
-    var ck = "havenlist.pois.v1." + key;
+    if (window.HL_POI && window.HL_POI[key]) return cb(window.HL_POI[key]);
+    var ck = "havenlist.pois.v2." + key;
     try { var hit = JSON.parse(sessionStorage.getItem(ck)); if (hit) return cb(hit); } catch (e) {}
-    var done = false;
-    function finish(list) {
+    var done = false, timers = [], ctls = [];
+    function finish(list, live) {
       if (done) return; done = true;
-      try { sessionStorage.setItem(ck, JSON.stringify(list)); } catch (e) {}
+      timers.forEach(clearTimeout); ctls.forEach(function (c) { try { c.abort(); } catch (e) {} });
+      if (live) { try { sessionStorage.setItem(ck, JSON.stringify(list)); } catch (e) {} }
       cb(list);
     }
-    function fallback() { finish(nearest(SAMPLE.map(function (p) { return Object.assign({}, p); }), center, 3)); }
+    function fallback() {
+      if (window.console) console.warn("[Havenlist map] Overpass unreachable — showing sample landmarks instead");
+      finish(nearest(SAMPLE.map(function (p) { return Object.assign({}, p); }), center, 3), false);
+    }
     if (!window.fetch) return fallback();
-    var ctl = window.AbortController ? new AbortController() : null;
-    var t = setTimeout(function () { if (ctl) ctl.abort(); fallback(); }, 9000);
-    fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST", body: "data=" + encodeURIComponent(query(center)),
-      headers: { "Content-Type": "application/x-www-form-urlencoded" }, signal: ctl ? ctl.signal : undefined
-    }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
-      clearTimeout(t);
-      var all = (j.elements || []).map(function (e) {
-        var tags = e.tags || {}, cat = classify(tags);
-        var lat = e.lat != null ? e.lat : e.center && e.center.lat, lng = e.lon != null ? e.lon : e.center && e.center.lon;
-        return cat && lat != null && tags.name ? { cat: cat, name: tags.name, lat: lat, lng: lng, src: "osm" } : null;
-      }).filter(Boolean);
-      var list = nearest(all, center, 3);
-      /* any category OpenStreetMap had nothing for nearby is filled from the sample set */
-      CATS.forEach(function (c) {
-        if (!list.some(function (p) { return p.cat === c.key; })) {
-          nearest(SAMPLE.filter(function (p) { return p.cat === c.key; }).map(function (p) { return Object.assign({}, p); }), center, 2).forEach(function (p) { list.push(p); });
-        }
-      });
-      finish(list);
-    }).catch(function () { clearTimeout(t); fallback(); });
+    var failed = 0;
+    function tryEndpoint(i) {
+      var ctl = window.AbortController ? new AbortController() : null;
+      if (ctl) ctls.push(ctl);
+      fetch(ENDPOINTS[i], {
+        method: "POST", body: "data=" + encodeURIComponent(query(center)),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }, signal: ctl ? ctl.signal : undefined
+      }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (j) { finish(parse(j, center), true); })
+        .catch(function (err) {
+          if (done) return;
+          if (window.console) console.warn("[Havenlist map] " + ENDPOINTS[i] + " failed:", err && err.message || err);
+          if (++failed === ENDPOINTS.length) fallback();
+        });
+    }
+    ENDPOINTS.forEach(function (_, i) { timers.push(setTimeout(function () { if (!done) tryEndpoint(i); }, i * 2500)); });
+    timers.push(setTimeout(fallback, 11000));
   }
 
 
@@ -137,6 +165,8 @@
     },
     CATS: CATS,
     center: function (item) { return COORDS[item && item.id] || CENTER; },
-    pois: pois
+    pois: pois,
+    /* used by scripts/build-poi.mjs */
+    COORDS: COORDS, query: query, parse: parse
   };
 })();
