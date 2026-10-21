@@ -825,6 +825,38 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 }
 .dots__dot.is-active { opacity: 1; transform: scale(1.25); }
 
+/* ---------- Page sections: head (title + arrow), 4-up card row, stats, insight card extras ---------- */
+.page-section { padding: 96px var(--page-pad); }
+.section-head { display: flex; align-items: center; gap: var(--space-4); max-width: 1312px; margin: 0 auto var(--space-8); }
+.section-title { font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
+/* .card-row: 4-up grid on desktop, swipe row on tablet and mobile (works for .card and .ins-card) */
+.card-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 16px; max-width: 1312px; margin: 0 auto; }
+/* .stats: big numbers with a label, next to a heading (About, homepage) */
+.stats { max-width: 1440px; margin: 0 auto; padding: 80px var(--page-pad); display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.stats h2 { margin: 0; max-width: 420px; font: 500 var(--fs-section)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
+.stats__list { list-style: none; margin: 0; padding: 0; }
+.stats__list li { display: grid; grid-template-columns: 258px 1fr; align-items: center; gap: 0; padding: 24px 0; border-top: 1px solid var(--ink-10); }
+.stats__list li:first-child { border-top: 0; padding-top: 0; }
+.stats__list b { font: 500 64px/1.1 var(--font-display); letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.stats__list h3 { margin: 0 0 8px; font: 500 var(--fs-body)/1.2 var(--font-display); color: var(--ink); }
+.stats__list p { margin: 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: var(--ink-70); }
+.ins-meta { display: flex; align-items: center; gap: 10px; font: 400 var(--fs-body)/1.2 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
+.ins-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.ins-cal { flex: none; color: rgba(30, 30, 30, 0.8); }
+.ins-tag { position: absolute; z-index: 2; left: 16px; top: 16px; display: inline-flex; align-items: center; height: 32px; padding: 0 10px; background: var(--white); border: 1px solid var(--ink-10); border-radius: var(--radius-sm); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); font: 400 var(--fs-small)/1.2 var(--font-ui); color: rgba(30, 30, 30, 0.9); }
+@media (max-width: 1024px) {
+  .stats { grid-template-columns: 1fr; gap: var(--space-8); }
+  .card-row { display: flex; gap: var(--space-4); max-width: none; margin-inline: calc(var(--page-pad) * -1); padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .card-row::-webkit-scrollbar { display: none; }
+  .card-row > * { flex: 0 0 min(68vw, 300px); scroll-snap-align: center; }
+}
+@media (max-width: 640px) {
+  .page-section { padding: 56px var(--page-pad); }
+  .stats { padding: 56px var(--page-pad); }
+  .stats__list li { grid-template-columns: 1fr; gap: var(--space-2); }
+  .stats__list b { font-size: 48px; }
+}
+
 /* ==================== 7. HOVER LANGUAGE ==================== */
 /* Havenlist hover fill — one hover language for every white / grey control
    (search field, dropdown fields, chips, icon buttons, pagination, outline buttons).

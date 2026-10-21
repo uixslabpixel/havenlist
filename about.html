@@ -635,14 +635,6 @@
     .ab-float--l { left: clamp(24px, 4.5vw, 64px); top: 0; }
     .ab-float--r { right: clamp(24px, 4.5vw, 64px); top: 0; }
 
-    .ab-stats { max-width: 1440px; margin: 0 auto; padding: 80px var(--page-pad); display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-    .ab-stats h2 { margin: 0; max-width: 420px; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
-    .ab-stats__list { list-style: none; margin: 0; padding: 0; }
-    .ab-stats__list li { display: grid; grid-template-columns: 258px 1fr; align-items: center; gap: 0; padding: 24px 0; border-top: 1px solid var(--ink-10); }
-    .ab-stats__list li:first-child { border-top: 0; padding-top: 0; }
-    .ab-stats__list b { font: 500 64px/1.1 var(--font-display); letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums; }
-    .ab-stats__list h3 { margin: 0 0 8px; font: 500 var(--fs-body)/1.2 var(--font-display); color: var(--ink); }
-    .ab-stats__list p { margin: 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: var(--ink-70); }
 
     .ab-team { max-width: 1440px; margin: 0 auto; padding: 40px var(--page-pad) 96px; }
     .ab-team__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 80px 64px; align-items: start; }
@@ -656,17 +648,16 @@
     .ab-member__social { display: flex; gap: 6px; }
     .ab-member__social a { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--white); box-shadow: var(--shadow-sm); border: 1px solid var(--ink-07); }
     @media (max-width: 1100px) {
-      .ab-stats { grid-template-columns: 1fr; gap: 32px; }
       .ab-team__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; }
       .ab-team__grid > * { grid-row: auto !important; grid-column: auto !important; }
       .ab-team__title, .ab-team__lead { grid-column: 1 / -1 !important; }
     }
     @media (max-width: 720px) {
-      .ab-hero, .ab-stats, .ab-team { padding-left: 24px; padding-right: 24px; }
+      .ab-hero, .ab-team { padding-left: 24px; padding-right: 24px; }
       .ab-hero__img { margin: 0 24px; } .ab-profile__text p { display: none; }
       .ab-story { height: auto; } .ab-story__pin { position: static; height: auto; padding: 56px 24px; } .ab-float { display: none; }
       .ab-story__text .w { color: var(--ink) !important; }
-      .ab-stats__list li { grid-template-columns: 1fr; gap: 8px; } .ab-stats__list b { font-size: 48px; }
+
     }
 
   </style>
@@ -757,9 +748,9 @@
       </div>
     </section>
 
-    <section class="ab-stats">
-      <h2 data-reveal>The number speak itself for us</h2>
-      <ul class="ab-stats__list">
+    <section class="stats" aria-labelledby="statsTitle">
+      <h2 id="statsTitle" data-reveal>The number speak itself for us</h2>
+      <ul class="stats__list">
         <li data-reveal><b data-count="98" data-suffix="%">98%</b><div><h3>Client satisfaction</h3><p>We have a 98% satisfaction rate.</p></div></li>
         <li data-reveal data-reveal-delay="90"><b data-count="500" data-suffix="+">500+</b><div><h3>Properties collection</h3><p>We offer 500 diverse properties.</p></div></li>
         <li data-reveal data-reveal-delay="180"><b data-count="12" data-suffix="+">12+</b><div><h3>Neighborhoods served</h3><p>We serve 12 neighborhoods with services.</p></div></li>
