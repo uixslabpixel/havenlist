@@ -4,7 +4,7 @@
    to paste into the Claude chat; the "feedback-triage" skill recaps them and fixes them in parallel. */
 (function () {
   "use strict";
-  var KEY = "hl.feedback.items.v2";
+  var KEY = "hl.feedback.items.v3";
   var NAME = "hl.feedback.name";
 
   /* ---------- helpers ---------- */
