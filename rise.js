@@ -46,18 +46,22 @@
      single pass, and the observer is paused while we rewrite labels so our own
      DOM changes don't feed back into it */
   var roots = new Set(), labs = new Set(), queued = false;
-  var mo = new MutationObserver(function (ms) {
+  function collect(ms) {
     ms.forEach(function (m) {
       var t = m.target.nodeType === 1 ? m.target : m.target.parentElement;
       var lab = t && t.closest && t.closest(LAB);
       if (lab && lab.__fx !== undefined) labs.add(lab);
       m.addedNodes.forEach(function (n) { if (n.nodeType === 1) roots.add(n); });
     });
+  }
+  var mo = new MutationObserver(function (ms) {
+    collect(ms);
     if (!queued && (roots.size || labs.size)) { queued = true; requestAnimationFrame(flush); }
   });
   function watch() { mo.observe(document.documentElement, { childList: true, subtree: true }); }
   function flush() {
     queued = false;
+    collect(mo.takeRecords()); /* changes made since the callback last ran must not be lost */
     mo.disconnect();
     labs.forEach(function (l) { if (l.isConnected) letters(l); });
     roots.forEach(function (n) {

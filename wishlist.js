@@ -9,7 +9,7 @@
   function read() {
     try {
       var d = JSON.parse(localStorage.getItem(KEY));
-      if (d && Array.isArray(d.lists)) { d.visited = d.visited || []; return d; }
+      if (d && Array.isArray(d.lists)) { d.visited = d.visited || []; d.lists.forEach(function (l) { if (!Array.isArray(l.items)) l.items = []; }); return d; }
     } catch (e) {}
     return { lists: [], last: null, visited: [] };
   }
@@ -30,10 +30,10 @@
   function savedIn(id) { return load().lists.filter(function (l) { return l.items.indexOf(id) > -1; }); }
   function isSaved(id) { return savedIn(id).length > 0; }
 
-  function create(name) {
+  function create(name, quiet) {
     var d = load();
     var l = { id: uid(), name: (name || "").trim() || "My wishlist", items: [] };
-    d.lists.push(l); d.last = l.id; save();
+    d.lists.push(l); d.last = l.id; if (!quiet) save();
     return l;
   }
   function removeList(id) {
@@ -50,7 +50,7 @@
       save(); sync(); toast("Removed from wishlist");
       return false;
     }
-    var target = d.lists.filter(function (l) { return l.id === d.last; })[0] || d.lists[0] || create("My wishlist");
+    var target = d.lists.filter(function (l) { return l.id === d.last; })[0] || d.lists[0] || create("My wishlist", true);
     target.items.push(id); d.last = target.id; save(); sync();
     toast("Saved to " + target.name);
     if (from) fly(from);
@@ -151,14 +151,15 @@
       '<div class="hlw-head"><h2 class="hlw-title">Create wish list</h2><button class="hlw-x" type="button" data-close aria-label="Close">' + X + "</button></div>" +
       '<div class="hlw-body"><label class="hlw-label" for="hlwName">Wishlist name</label><input class="hlw-input" id="hlwName" maxlength="40" autocomplete="off" placeholder="Write your wish list title here"></div>' +
       '<div class="hlw-foot"><button class="hlw-cancel" type="button" data-close>Cancel</button><button class="hlw-primary" type="button" id="hlwGo" disabled>Create</button></div>');
-    mount(el, function (e) { if (e.key === "Enter") go(); });
+    mount(el, function (e) { if (e.key === "Enter" && e.target === input) go(); });
     var input = el.querySelector("#hlwName"), btn = el.querySelector("#hlwGo");
     input.addEventListener("input", function () { btn.disabled = !input.value.trim(); });
-    function go() { var v = input.value.trim(); if (!v) return; var l = create(v); close(); if (done) done(l); }
+    function go() { var v = input.value.trim(); if (!v || !openEl) return; var l = create(v); close(); if (done) done(l); }
     btn.addEventListener("click", go);
     setTimeout(function () { input.focus(); }, 60);
   }
   function openDelete(list, done) {
+    if (!list) return;
     var el = modal(
       '<div class="hlw-head"><h2 class="hlw-title">Delete wish list</h2><button class="hlw-x" type="button" data-close aria-label="Close">' + X + "</button></div>" +
       '<div class="hlw-body hlw-body--text">Are you sure to delete “' + esc(list.name) + '” from your wish list?</div>' +
@@ -187,6 +188,8 @@
     card.style.left = left + "px"; card.style.top = Math.max(16, r.bottom + 10) + "px";
     function onScroll() { close(); }
     window.addEventListener("scroll", onScroll, { passive: true, once: true });
+    var cleanKeys = openCleanup;
+    openCleanup = function () { cleanKeys(); window.removeEventListener("scroll", onScroll); };
     function copy(msg) {
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { toast(msg); }, function () { toast(url); });
       else toast(url);

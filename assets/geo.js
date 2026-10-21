@@ -112,8 +112,10 @@
       finish(nearest(SAMPLE.map(function (p) { return Object.assign({}, p); }), center, 3), false);
     }
     if (!window.fetch) return fallback();
-    var failed = 0;
+    var failed = 0, started = [];
     function tryEndpoint(i) {
+      if (started[i]) return;
+      started[i] = true;
       var ctl = window.AbortController ? new AbortController() : null;
       if (ctl) ctls.push(ctl);
       fetch(ENDPOINTS[i], {
@@ -124,7 +126,9 @@
         .catch(function (err) {
           if (done) return;
           if (window.console) console.warn("[Havenlist map] " + ENDPOINTS[i] + " failed:", err && err.message || err);
-          if (++failed === ENDPOINTS.length) fallback();
+          if (++failed === ENDPOINTS.length) return fallback();
+          /* don't wait out the stagger: start the next endpoint right away */
+          for (var n = 0; n < ENDPOINTS.length; n++) if (!started[n]) { clearTimeout(timers[n]); tryEndpoint(n); break; }
         });
     }
     ENDPOINTS.forEach(function (_, i) { timers.push(setTimeout(function () { if (!done) tryEndpoint(i); }, i * 2500)); });

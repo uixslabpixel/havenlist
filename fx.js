@@ -18,7 +18,8 @@
 
   function count(el) {
     var to = parseFloat(el.getAttribute("data-count")), suffix = el.getAttribute("data-suffix") || "";
-    if (reduce || isNaN(to)) { el.textContent = to + suffix; return; }
+    if (isNaN(to)) return;
+    if (reduce) { el.textContent = to + suffix; return; }
     var t0 = performance.now(), dur = 1800;
     (function step(now) {
       var t = Math.min(1, (now - t0) / dur), e = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);

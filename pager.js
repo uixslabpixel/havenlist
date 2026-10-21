@@ -16,10 +16,11 @@ window.HLPager = (function () {
   }
 
   function mount(nav, opts) {
-    var pages = Math.max(1, Math.ceil(opts.total / opts.pageSize));
+    var pages = Math.max(1, Math.ceil(opts.total / Math.max(1, opts.pageSize | 0)));
     var cur = Math.min(Math.max(1, opts.page), pages);
     nav.hidden = pages <= 1;
     if (pages <= 1) { nav.innerHTML = ""; return cur; }
+    var hadFocus = nav.contains(document.activeElement);
     nav.innerHTML =
       '<button class="pager__btn pager__nav pager__prev" type="button" aria-label="Previous page" data-go="' + (cur - 1) + '"' + (cur === 1 ? " disabled" : "") + ">" + ARROW + "</button>" +
       '<div class="pager__list">' + pageList(cur, pages).map(function (p) {
@@ -33,6 +34,7 @@ window.HLPager = (function () {
       var p = Number(b.dataset.go);
       if (p >= 1 && p <= pages && p !== cur) opts.onChange(p);
     };
+    if (hadFocus) { var now = nav.querySelector('[aria-current="page"]'); if (now) now.focus({ preventScroll: true }); }
     return cur;
   }
   return { mount: mount };

@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Havenlist — Find your livings</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/hero-back.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/hero-front.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="assets/InterDisplay-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -321,15 +322,12 @@
     }
 
     .btn-sell.hl-btn .hl-btn__inner {
+      padding: 0 16px;
+      font-size: var(--fs-small);
       transition:
         background-color var(--nav-tone),
         border-color var(--nav-tone),
         color var(--nav-tone);
-    }
-
-    .btn-sell.hl-btn .hl-btn__inner {
-      padding: 0 16px;
-      font-size: var(--fs-small);
     }
 
     /* Transparent hero: sell uses white decoration */
@@ -1827,9 +1825,12 @@
     }
 
     @media (max-width: 1100px) {
+      .testimonials { height: auto; min-height: 0; }
+
       .testimonials__layout {
         flex-direction: column;
         gap: 32px;
+        height: auto;
         min-height: 0;
       }
 
@@ -1858,11 +1859,6 @@
         padding: 24px 8px 8px;
         min-height: 220px;
       }
-    }
-
-    @media (max-width: 1100px) {
-      .hero-title { font-size: clamp(48px, 9vw, 88px); letter-spacing: -0.02em; }
-
     }
 
     /* ========== RESPONSIVE — tablet ≤1024px, mobile ≤640px (breakpoints: design-system.css) ==========
@@ -1923,9 +1919,8 @@
       .agents__card, .agents__card.is-active { flex: 0 0 min(72vw, 320px); height: min(112vw, 440px); scroll-snap-align: center; }
       .agents__card img, .agents__card.is-active img { transform: none; }
       .agents__shade { opacity: 1; }
-      .agents__info { opacity: 1; transform: none; padding: 20px 16px; }
+      .agents__info { opacity: 1; transform: none; padding: 20px 16px; gap: 8px; }
       .agents__action { width: 40px; height: 40px; }
-      .agents__info { gap: 8px; }
 
       /* ----- Testimonials: sized to content ----- */
       .testimonials { height: auto; min-height: 0; padding: 56px var(--page-pad) 48px; content-visibility: visible; }
@@ -2696,6 +2691,8 @@ said about us</h2>
   <script src="listing-card.js"></script>
   <script src="assets/insights-data.js"></script>
   <script src="smooth-scroll.js"></script>
+  <script src="circle-menu.js"></script>
+  <script src="toast.js"></script>
   <script>
 
     /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
@@ -2724,15 +2721,8 @@ said about us</h2>
     document.querySelectorAll(".hl-btn, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
 
     (function () {
-      const toastEl = document.getElementById("toast");
-      let toastTimer;
 
-      function toast(message) {
-        toastEl.textContent = message;
-        toastEl.classList.add("is-visible");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toastEl.classList.remove("is-visible"), 2200);
-      }
+      function toast(message) { HLToast(message); }
 
       /* Smooth scrolling lives in smooth-scroll.js (shared with the other pages) */
       const smoothScroll = window.HLScroll;
@@ -2791,7 +2781,7 @@ said about us</h2>
         });
       } catch (e) {}
 
-      ANIM.apply = function () {
+      ANIM.apply = function (save) {
         const root = document.documentElement;
         const f = ANIM.v.featured;
         const b = EASE_BEZIER[f.ease] || EASE_BEZIER.Featured;
@@ -2801,7 +2791,7 @@ said about us</h2>
           const el = document.getElementById(id);
           if (el) el.style.setProperty("--stack-len", ANIM.v[id].len + "vh");
         });
-        try { localStorage.setItem(ANIM_KEY, JSON.stringify(ANIM.v)); } catch (e) {}
+        if (save) { try { localStorage.setItem(ANIM_KEY, JSON.stringify(ANIM.v)); } catch (e) {} }
         ANIM.listeners.forEach((fn) => fn());
       };
       ANIM.apply();
@@ -2923,10 +2913,6 @@ said about us</h2>
         toast(pressed ? "Removed from saved" : "Saved homes");
       });
 
-      document.getElementById("sellBtn").addEventListener("click", () => {
-        toast("Opening seller onboarding…");
-      });
-
       /* Navbar: transparent on hero/neighborhoods, solid elsewhere; hide + reveal */
       (function initNavbarBehavior() {
         const navbar = document.getElementById("navbar");
@@ -3039,81 +3025,7 @@ said about us</h2>
         update();
       })();
 
-      /* Full-page circle menu */
-      const menuBtn = document.getElementById("menuBtn");
-      const megaMenu = document.getElementById("megaMenu");
-      const xLines = Array.from(menuBtn.querySelectorAll(".menu-btn__x-line"));
-      let closingTimer;
-      let isAnimating = false;
-
-      function replayXDraw() {
-        xLines.forEach((line) => {
-          line.style.animation = "none";
-          line.style.strokeDashoffset = "100";
-        });
-        void menuBtn.offsetHeight;
-        xLines.forEach((line) => {
-          line.style.animation = "";
-          line.style.strokeDashoffset = "";
-        });
-      }
-
-      function placeCircleOrigin() {
-        const rect = menuBtn.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        megaMenu.style.setProperty("--cx", `${cx}px`);
-        megaMenu.style.setProperty("--cy", `${cy}px`);
-      }
-
-      function openMenu() {
-        if (isAnimating) return;
-        isAnimating = true;
-        clearTimeout(closingTimer);
-        megaMenu.classList.remove("is-closing");
-        megaMenu.style.clipPath = "";
-        placeCircleOrigin();
-        megaMenu.hidden = false;
-        megaMenu.offsetHeight;
-        megaMenu.classList.add("is-open");
-        menuBtn.classList.add("is-open");
-        replayXDraw();
-        menuBtn.setAttribute("aria-expanded", "true");
-        menuBtn.setAttribute("aria-label", "Close menu");
-        document.body.classList.add("is-menu-open");
-        setTimeout(() => { isAnimating = false; }, 880);
-      }
-
-      function closeMenu() {
-        if (isAnimating && !megaMenu.classList.contains("is-open")) return;
-        isAnimating = true;
-        placeCircleOrigin();
-        megaMenu.style.clipPath = "";
-        megaMenu.classList.add("is-closing");
-        megaMenu.classList.remove("is-open");
-        menuBtn.classList.remove("is-open");
-        menuBtn.setAttribute("aria-expanded", "false");
-        menuBtn.setAttribute("aria-label", "Open menu");
-        document.body.classList.remove("is-menu-open");
-        clearTimeout(closingTimer);
-        closingTimer = setTimeout(() => {
-          megaMenu.classList.remove("is-closing");
-          megaMenu.hidden = true;
-          isAnimating = false;
-        }, 600);
-      }
-
-      menuBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (megaMenu.classList.contains("is-open")) closeMenu();
-        else openMenu();
-      });
-
-      menuBtn.addEventListener("mouseenter", () => {
-        if (menuBtn.classList.contains("is-open")) replayXDraw();
-      });
-
+      /* Full-page circle menu (circle-menu.js) */
       /* Links to a real section glide there; the rest keep the placeholder toast */
       function goToLink(link, afterMenu) {
         const href = link.getAttribute("href") || "";
@@ -3127,15 +3039,7 @@ said about us</h2>
         setTimeout(() => smoothScroll.to(y), afterMenu ? 250 : 0);
       }
 
-      megaMenu.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", (e) => {
-          /* Real pages just navigate; only "#" targets glide / toast */
-          if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
-          e.preventDefault();
-          closeMenu();
-          goToLink(link, true);
-        });
-      });
+      HLCircleMenu({ toast, onLink: (link) => goToLink(link, true) });
 
       document.querySelectorAll(".nav-links a").forEach((link) => {
         link.addEventListener("click", (e) => {
@@ -3154,21 +3058,6 @@ said about us</h2>
         });
       });
 
-      document.querySelector(".site-footer__btn").addEventListener("click", () => {
-        toast("Opening seller onboarding…");
-      });
-
-      document.querySelector(".site-footer__contact").addEventListener("click", () => {
-        toast("Contact us: hello@havenlist.com");
-      });
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && megaMenu.classList.contains("is-open")) closeMenu();
-      });
-
-      window.addEventListener("resize", () => {
-        if (megaMenu.classList.contains("is-open")) placeCircleOrigin();
-      });
 
       /* Pinned scroll stack — the Arcania "Our works" pinch, minus the blur.
          Scroll maps across the items with a hold on each one; between them the
@@ -3260,6 +3149,7 @@ said about us</h2>
 
         function setTarget(p, instant) {
           target = clamp(p, 0, count - 1);
+          if (!instant && !reduceMotion && target === pos) return; /* already there: nothing to animate or redraw */
           if (instant || reduceMotion) {
             if (raf) cancelAnimationFrame(raf);
             raf = 0;
@@ -3499,6 +3389,7 @@ said about us</h2>
 
       /* Featured listings — equal-size infinite carousel + parallax */
       (function initFeatured() {
+        if (!window.HavenlistStore) return;
         const LISTINGS = HavenlistStore.get("featured").map(function (l) {
           return { id: l.id, name: l.place, address: l.addr, beds: l.beds, baths: l.baths, sqft: l.sqft, price: l.price, image: l.image, alt: l.alt || l.place };
         });
@@ -4147,225 +4038,13 @@ said about us</h2>
         nextBtn.addEventListener("click", () => goTo(active + 1));
       })();
 
-      /* ===== DEV TOOL — "Animation tweaks" panel =====
-         Hidden unless the URL has ?tweak=1 (saved values always apply). When the
-         values are final: "Copy values", paste them over ANIM_DEFAULTS above,
-         then delete this whole block. */
-      (function animationTweaks() {
-        if (!/[?&]tweak(=1|=true)?(&|$)/.test(window.location.search)) return;
-
-        const BEZIER_NAMES = Object.keys(EASE_BEZIER);
-        const ALL_NAMES = BEZIER_NAMES.concat(["Smoothstep", "Smootherstep"]);
-
-        const STACK = [
-          ["len", "Scroll per item", 40, 220, 5, "vh"],
-          ["hold", "Hold on each image", 0, 40, 1, "%"],
-          ["zoomEnd", "Zoom-out share of change", 0, 80, 1, "%"],
-          ["zoomAmt", "Zoom-out amount", 0, 20, 1, "%"],
-          ["follow", "Follow speed (higher = snappier)", 2, 24, 0.5, ""],
-          ["ease", "Wipe easing", "select", ALL_NAMES]
-        ];
-
-        const SECTIONS = [
-          {
-            key: "featured", title: "Featured listings", target: "listings",
-            controls: [
-              ["dur", "Slide duration", 300, 2000, 10, "ms"],
-              ["ease", "Slide easing", "select", BEZIER_NAMES],
-              ["parallax", "Parallax distance", 0, 64, 1, "px"],
-              ["imgEase", "Parallax easing", "select", BEZIER_NAMES]
-            ],
-            tests: [["◀ Prev", "featuredPrev"], ["Next ▶", "featuredNext"]]
-          },
-          { key: "categories", title: "Browse by type", target: "categories", controls: STACK, play: ".categories__slide" },
-          { key: "neighborhoods", title: "Explore neighborhoods", target: "neighborhoods", controls: STACK, play: ".neighborhoods__slide" },
-          {
-            key: "testimonials", title: "Testimonials", target: "testimonials",
-            controls: [
-              ["dur", "Slide duration", 300, 2000, 10, "ms"],
-              ["ease", "Slide easing", "select", ALL_NAMES],
-              ["inShift", "Incoming travel", 0, 60, 1, "%"],
-              ["outShift", "Outgoing drift", 0, 40, 1, "%"],
-              ["zoom", "Incoming zoom", 0, 30, 1, "%"],
-              ["text", "Text swap", 0, 600, 10, "ms"]
-            ],
-            tests: [["◀ Prev", "testimonialsPrev"], ["Next ▶", "testimonialsNext"]]
-          }
-        ];
-
-        const css = document.createElement("style");
-        css.textContent =
-          ".tw{position:fixed;left:16px;bottom:16px;z-index:400;font:12px/1.3 var(--font-ui);color:var(--ink)}" +
-          ".tw__btn{height:36px;padding:0 14px;border-radius:36px;background:var(--ink);color:#fff;font-weight:500;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.18)}" +
-          ".tw__card{position:absolute;left:0;bottom:44px;width:304px;max-height:calc(100vh - 80px);overflow:auto;padding:12px 14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none;overscroll-behavior:contain}" +
-          ".tw.is-open .tw__card{display:block}" +
-          ".tw__title{font:500 14px var(--font-display);letter-spacing:-.01em;margin:2px 0 8px}" +
-          ".tw details{border-top:1px solid var(--ink-07);padding:8px 0}" +
-          ".tw summary{cursor:pointer;font-weight:500;font-size:13px;list-style:none;display:flex;justify-content:space-between;align-items:center}" +
-          ".tw summary::-webkit-details-marker{display:none}" +
-          ".tw summary::after{content:'+';color:var(--ink-40);font-size:16px;line-height:1}" +
-          ".tw details[open] summary::after{content:'–'}" +
-          ".tw__row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin:10px 0 0}" +
-          ".tw__row label{color:var(--ink-70)}" +
-          ".tw__row output{font-variant-numeric:tabular-nums;font-weight:500}" +
-          ".tw__row input[type=range]{grid-column:1/3;width:100%;margin:0;accent-color:#1e1e1e}" +
-          ".tw__row select{grid-column:1/3;height:30px;border:1px solid var(--ink-10);border-radius:8px;padding:0 8px;background:#fff;font:inherit}" +
-          ".tw__acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}" +
-          ".tw__acts button{height:28px;padding:0 10px;border:1px solid var(--ink-10);border-radius:28px;background:#fff;font:500 12px var(--font-ui)}" +
-          ".tw__acts button:hover{background:var(--ink-07)}" +
-          ".tw__acts .is-primary{background:var(--ink);color:#fff;border-color:var(--ink)}" +
-          ".tw__foot{border-top:1px solid var(--ink-07);margin-top:8px;padding-top:10px}";
-        document.head.appendChild(css);
-
-        const wrap = document.createElement("div");
-        wrap.className = "tw";
-        wrap.innerHTML =
-          '<div class="tw__card" role="group" aria-label="Animation tweaks"><div class="tw__title">Animation tweaks</div><div class="tw__secs"></div>' +
-          '<div class="tw__foot tw__acts"></div></div>' +
-          '<button class="tw__btn" type="button" aria-expanded="false">Animation tweaks</button>';
-        document.body.appendChild(wrap);
-
-        const toggle = wrap.querySelector(".tw__btn");
-        toggle.addEventListener("click", () => {
-          const open = wrap.classList.toggle("is-open");
-          toggle.setAttribute("aria-expanded", String(open));
-        });
-
-        function easeLabel(name) {
-          const b = EASE_BEZIER[name];
-          return b && name !== "Linear" ? name + "  (" + b.join(", ") + ")" : name;
-        }
-
-        const repaints = [];
-        let playRaf = 0;
-
-        function stopPlay() {
-          if (playRaf) cancelAnimationFrame(playRaf);
-          playRaf = 0;
-        }
-        ["wheel", "touchstart", "keydown"].forEach((evt) => window.addEventListener(evt, stopPlay, { passive: true }));
-
-        /* Scroll the pinned section's whole run at a steady pace so the transition
-           can be judged without a wheel in hand */
-        function playSection(el, items) {
-          stopPlay();
-          const start = el.offsetTop;
-          const travel = el.offsetHeight - window.innerHeight;
-          const dur = Math.max(1, items - 1) * 2200;
-          window.scrollTo(0, start);
-          const t0 = performance.now() + 300;
-          const step = (now) => {
-            const t = Math.min(1, Math.max(0, (now - t0) / dur));
-            window.scrollTo(0, start + travel * t);
-            playRaf = t < 1 ? requestAnimationFrame(step) : 0;
-          };
-          playRaf = requestAnimationFrame(step);
-        }
-
-        function ensureVisible(el) {
-          const r = el.getBoundingClientRect();
-          if (r.bottom < 0 || r.top > window.innerHeight * 0.6) window.scrollTo({ top: el.offsetTop, behavior: "smooth" });
-        }
-
-        const secsEl = wrap.querySelector(".tw__secs");
-        SECTIONS.forEach((sec) => {
-          const d = document.createElement("details");
-          const sum = document.createElement("summary");
-          sum.textContent = sec.title;
-          d.appendChild(sum);
-          const vals = ANIM.v[sec.key];
-
-          sec.controls.forEach((def) => {
-            const key = def[0];
-            const row = document.createElement("div");
-            row.className = "tw__row";
-            const label = document.createElement("label");
-            label.textContent = def[1];
-            row.appendChild(label);
-            if (def[2] === "select") {
-              const sel = document.createElement("select");
-              def[3].forEach((name) => {
-                const o = document.createElement("option");
-                o.value = name;
-                o.textContent = easeLabel(name);
-                sel.appendChild(o);
-              });
-              sel.addEventListener("change", () => { vals[key] = sel.value; ANIM.apply(); });
-              repaints.push(() => { sel.value = vals[key]; });
-              row.appendChild(sel);
-            } else {
-              const out = document.createElement("output");
-              const input = document.createElement("input");
-              input.type = "range";
-              input.min = def[2]; input.max = def[3]; input.step = def[4];
-              input.addEventListener("input", () => {
-                vals[key] = Number(input.value);
-                out.textContent = vals[key] + def[5];
-                ANIM.apply();
-              });
-              repaints.push(() => { input.value = vals[key]; out.textContent = vals[key] + def[5]; });
-              row.appendChild(out);
-              row.appendChild(input);
-            }
-            d.appendChild(row);
-          });
-
-          const acts = document.createElement("div");
-          acts.className = "tw__acts";
-          const go = document.createElement("button");
-          go.type = "button";
-          go.textContent = "Go to section";
-          go.addEventListener("click", () => {
-            stopPlay();
-            window.scrollTo({ top: document.getElementById(sec.target).offsetTop, behavior: "smooth" });
-          });
-          acts.appendChild(go);
-          if (sec.play) {
-            const play = document.createElement("button");
-            play.type = "button";
-            play.textContent = "▶ Play";
-            play.addEventListener("click", () => {
-              playSection(document.getElementById(sec.target), document.querySelectorAll(sec.play).length);
-            });
-            acts.appendChild(play);
-          }
-          (sec.tests || []).forEach((t) => {
-            const b = document.createElement("button");
-            b.type = "button";
-            b.textContent = t[0];
-            b.addEventListener("click", () => {
-              ensureVisible(document.getElementById(sec.target));
-              document.getElementById(t[1]).click();
-            });
-            acts.appendChild(b);
-          });
-          const reset = document.createElement("button");
-          reset.type = "button";
-          reset.textContent = "Reset";
-          reset.addEventListener("click", () => {
-            Object.keys(ANIM_DEFAULTS[sec.key]).forEach((k) => { vals[k] = ANIM_DEFAULTS[sec.key][k]; });
-            repaints.forEach((fn) => fn());
-            ANIM.apply();
-          });
-          acts.appendChild(reset);
-          d.appendChild(acts);
-          secsEl.appendChild(d);
-        });
-        repaints.forEach((fn) => fn());
-
-        const foot = wrap.querySelector(".tw__foot");
-        const copy = document.createElement("button");
-        copy.type = "button";
-        copy.className = "is-primary";
-        copy.textContent = "Copy values";
-        copy.addEventListener("click", () => {
-          const text = JSON.stringify(ANIM.v, null, 2);
-          const done = () => { copy.textContent = "Copied"; setTimeout(() => { copy.textContent = "Copy values"; }, 1400); };
-          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => window.prompt("Copy:", text));
-          else window.prompt("Copy:", text);
-        });
-        foot.appendChild(copy);
-      })();
+      /* The dev "Animation tweaks" panel lives in index-tweaks.js and loads only with ?tweak=1 */
+      if (/[?&]tweak(=1|=true)?(&|$)/.test(window.location.search)) {
+        window.HL_ANIM_TWEAKS = { ANIM, ANIM_DEFAULTS, EASE_BEZIER };
+        const tweaks = document.createElement("script");
+        tweaks.src = "index-tweaks.js";
+        document.body.appendChild(tweaks);
+      }
     })();
   </script>
   <script>
@@ -4386,12 +4065,12 @@ said about us</h2>
       var DOT = '<span class="mi-sep" aria-hidden="true"></span>';
       function meta(c) { return '<div class="mi-meta"><span>' + esc(c.tag) + '</span>' + DOT + '<span>' + CAL + esc(c.date) + '</span></div>'; }
       if (body && window.HL_INSIGHTS && HL_INSIGHTS.length) {
-        var f = HL_INSIGHTS[0], rest = HL_INSIGHTS.slice(1, 5);
+        var f = HL_INSIGHTS[0], insightsRest = HL_INSIGHTS.slice(1, 5);
         body.innerHTML =
-          '<a class="mi-feature" href="insight.html?id=' + f.id + '"><div class="mi-feature__media" data-parallax><img src="' + esc(f.img) + '" alt="" loading="lazy" decoding="async"></div>' +
+          '<a class="mi-feature" href="insight.html?id=' + encodeURIComponent(f.id) + '"><div class="mi-feature__media" data-parallax><img src="' + esc(f.img) + '" alt="" loading="lazy" decoding="async"></div>' +
             '<div class="mi-feature__body">' + meta(f) + '<div class="mi-feature__text"><h3 class="mi-feature__title">' + esc(f.title) + '</h3><p class="mi-feature__desc">' + esc(f.lead || f.desc) + '</p></div><span class="ins-read">Read more</span></div></a>' +
-          '<div class="mi-grid">' + rest.map(function (c) {
-            return '<a class="mi-card" href="insight.html?id=' + c.id + '"><div class="mi-card__media" data-parallax><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"></div>' +
+          '<div class="mi-grid">' + insightsRest.map(function (c) {
+            return '<a class="mi-card" href="insight.html?id=' + encodeURIComponent(c.id) + '"><div class="mi-card__media" data-parallax><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"></div>' +
               '<div class="mi-card__body"><div class="mi-card__top">' + meta(c) + '<h3 class="mi-card__title">' + esc(c.title) + '</h3></div><span class="mi-card__more">Read more</span></div></a>';
           }).join("") + '</div>';
       }

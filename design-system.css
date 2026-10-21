@@ -96,6 +96,10 @@
   --pop-r-to: 20px;
   --pop-gap: 10px;
   --pop-shadow: 0.12;
+  /* Button hover wash (see the hover block below) */
+  --hover-veil: rgba(30, 30, 30, 0.01);
+  --hover-dur: 0.6s;
+  --hover-ease: cubic-bezier(0.33, 0.1, 0.25, 1);
 }
 /* Breakpoints (media queries can't read variables, so these three numbers are the rule):
      mobile  ≤ 640px    1 column, --page-pad 24px
@@ -764,15 +768,11 @@ button:hover > .x-icon .x-icon__b {
 .nb-card { display: flex; flex-direction: column; gap: 24px; min-width: 0; color: inherit; text-decoration: none; }
 /* Framed card (neighborhoods grid): same thin border + soft shadow as the agent card */
 .nb-card:not(.ins-card) { gap: 8px; padding: 8px; background: var(--white); border: 1px solid var(--ink-07); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); }
-.nb-card:not(.ins-card) .nb-card__body { padding: 8px 16px 16px; }
 .nb-card__media { position: relative; height: 320px; border-radius: var(--radius-lg); overflow: hidden; background: transparent; }
 .nb-card__media img { position: absolute; left: 0; top: -10%; width: 100%; height: 120%; object-fit: cover; translate: 0 var(--py, 0px); will-change: translate; transition: transform 0.9s var(--ease-soft); }
 @media (hover: hover) {
 .nb-card:hover .nb-card__media img { transform: scale(1.035); }
 }
-.nb-card__body { display: flex; flex-direction: column; gap: 8px; }
-.nb-card__name { margin: 0; font: 500 var(--fs-title)/1.2 var(--font-display, var(--font-ui)); letter-spacing: -0.02em; color: var(--ink); }
-.nb-card__meta { margin: 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.9); }
 
 /* ---------- Offline base map labels (assets/geo.js → HLGeo.base) ---------- */
 .hl-nblabel { background: none; border: 0; width: 90px; text-align: center; font: 500 10px/14px var(--font-ui, system-ui); letter-spacing: 0.02em; text-transform: uppercase; color: rgba(30, 30, 30, 0.42); pointer-events: none; white-space: nowrap; }
@@ -812,7 +812,7 @@ button:hover > .x-icon .x-icon__b {
 
 .ui-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .ui-field__label { font: 400 var(--fs-body)/1.4 var(--font-ui); letter-spacing: -0.01em; color: var(--ink); }
-.ui-input { width: 100%; height: 40px; padding: 4px 16px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02); font: 400 var(--fs-small)/1.4 var(--font-ui); letter-spacing: -0.01em; color: var(--ink); outline: 0; transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease); }
+.ui-input { position: relative; width: 100%; height: 40px; padding: 4px 16px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02); font: 400 var(--fs-small)/1.4 var(--font-ui); letter-spacing: -0.01em; color: var(--ink); outline: 0; transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease); }
 .ui-input::placeholder { color: rgba(30, 30, 30, 0.5); }
 .ui-input:focus { border-color: rgba(30, 30, 30, 0.28); box-shadow: 0 0 0 3px rgba(30, 30, 30, 0.05); }
 textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-radius: 20px; resize: vertical; }
@@ -822,20 +822,6 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 
 /* ---------- Touch carousels ---------- */
 /* .snap-row: a horizontal swipe row; children snap to the centre, the next one peeks in */
-.snap-row {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-inline: var(--page-pad);
-  scroll-padding-inline: var(--page-pad);
-  scroll-snap-type: x mandatory;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.snap-row::-webkit-scrollbar { display: none; }
-.snap-row > * { flex: 0 0 auto; scroll-snap-align: center; }
 /* .dots: position indicator under a carousel; colour follows currentColor */
 .dots { display: flex; justify-content: center; align-items: center; gap: var(--space-2); }
 .dots__dot {
@@ -899,12 +885,6 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
    (search field, dropdown fields, chips, icon buttons, pagination, outline buttons).
    A dark veil (#1e1e1e at 1%) rises from the bottom with a convex edge and,
    when the pointer leaves, drains back down. No colour swap, no jump. */
-
-:root {
-  --hover-veil: rgba(30, 30, 30, 0.01);
-  --hover-dur: 0.6s;
-  --hover-ease: cubic-bezier(0.33, 0.1, 0.25, 1);
-}
 
 :where(.filter-query, .filter-select, .filter-pill, .filter-more, .compact-select, .compact-more, .chip,
 .type-chip, .loc-chip, .filter-pop__close, .stepper button, .navbar.is-solid .icon-btn, .detail__actions .icon-btn,
@@ -987,16 +967,8 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 .detail__actions .icon-btn--fav.is-active .heart-outline,
 .wl .icon-btn--fav.is-saved .heart-outline { fill: var(--heart); stroke: var(--heart); }
 
-/* ----- Text hover: letters spread from the edges and close in toward the centre.
-   Replaces the old "rise" copy (see rise.js). ----- */
-.rise { height: auto !important; overflow: visible !important; }
-.rise__t { text-shadow: none !important; transform: none !important; transition: none !important; }
-.link-rise::after { display: none !important; }
-a:focus-visible > .link-rise { transform: none !important; }
-@media (hover: hover) {
-a:hover > .link-rise { transform: none !important; }
-}
-.nav-links a { overflow: visible !important; }
+/* ----- Text hover: letters spread from the edges and close in toward the centre (rise.js).
+   The .rise / .link-rise wrappers it adds are plain, static boxes. ----- */
 .tx { display: inline; }
 .tx__c { display: inline-block; white-space: pre; }
 @keyframes txIn {
@@ -1022,7 +994,6 @@ button:hover .tx__c {
 }
 html, html body { overflow-x: clip; }
 .nav-links { padding-inline: 16px; }
-.ui-input { position: relative; }
 
 /* Hero CTAs on inner pages share the homepage's large button */
 .hl-btn.hl-btn--lg { height: 52px; }
@@ -1078,46 +1049,19 @@ html, html body { overflow-x: clip; }
   position: relative;
   transition: none;
 }
-.link-rise::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  top: 100%;
-  white-space: nowrap;
-}
-a:focus-visible > .link-rise {
-  transform: translateY(-100%);
-  transition: transform var(--dur) var(--ease-soft);
-}
-@media (hover: hover) {
-a:hover > .link-rise {
-  transform: translateY(-100%);
-  transition: transform var(--dur) var(--ease-soft);
-}
-}
+.link-rise::after { display: none; }
 .rise {
   display: inline-block;
   vertical-align: top;
-  height: 1.4em;
+  height: auto;
   line-height: 1.4;
-  overflow: hidden;
+  overflow: visible;
 }
 .rise__t {
   display: block;
-  text-shadow: 0 1.4em 0 currentColor;
+  text-shadow: none;
+  transform: none;
   transition: none;
-}
-a:focus-visible .rise__t,
-button:focus-visible .rise__t {
-  transform: translateY(-1.4em);
-  transition: transform var(--dur) var(--ease-soft);
-}
-@media (hover: hover) {
-a:hover .rise__t,
-button:hover .rise__t {
-  transform: translateY(-1.4em);
-  transition: transform var(--dur) var(--ease-soft);
-}
 }
 
 /* ---------- 9. Icons ---------- */
@@ -1328,18 +1272,6 @@ button:hover .rise__t {
 }
 .ui-btn--raised .ui-arrow {
   z-index: 1;
-}
-.detail__back.ui-btn--raised {
-  width: 40px;
-  height: 40px;
-  border-radius: 40px;
-  flex-shrink: 0;
-}
-.detail__back.ui-btn--raised::before {
-  border-radius: 36px;
-}
-.detail__back .ui-arrow {
-  transform: scaleX(-1);
 }
 .detail__actions .icon-btn {
   background: var(--white);
@@ -2247,7 +2179,7 @@ body.is-compact .compact-bar > *:nth-child(5) {
   color: currentColor;
   height: 1.4em;
   line-height: 1.4;
-  overflow: hidden;
+  overflow: visible;
   display: inline-block;
 }
 .nav-actions {
@@ -2674,7 +2606,6 @@ body.is-menu-open {
   }
 }
 
-.mega-menu__sell { display: none; }
 @media (max-width: 640px) {
   .mega-menu__panel { gap: 20px; padding: 80px var(--page-pad) 32px; }
   .mega-menu__media { display: none; }
@@ -2686,8 +2617,6 @@ body.is-menu-open {
   .mega-menu__links--lg a { font-size: var(--fs-heading); }
   .mega-menu__links--md a { font-size: var(--fs-title); }
   .mega-menu__contact > a { font-size: var(--fs-title); }
-  .mega-menu__sell { display: inline-flex; width: 100%; margin-top: var(--space-6); }
-  .mega-menu__sell .hl-btn__inner { width: 100%; }
 }
 
 /* ---------- Full-screen menu, mobile (Figma "Mobile") ----------

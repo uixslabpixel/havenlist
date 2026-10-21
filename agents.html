@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Our agents — Havenlist</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="design-system.css">
   <style>
@@ -69,15 +70,7 @@
     .listings {
       padding: 32px var(--page-pad) 48px;
     }
-    .listings__empty { margin: 0; padding: 64px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
 
-    .listings__grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px 16px;
-      max-width: var(--content-w);
-      margin: 0 auto;
-    }
 
     /* ========== HL BUTTON (Figma decoration) ========== */
 
@@ -98,16 +91,6 @@
 
     /* Maximum sits on the right edge */
 
-    .range-track input[type="range"]::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: var(--white);
-      border: 1px solid var(--ink-10);
-      box-shadow: var(--shadow-pop);
-      pointer-events: auto;
-      cursor: pointer;
-    }
 
     .loc-search {
       display: flex;
@@ -122,18 +105,7 @@
       border-radius: 40px;
     }
 
-    .loc-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
 
-    .loc-meta {
-      font-family: var(--font-display);
-      font-size: var(--fs-small);
-      color: rgba(30, 30, 30, 0.5);
-    }
 
     /* List rows run edge to edge of the dropdown (cancel the body padding) */
     .loc-list { display: flex; flex-direction: column; gap: 0; margin: -8px -24px; }
@@ -161,16 +133,7 @@
     .type-chips { display: flex; gap: 10px; flex-wrap: wrap; }
 
     /* Two rows: 3 + 2 */
-    .facilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 16px; }
 
-    .facility {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: var(--fs-small);
-      color: var(--ink);
-      cursor: pointer;
-    }
 
     /* ========== FILTER SHEET (scrolled click) ========== */
 
@@ -187,10 +150,6 @@
     }
 
     /* Desktop-first: keep compact usable ≥1100 */
-    @media (max-width: 1100px) {
-      .listings__grid { grid-template-columns: repeat(2, 1fr); }
-
-    }
 
     /* ========== AGENTS PAGE ========== */
     .agents { padding: 32px var(--page-pad) 64px; }
@@ -565,8 +524,10 @@
   <script src="pager.js"></script>
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
-    <script>
-    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    <script src="circle-menu.js"></script>
+  <script src="filter-ui.js"></script>
+  <script src="toast.js"></script>
+  <script>
     const ALL = HLAgents.all();
 
     /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
@@ -595,22 +556,8 @@
     document.querySelectorAll(".hl-btn, .back-link, .filter-clear, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
 
     const state = { query: "", location: "", expertise: "", top: false, role: "", sort: "rating" };
-    const body = document.body;
-    const navbar = document.getElementById("navbar");
-    const menuBtn = document.getElementById("menuBtn");
-    const compactBar = document.getElementById("compactBar");
-    const filterForm = document.getElementById("filterForm");
-    const filterSheet = document.getElementById("filterSheet");
-    let compact = false;
-    let sheetOpen = false;
-    let openPop = null;
 
-    const toastEl = document.getElementById("toast");
-    function toast(message) {
-      toastEl.textContent = message;
-      toastEl.classList.add("is-visible");
-      setTimeout(() => toastEl.classList.remove("is-visible"), 2200);
-    }
+    function toast(message) { HLToast(message); }
 
     /* ----- Filtering ----- */
     let shownKey = "";
@@ -716,122 +663,13 @@
       render();
     }));
 
-    /* ----- Popover open/close ----- */
-    function syncFilterExpanded(name) {
-      document.querySelectorAll("[data-filter]").forEach((btn) => {
-        btn.setAttribute("aria-expanded", String(!!name && btn.dataset.filter === name));
-      });
-    }
-
-    /* Tunable motion (CSS vars): full close = dissolve beat + shrink beat */
-    function cssMs(name, fallback) {
-      const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-      const n = parseFloat(raw);
-      return Number.isNaN(n) ? fallback : (raw.endsWith("ms") ? n : n * 1000);
-    }
-    function popCloseMs() { return cssMs("--pop-fade", 160) + cssMs("--pop-close", 300); }
-
-    function closePop() {
-      Object.values(pops).forEach((p) => {
-        if (!p.classList.contains("is-open")) return;
-        p.classList.remove("is-open");
-        /* Keep its anchor above the page until the panel has folded back in */
-        const host = p.parentElement;
-        clearTimeout(host._frontTimer);
-        host._frontTimer = setTimeout(() => host.classList.remove("is-front"), popCloseMs() + 60);
-      });
-      openPop = null;
-      syncFilterExpanded(null);
-    }
-
-    const pops = {
-      location: document.getElementById("popLocation"),
-      expertise: document.getElementById("popExpertise"),
-      more: document.getElementById("popMore"),
-    };
-    const anchors = {
-      location: document.getElementById("anchorLocation"),
-      expertise: document.getElementById("anchorExpertise"),
-      more: document.getElementById("anchorMore"),
-    };
-
-    /* The dropdown always lives next to the button that opened it (in-page
-       form or the sheet), so it moves with that button. It grows out of the
-       button's own rect: we measure its final size while hidden, park it at
-       the button's size, then let CSS carry it to the final size. */
-    function openFilter(name, anchorEl) {
-      closePop();
-      const pop = pops[name];
-      if (!pop) return;
-      const anchor = (anchorEl && anchorEl.closest(".filter-anchor")) || anchors[name];
-      /* Bottom sheets live on <body> so no scrolling ancestor can clip or offset them */
-      const host = window.innerWidth <= 1100 ? document.body : anchor;
-      if (host && pop.parentElement !== host) host.appendChild(pop);
-      clearTimeout(anchor._frontTimer);
-      anchor.classList.add("is-front");
-
-      const body = pop.querySelector(".filter-pop__body");
-      const aRect = anchor.getBoundingClientRect();
-      /* Measure against where the sheet will rest, not where it is mid-slide */
-      const slide = anchor.closest(".filter-sheet__panel");
-      const settleY = slide ? new DOMMatrix(getComputedStyle(slide).transform).m42 : 0;
-      const anchorBottom = aRect.bottom - settleY;
-      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pop-gap")) || 10;
-      const maxH = Math.max(240, window.innerHeight - anchorBottom - gap - 16);
-
-      /* Natural size, off-screen state */
-      pop.style.transition = "none";
-      pop.style.setProperty("--pop-shift", "0px");
-      pop.style.setProperty("--body-h", "auto");
-      pop.classList.add("is-measuring");
-      const w = pop.offsetWidth;
-      const natural = pop.offsetHeight;
-      const bodyNatural = body.offsetHeight;
-      pop.classList.remove("is-measuring");
-
-      /* Keep wide panels inside the viewport, and short ones inside the height */
-      const left = aRect.left + aRect.width / 2 - w / 2;
-      const min = 16;
-      const max = window.innerWidth - 16 - w;
-      const shift = left < min ? min - left : left > max ? max - left : 0;
-      const height = Math.min(natural, maxH);
-      pop.style.setProperty("--pop-shift", `${shift}px`);
-      pop.style.setProperty("--pop-h", `${height}px`);
-      pop.style.setProperty("--body-h", `${Math.max(0, bodyNatural - (natural - height))}px`);
-      pop.style.setProperty("--from-w", `${aRect.width}px`);
-      pop.style.setProperty("--from-h", `${aRect.height}px`);
-
-      /* Land on the button-sized start frame, then release the transition */
-      void pop.offsetHeight;
-      pop.style.transition = "";
-      void pop.offsetHeight;
-      pop.classList.add("is-open");
-      openPop = name;
-      syncFilterExpanded(name);
-    }
-
-    function bindFilterButton(btn) {
-      if (!btn) return;
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const name = btn.dataset.filter;
-        if (compact && !sheetOpen && btn.closest("#compactBar")) {
-          openSheet(name);
-          return;
-        }
-        if (openPop === name) closePop();
-        else openFilter(name, btn);
-      });
-    }
-
-["btnLocation", "btnExpertise", "btnMore",
-     "sheetBtnLocation", "sheetBtnExpertise", "sheetBtnMore"].forEach((id) => {
-      bindFilterButton(document.getElementById(id));
-    });
+    /* ----- Dropdowns, filter sheet and compact bar (filter-ui.js) ----- */
+    const ui = HLFilterUI({ names: ["location", "expertise", "more"], updateLabels });
+    const { closePop, closeSheet } = ui;
 
     document.querySelectorAll("[data-close-pop]").forEach((btn) => btn.addEventListener("click", closePop));
     document.querySelectorAll("[data-apply-pop]").forEach((btn) => {
-      btn.addEventListener("click", () => { updateLabels(); render(); closePop(); if (sheetOpen) closeSheet(); });
+      btn.addEventListener("click", () => { updateLabels(); render(); closePop(); if (ui.sheetOpen) closeSheet(); });
     });
     document.querySelectorAll("[data-clear]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -841,60 +679,6 @@
         render();
       });
     });
-    document.addEventListener("click", (e) => {
-      if (!openPop) return;
-      const pop = pops[openPop];
-      if (pop && !pop.contains(e.target) && !e.target.closest("[data-filter]")) closePop();
-    });
-
-    /* ----- Filter sheet (after scroll) ----- */
-    let sheetPopTimer = null;
-
-    function openSheet(focusFilter) {
-      sheetOpen = true;
-      filterSheet.classList.add("is-open");
-      filterSheet.setAttribute("aria-hidden", "false");
-      body.classList.add("is-sheet-open");
-      updateLabels();
-      clearTimeout(sheetPopTimer);
-      if (focusFilter) {
-        /* Let the drawer arrive first, then unfold the requested dropdown */
-        sheetPopTimer = setTimeout(() => {
-          if (!sheetOpen) return;
-          const btn = document.getElementById({
-            location: "sheetBtnLocation", expertise: "sheetBtnExpertise", more: "sheetBtnMore",
-          }[focusFilter]);
-          if (btn) openFilter(focusFilter, btn);
-        }, 260);
-      }
-    }
-
-    function closeSheet() {
-      clearTimeout(sheetPopTimer);
-      sheetOpen = false;
-      closePop();
-      filterSheet.classList.remove("is-open");
-      filterSheet.setAttribute("aria-hidden", "true");
-      body.classList.remove("is-sheet-open");
-    }
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      if (openPop) closePop();
-      else if (sheetOpen) closeSheet();
-    });
-
-    document.getElementById("filterSheetScrim").addEventListener("click", closeSheet);
-
-    document.querySelectorAll("[data-open-sheet]").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        if (e.target.closest(".chip__x")) return;
-        if (!compact) return;
-        e.preventDefault();
-        e.stopPropagation();
-        openSheet(el.dataset.filter || null);
-      });
-    });
 
     /* ----- Compact chip clears ----- */
     document.getElementById("clearQueryChip").addEventListener("click", (e) => {
@@ -902,137 +686,12 @@
     });
     document.getElementById("clearTopChip").addEventListener("click", (e) => { e.stopPropagation(); setTop(false); });
 
-    /* ----- Compact filter bar -----
-       The navbar itself stays put on this page (only the homepage hides it);
-       once the in-page form scrolls away, the filters move up into it. */
-    const NAV_H = 64;
-    const COMPACT_ON = NAV_H + 16;   // form top crosses this → compact
-    const COMPACT_OFF = NAV_H + 28;  // hysteresis so trackpad jitter can't flicker it
-
-    function setCompact(next) {
-      if (next === compact) return;
-      compact = next;
-      body.classList.toggle("is-compact", next);
-      compactBar.setAttribute("aria-hidden", String(!next));
-    }
-
-    function evaluateCompact() {
-      const top = filterForm.getBoundingClientRect().top;
-      if (window.innerWidth <= 1100) {
-        setCompact(false);
-        return;
-      }
-      if (!compact && top < COMPACT_ON) setCompact(true);
-      else if (compact && top > COMPACT_OFF) setCompact(false);
-    }
-
-    let scrollTicking = false;
-    window.addEventListener("scroll", () => {
-      if (scrollTicking) return;
-      scrollTicking = true;
-      requestAnimationFrame(() => {
-        scrollTicking = false;
-        evaluateCompact();
-      });
-    }, { passive: true });
-
-    window.addEventListener("resize", evaluateCompact);
-    evaluateCompact();
     updateLabels();
     window.__hlReady = true;
     updateCount();
 
-    /* ----- Full-page circle menu (same as homepage) ----- */
-    const megaMenu = document.getElementById("megaMenu");
-    const xLines = Array.from(menuBtn.querySelectorAll(".menu-btn__x-line"));
-    let closingTimer;
-    let isAnimating = false;
-
-    function replayXDraw() {
-      xLines.forEach((line) => {
-        line.style.animation = "none";
-        line.style.strokeDashoffset = "100";
-      });
-      void menuBtn.offsetHeight;
-      xLines.forEach((line) => {
-        line.style.animation = "";
-        line.style.strokeDashoffset = "";
-      });
-    }
-
-    function placeCircleOrigin() {
-      const rect = menuBtn.getBoundingClientRect();
-      megaMenu.style.setProperty("--cx", `${rect.left + rect.width / 2}px`);
-      megaMenu.style.setProperty("--cy", `${rect.top + rect.height / 2}px`);
-    }
-
-    function openMenu() {
-      if (isAnimating) return;
-      isAnimating = true;
-      clearTimeout(closingTimer);
-      if (sheetOpen) closeSheet();
-      closePop();
-      megaMenu.classList.remove("is-closing");
-      megaMenu.style.clipPath = "";
-      placeCircleOrigin();
-      megaMenu.hidden = false;
-      megaMenu.offsetHeight;
-      megaMenu.classList.add("is-open");
-      menuBtn.classList.add("is-open");
-      replayXDraw();
-      menuBtn.setAttribute("aria-expanded", "true");
-      menuBtn.setAttribute("aria-label", "Close menu");
-      body.classList.add("is-menu-open");
-      setTimeout(() => { isAnimating = false; }, 880);
-    }
-
-    function closeMenu() {
-      if (isAnimating && !megaMenu.classList.contains("is-open")) return;
-      isAnimating = true;
-      placeCircleOrigin();
-      megaMenu.style.clipPath = "";
-      megaMenu.classList.add("is-closing");
-      megaMenu.classList.remove("is-open");
-      menuBtn.classList.remove("is-open");
-      menuBtn.setAttribute("aria-expanded", "false");
-      menuBtn.setAttribute("aria-label", "Open menu");
-      body.classList.remove("is-menu-open");
-      clearTimeout(closingTimer);
-      closingTimer = setTimeout(() => {
-        megaMenu.classList.remove("is-closing");
-        megaMenu.hidden = true;
-        isAnimating = false;
-      }, 600);
-    }
-
-    menuBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (megaMenu.classList.contains("is-open")) closeMenu();
-      else openMenu();
-    });
-
-    menuBtn.addEventListener("mouseenter", () => {
-      if (menuBtn.classList.contains("is-open")) replayXDraw();
-    });
-
-    megaMenu.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", (e) => {
-        if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
-        e.preventDefault();
-        closeMenu();
-        const label = link.querySelector(".link-rise")?.dataset.text || link.textContent.trim();
-        toast(`Go to ${label || "page"}`);
-      });
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && megaMenu.classList.contains("is-open")) closeMenu();
-    });
-
-    window.addEventListener("resize", () => {
-      if (megaMenu.classList.contains("is-open")) placeCircleOrigin();
-    });
+    /* ----- Full-page circle menu (circle-menu.js) ----- */
+    HLCircleMenu({ toast, onOpen: () => { if (ui.sheetOpen) closeSheet(); closePop(); } });
   </script>
   <script src="dropdown-tweaks.js"></script>
   <script src="nav-links.js"></script>

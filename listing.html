@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Listing — Havenlist</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="icon" href="data:,">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/detail/main.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="design-system.css">
@@ -53,13 +54,6 @@
 
     /* ========== SHARED ICON BUTTON + ARROW ========== */
 
-        .ui-arrow {
-          position: relative;
-          display: block;
-          width: 16px;
-          height: 12px;
-          overflow: hidden;
-        }
 
     /* ========== DETAIL PAGE ========== */
     .detail {
@@ -1155,6 +1149,8 @@
   <script src="wishlist.js"></script>
   <script src="smooth-scroll.js"></script>
   <script src="parallax.js"></script>
+  <script src="circle-menu.js"></script>
+  <script src="toast.js"></script>
   <script>
     (function () {
       "use strict";
@@ -1168,14 +1164,10 @@
       var VB = {"i-tree": "0 0 13 16", "i-key": "0 0 14 14", "i-shower": "0 0 14 14", "i-window": "0 0 13 14", "i-car": "0 0 14 13", "i-home": "0 0 13 14", "i-bolt": "0 0 13 15", "i-bed": "0 0 18 14", "i-bath": "0 0 16 16", "i-area": "0 0 18 18", "i-expand": "0 0 13 13", "i-plus": "0 0 13 13", "i-minus": "0 0 13 2", "p-main": "0 0 15 21", "p-0": "0 0 10 10", "p-1": "0 0 12 10", "p-2": "0 0 12 11", "p-3": "0 0 8 11"};
 
       /* ---------- toast ---------- */
-      var toastEl = $("toast");
-      var toastTimer;
-      function toast(message) {
-        toastEl.textContent = message;
-        toastEl.classList.add("is-visible");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () { toastEl.classList.remove("is-visible"); }, 2200);
-      }
+      function toast(message) { HLToast(message); }
+
+      /* ---------- full-page circle menu (circle-menu.js) ---------- */
+      HLCircleMenu({ toast: toast, onOpen: closeMap, onEscape: closeMap });
 
       /* ---------- which listing ---------- */
       var all = HavenlistStore.all();
@@ -1355,8 +1347,8 @@
       }
       document.querySelectorAll(".hl-btn, .site-footer__contact, .site-footer__col a, .site-footer__legal a, .site-footer__email").forEach(addRise);
 
-      /* ---------- hearts: outline draws on hover, toggles on click ---------- */
-      function bindHeart(btn, onToggle) {
+      /* ---------- hearts: outline draws on hover (the click itself is handled by wishlist.js) ---------- */
+      function bindHeart(btn) {
         var path = btn.querySelector(".heart-outline");
         btn.addEventListener("mouseenter", function () {
           path.style.animation = "none";
@@ -1369,17 +1361,10 @@
           path.style.animation = "none";
           path.style.strokeDashoffset = "0";
         });
-        btn.addEventListener("click", function () {
-          var pressed = btn.getAttribute("aria-pressed") === "true";
-          btn.setAttribute("aria-pressed", String(!pressed));
-          btn.classList.toggle("is-active", !pressed);
-          if (onToggle) onToggle(!pressed);
-        });
       }
-      bindHeart($("favBtn"), function (on) { toast(on ? "Saved homes" : "Removed from saved"); });
-      bindHeart($("saveBtn"), function (on) { toast(on ? "Saved " + item.place : "Removed from saved"); });
-      document.querySelectorAll(".card__fav").forEach(function (b) { bindHeart(b); });
-      $("sellBtn").addEventListener("click", function () { toast("Opening seller onboarding…"); });
+      bindHeart($("favBtn"));
+      bindHeart($("saveBtn"));
+      document.querySelectorAll(".card__fav").forEach(bindHeart);
 
       /* Share icon redraws its lines on hover, like the hearts */
       (function (btn) {
@@ -1417,8 +1402,8 @@
          rate-limited) the next takes over; with none left the offline SF base
          map drawn above stays visible. */
       var TILES = [
-        { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", sub: "abc", at: "&copy; OpenStreetMap contributors" },
-        { url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", sub: "abc", at: "Tiles &copy; Esri" }
+        { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", at: "&copy; OpenStreetMap contributors" },
+        { url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", at: "Tiles &copy; Esri" }
       ];
       var tileIdx = -1, tileLayer = null, tileErrs = 0, tileOk = 0;
       function nextTiles() {
@@ -1431,9 +1416,11 @@
         }
         var src = TILES[tileIdx];
         tileErrs = 0; tileOk = 0;
-        tileLayer = L.tileLayer(src.url, { subdomains: src.sub, maxZoom: 19, attribution: src.at }).addTo(lmap);
-        tileLayer.on("tileload", function () { tileOk++; });
-        tileLayer.on("tileerror", function () {
+        var layer = tileLayer = L.tileLayer(src.url, { maxZoom: 19, attribution: src.at }).addTo(lmap);
+        layer.on("tileload", function () { if (layer === tileLayer) tileOk++; });
+        layer.on("tileerror", function () {
+          /* late errors from a source we already dropped must not count against the next one */
+          if (layer !== tileLayer) return;
           if (++tileErrs >= 4 && !tileOk) {
             if (window.console) console.warn("[Havenlist map] tiles failed from " + src.url + " — trying the next source");
             nextTiles();
@@ -1700,96 +1687,6 @@
         setTimeout(function () { $("fName").focus({ preventScroll: true }); }, 900);
       });
 
-      /* ---------- full-page circle menu (same as the other pages) ---------- */
-      var menuBtn = $("menuBtn");
-      var megaMenu = $("megaMenu");
-      var xLines = Array.prototype.slice.call(menuBtn.querySelectorAll(".menu-btn__x-line"));
-      var closingTimer;
-      var menuBusy = false;
-
-      function replayXDraw() {
-        xLines.forEach(function (line) { line.style.animation = "none"; line.style.strokeDashoffset = "100"; });
-        void menuBtn.offsetHeight;
-        xLines.forEach(function (line) { line.style.animation = ""; line.style.strokeDashoffset = ""; });
-      }
-
-      function placeCircleOrigin() {
-        var rect = menuBtn.getBoundingClientRect();
-        megaMenu.style.setProperty("--cx", (rect.left + rect.width / 2) + "px");
-        megaMenu.style.setProperty("--cy", (rect.top + rect.height / 2) + "px");
-      }
-
-      function openMenu() {
-        if (menuBusy) return;
-        menuBusy = true;
-        clearTimeout(closingTimer);
-        closeMap();
-        megaMenu.classList.remove("is-closing");
-        megaMenu.style.clipPath = "";
-        placeCircleOrigin();
-        megaMenu.hidden = false;
-        void megaMenu.offsetHeight;
-        megaMenu.classList.add("is-open");
-        menuBtn.classList.add("is-open");
-        replayXDraw();
-        menuBtn.setAttribute("aria-expanded", "true");
-        menuBtn.setAttribute("aria-label", "Close menu");
-        document.body.classList.add("is-menu-open");
-        setTimeout(function () { menuBusy = false; }, 880);
-      }
-
-      function closeMenu() {
-        if (menuBusy && !megaMenu.classList.contains("is-open")) return;
-        menuBusy = true;
-        placeCircleOrigin();
-        megaMenu.style.clipPath = "";
-        megaMenu.classList.add("is-closing");
-        megaMenu.classList.remove("is-open");
-        menuBtn.classList.remove("is-open");
-        menuBtn.setAttribute("aria-expanded", "false");
-        menuBtn.setAttribute("aria-label", "Open menu");
-        document.body.classList.remove("is-menu-open");
-        clearTimeout(closingTimer);
-        closingTimer = setTimeout(function () {
-          megaMenu.classList.remove("is-closing");
-          megaMenu.hidden = true;
-          menuBusy = false;
-        }, 600);
-      }
-
-      menuBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (megaMenu.classList.contains("is-open")) closeMenu(); else openMenu();
-      });
-      menuBtn.addEventListener("mouseenter", function () { if (menuBtn.classList.contains("is-open")) replayXDraw(); });
-
-      /* Links to a page just go there; the rest keep the placeholder toast */
-      megaMenu.querySelectorAll("a").forEach(function (link) {
-        link.addEventListener("click", function (e) {
-          var href = link.getAttribute("href") || "";
-          if (href.charAt(0) !== "#") return;
-          e.preventDefault();
-          closeMenu();
-          var label = link.querySelector(".link-rise") ? link.querySelector(".link-rise").dataset.text : link.textContent.trim();
-          toast("Go to " + (label || "page"));
-        });
-      });
-
-      document.querySelectorAll(".nav-links a").forEach(function (link) {
-        link.addEventListener("click", function (e) {
-          var href = link.getAttribute("href") || "";
-          if (href.indexOf("#insights") === -1) return;
-          e.preventDefault();
-          toast("Go to Insights");
-        });
-      });
-
-      document.addEventListener("keydown", function (e) {
-        if (e.key !== "Escape") return;
-        if (megaMenu.classList.contains("is-open")) closeMenu(); else closeMap();
-      });
-      window.addEventListener("resize", function () { if (megaMenu.classList.contains("is-open")) placeCircleOrigin(); });
     })();
 
   </script>

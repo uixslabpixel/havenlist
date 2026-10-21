@@ -24,22 +24,27 @@ window.HLScroll = (function () {
     gliding = null;
   }
 
+  const SCROLL_KEYS = ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "];
   ["wheel", "touchstart"].forEach((evt) => window.addEventListener(evt, stop, { passive: true }));
   window.addEventListener("keydown", (e) => {
-    if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].indexOf(e.key) !== -1) stop();
+    if (SCROLL_KEYS.indexOf(e.key) !== -1) stop();
   });
 
-  /* While the full-screen menu is open the page behind it stays put (body overflow alone doesn't stop the
-     root scroller). Only the menu panel may scroll, and only when it is taller than the screen. */
-  const menuOpen = () => document.body && document.body.classList.contains("is-menu-open");
+  /* While the full-screen menu is open (circle-menu.js calls lock) the page behind it stays put:
+     body overflow alone doesn't stop the root scroller. Only the menu panel may scroll, and only
+     when it is taller than the screen. The blocking listeners exist only while the menu is open, so
+     normal wheel and touch scrolling stays on the compositor thread. */
   const panelOf = (t) => (t && t.closest ? t.closest(".mega-menu__panel") : null);
   const scrollable = (p) => p && p.scrollHeight > p.clientHeight + 1;
-  ["wheel", "touchmove"].forEach((evt) =>
-    window.addEventListener(evt, (e) => { if (menuOpen() && !scrollable(panelOf(e.target))) e.preventDefault(); }, { passive: false })
-  );
-  window.addEventListener("keydown", (e) => {
-    if (menuOpen() && ["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].indexOf(e.key) !== -1 && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) e.preventDefault();
-  });
+  const blockScroll = (e) => { if (!scrollable(panelOf(e.target))) e.preventDefault(); };
+  const blockKeys = (e) => {
+    if (SCROLL_KEYS.indexOf(e.key) !== -1 && !/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(e.target.tagName) && !e.target.isContentEditable) e.preventDefault();
+  };
+  function lock(on) {
+    const m = on ? "addEventListener" : "removeEventListener";
+    ["wheel", "touchmove"].forEach((evt) => window[m](evt, blockScroll, { passive: false }));
+    window[m]("keydown", blockKeys);
+  }
 
   /* Glide to a page position: eased, duration scales with distance */
   function to(y) {
@@ -89,5 +94,5 @@ window.HLScroll = (function () {
     history.replaceState(null, "", "#" + id);
   });
 
-  return { to };
+  return { to, lock };
 })();
