@@ -186,15 +186,73 @@
 
     /* ========== RESPONSIVE ==========
        Desktop 4-up → tablet 3-up → large phone 2-up → phone 1-up. The compact
-       navbar filters are desktop-only (JS gates it at 1100px), so below that
-       the in-page filter form wraps instead of running off the screen. */
+       navbar filters are desktop-only (JS gates it at 1100px). Below that the
+       filter row scrolls sideways and each filter opens as a bottom sheet. */
     @media (max-width: 1100px) {
       .listings__grid { grid-template-columns: repeat(3, 1fr); gap: 32px 16px; }
-      .filter-form { flex-wrap: wrap; }
-      .filter-query { width: 100%; max-width: 360px; }
       .listings { padding-top: 24px; }
-      .card__meta { flex-wrap: wrap; row-gap: 4px; }
-      .card__price { flex-basis: 100%; font-weight: 500; color: var(--ink); }
+
+      /* One scrollable row, bleeding to the screen edges */
+      .filter-form {
+        flex-wrap: nowrap;
+        justify-content: safe center;
+        width: calc(100% + var(--page-pad) * 2);
+        max-width: none;
+        margin: 0 calc(var(--page-pad) * -1);
+        padding: 2px var(--page-pad);
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .filter-form::-webkit-scrollbar { display: none; }
+      .filter-query { width: 250px; }
+
+      /* Filters rise from the bottom as a full-width card */
+      .filter-anchor { position: static; isolation: auto; }
+      .filter-anchor.is-front { z-index: auto; }
+      .filter-pop,
+      .filter-pop.is-open,
+      .filter-pop.is-measuring {
+        position: fixed;
+        z-index: 310;
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: auto;
+        max-height: 85vh;
+        max-height: 85dvh;
+        display: flex;
+        flex-direction: column;
+        border: 0;
+        border-radius: 24px 24px 0 0;
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.14);
+        transform: translateY(105%);
+        transition: transform 0.35s var(--ease-morph), visibility 0s linear 0.35s;
+      }
+      .filter-pop.is-open {
+        transform: translateY(0);
+        transition: transform 0.5s var(--ease-morph), visibility 0s;
+      }
+      .filter-pop.is-measuring { transition: none !important; }
+      .filter-pop > *,
+      .filter-pop.is-open > * { width: 100%; opacity: 1; transition: none; }
+      .filter-pop__body { flex: 1 1 auto; min-height: 0; height: auto; }
+      .filter-pop__foot { flex-shrink: 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+
+      .search-header::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        background: rgba(30, 30, 30, 0.3);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s var(--ease-out);
+      }
+      .search-header:has(.filter-pop.is-open)::after { opacity: 1; pointer-events: auto; }
+      body:has(.filter-pop.is-open) { overflow: hidden; }
     }
 
     @media (max-width: 760px) {
@@ -202,20 +260,20 @@
       .search-header { padding-bottom: 24px; }
       .search-header__inner { gap: 14px; }
       .tabs { width: 100%; max-width: 400px; }
-      .filter-form { gap: 8px; }
-      /* Search + the "more filters" button share the first row */
-      .filter-query { order: -2; max-width: none; flex: 1 1 calc(100% - 48px); }
-      #anchorMore { order: -1; }
       .facilities { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      /* Navbar: logo, saved, menu only */
+      .nav-actions .btn-sell { display: none; }
+
+      /* Price always on its own line below beds / baths / size */
+      .card__meta { flex-wrap: wrap; row-gap: 6px; }
+      .card__price { flex-basis: 100%; margin-left: 0; font-weight: 500; color: var(--ink); }
     }
 
     @media (max-width: 560px) {
       .listings { padding-bottom: 32px; }
       .listings__grid { grid-template-columns: 1fr; gap: 28px; }
       .card__media { aspect-ratio: 4 / 3; }
-      .card__price { flex-basis: auto; margin-left: auto; font-weight: 400; color: rgba(30, 30, 30, 0.8); }
-      .card__meta { flex-wrap: nowrap; }
-      .filter-pill, .filter-select { height: 40px; }
     }
   </style>
 </head>
