@@ -1,0 +1,59 @@
+/* Shared-element page transitions (cross-document View Transitions).
+   Going from a card to its detail page, the card's picture becomes the detail page's main picture
+   (listing -> gallery, agent -> photo, neighborhood -> thumbnail, insight -> hero). Every other
+   navigation keeps the plain fade from design-system.css. Browsers without support just navigate.
+   Loaded synchronously in <head>: pagereveal fires before the first paint. */
+(function () {
+  "use strict";
+  var NAME = "hl-hero", STORE = "hl.vt";
+  var DEST = { listing: "#galleryMain", agent: "#heroPhoto", neighborhood: "#heroPhoto", insight: "#heroPhoto" };
+  var CARD = ".card, .agent-card, .ins-card, .mi-card, .mi-feature, .featured-card";
+  var MEDIA = ".card__media, .agent-card__media, .nb-card__media, .mi-card__media, .mi-feature__media";
+
+  function kindOf(path) {
+    var m = /^\/(listing|agent|neighborhood|insight)(?:\.html)?\/?$/.exec(path);
+    return m ? m[1] : null;
+  }
+  function name(el) {
+    el.style.viewTransitionName = NAME;
+    return function () { el.style.viewTransitionName = ""; };
+  }
+
+  /* what was pressed last (links, and cards that navigate from a script) */
+  var last = null;
+  ["pointerdown", "click", "keydown"].forEach(function (t) {
+    document.addEventListener(t, function (e) { last = e.target; }, true);
+  });
+
+  window.addEventListener("pageswap", function (e) {
+    try {
+      var vt = e.viewTransition, act = e.activation;
+      if (!vt || !act || !act.entry || act.navigationType === "traverse" || act.navigationType === "reload") return;
+      var kind = kindOf(new URL(act.entry.url).pathname);
+      if (!kind || !last || !last.closest) return;
+      var card = last.closest(CARD);
+      var el = card && (card.matches(".featured-card") ? card : card.querySelector(MEDIA));
+      if (!el) return;
+      var clear = name(el);
+      try { sessionStorage.setItem(STORE, kind + "|" + Date.now()); } catch (x) {}
+      vt.finished.then(clear, clear);
+    } catch (x) {}
+  });
+
+  window.addEventListener("pagereveal", function (e) {
+    try {
+      var vt = e.viewTransition;
+      if (!vt || !window.navigation || !navigation.activation || !navigation.activation.from) return;
+      var type = navigation.activation.navigationType;
+      if (type === "traverse" || type === "reload") return;
+      var kind = kindOf(location.pathname), mark = null;
+      try { mark = (sessionStorage.getItem(STORE) || "").split("|"); sessionStorage.removeItem(STORE); } catch (x) {}
+      if (!kind || !mark || mark[0] !== kind || Date.now() - Number(mark[1]) > 8000) return;
+      var el = document.querySelector(DEST[kind]);
+      if (!el) return;
+      el.removeAttribute("data-clip"); el.removeAttribute("data-reveal"); /* no entrance effect while it morphs */
+      var clear = name(el);
+      vt.finished.then(clear, clear);
+    } catch (x) {}
+  });
+})();

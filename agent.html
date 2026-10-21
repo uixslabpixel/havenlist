@@ -228,6 +228,8 @@
       .agent-profile .agent-profile__mail { grid-area: mail; align-self: stretch; }
     }
   </style>
+  <script src="vt.js"></script>
+  <link rel="expect" href="#heroPhoto" blocking="render">
 </head>
 <body>
   <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
@@ -753,7 +755,7 @@
     const LISTINGS = AGENT.listings.map((id) => ALLL.find((l) => l.id === id)).filter(Boolean);
     document.title = AGENT.name + " — Havenlist";
     document.getElementById("agentProfile").innerHTML =
-      '<div class="agent-profile__card"><div class="agent-profile__photo"><img src="' + AGENT.photo + '" alt="' + AGENT.name + '" decoding="async"></div>' +
+      '<div class="agent-profile__card"><div class="agent-profile__photo" id="heroPhoto"><img src="' + AGENT.photo + '" alt="' + AGENT.name + '" decoding="async"></div>' +
       '<div class="agent-profile__main"><div class="agent-profile__info"><h1 class="agent-profile__name">' + AGENT.name + '</h1>' +
       '<ul class="agent-profile__stats"><li>' + AGENT.years + '+ years</li><li>' + (AGENT.years * 18) + '+ families</li><li>' + AGENT.rating.toFixed(1) + ' rating</li></ul></div>' +
       '<a class="agent-profile__phone" href="tel:' + AGENT.phone.replace(/\s/g, "") + '">' + HLAgents.PHONE + '<span>' + AGENT.phone + '</span></a></div>' +

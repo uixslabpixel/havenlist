@@ -664,7 +664,7 @@
       .ab-story__text { position: relative; z-index: 1; }
 
       /* Team: title + intro stay put, the cards swipe sideways */
-      .ab-team__grid { display: flex; flex-direction: column; gap: 16px; }
+      .ab-team__grid { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
       .ab-team__title, .ab-team__lead { grid-column: auto !important; }
       .ab-team__row { display: flex; gap: 12px; overflow-x: auto; margin: 8px -24px 0; padding: 0 24px; scroll-snap-type: x mandatory; scroll-padding-inline: 24px; overscroll-behavior-x: contain; scrollbar-width: none; }
       .ab-team__row::-webkit-scrollbar { display: none; }
@@ -691,6 +691,7 @@
     }
 
   </style>
+  <script src="vt.js"></script>
 </head>
 <body>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
