@@ -2599,8 +2599,9 @@ said about us</h2>
     </div>
   </footer>
 
-  <div class="mega-menu" id="megaMenu" hidden>
+  <div class="mega-menu mega-menu--m" id="megaMenu" hidden>
     <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
       <div class="mega-menu__media">
         <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
       </div>
@@ -2646,11 +2647,9 @@ said about us</h2>
           </div>
         </div>
 
-        <a class="mega-menu__sell hl-btn hl-btn--black hl-btn--lg" href="sell.html"><span class="hl-btn__inner">Sell with us</span></a>
-
         <div class="mega-menu__contact">
           <p class="mega-menu__group-label">Contact</p>
-          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span></a>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
       </div>
     </div>
@@ -3048,7 +3047,7 @@ said about us</h2>
         menuBtn.setAttribute("aria-expanded", "true");
         menuBtn.setAttribute("aria-label", "Close menu");
         document.body.classList.add("is-menu-open");
-        setTimeout(() => { isAnimating = false; }, 1100);
+        setTimeout(() => { isAnimating = false; }, 880);
       }
 
       function closeMenu() {
@@ -3067,7 +3066,7 @@ said about us</h2>
           megaMenu.classList.remove("is-closing");
           megaMenu.hidden = true;
           isAnimating = false;
-        }, 750);
+        }, 600);
       }
 
       menuBtn.addEventListener("click", (e) => {
@@ -3114,6 +3113,8 @@ said about us</h2>
 
       document.querySelectorAll('.site-footer a[href^="#"]').forEach((link) => {
         link.addEventListener("click", (e) => {
+          /* nav-links.js turns most of these into real pages: let those navigate */
+          if ((link.getAttribute("href") || "").charAt(0) !== "#") return;
           e.preventDefault();
           goToLink(link, false);
         });

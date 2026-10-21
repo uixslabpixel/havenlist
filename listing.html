@@ -16,9 +16,11 @@
        copy (its own text-shadow, 1.4em below) rises into place. Spans are
        added in JS (addRise), so live-updating labels keep working. */
 
-    .icon-btn:hover {
+    @media (hover: hover) {
+.icon-btn:hover{
       border-color: rgba(30, 30, 30, 0.18);
     }
+}
 
     /* Share: arrow then tray draw themselves on hover — same line language
        as the heart */
@@ -468,7 +470,9 @@
       transition: background 0.2s var(--ease);
     }
 
-    .map__zoom button:hover { background: var(--ink-07); }
+    @media (hover: hover) {
+.map__zoom button:hover{ background: var(--ink-07); }
+}
     .map__zoom button:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
     .map__zoom svg { width: 12px; fill: currentColor; }
     .map__zoom button + button { border-top: 1px solid var(--ink-07); }
@@ -680,7 +684,6 @@
       }
 
       .detail__aside { position: static; padding-bottom: 0; }
-      .nav-actions .btn-sell { display: none; }
       .similar { padding-inline: 32px; }
       .similar__grid { grid-template-columns: repeat(3, 1fr); }
 
@@ -1469,7 +1472,7 @@
         menuBtn.setAttribute("aria-expanded", "true");
         menuBtn.setAttribute("aria-label", "Close menu");
         document.body.classList.add("is-menu-open");
-        setTimeout(function () { menuBusy = false; }, 1100);
+        setTimeout(function () { menuBusy = false; }, 880);
       }
 
       function closeMenu() {
@@ -1488,7 +1491,7 @@
           megaMenu.classList.remove("is-closing");
           megaMenu.hidden = true;
           menuBusy = false;
-        }, 750);
+        }, 600);
       }
 
       menuBtn.addEventListener("click", function (e) {
