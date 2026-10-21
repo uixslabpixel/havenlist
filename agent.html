@@ -220,7 +220,13 @@
     .agent-profile__mail { flex: none; align-self: center; display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 var(--fs-body)/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
 
     .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
-    @media (max-width: 720px) { .agent-profile__card { flex-direction: column; align-items: flex-start; }  }
+    /* Phones: text on the left, photo on the right; the email button runs full width underneath */
+    @media (max-width: 720px) {
+      .agent-profile__card { display: grid; grid-template-columns: minmax(0, 1fr) 96px; grid-template-areas: "main photo" "mail mail"; align-items: start; gap: 12px 16px; }
+      .agent-profile__main { grid-area: main; align-self: start; padding: 0; }
+      .agent-profile .agent-profile__photo { grid-area: photo; width: 96px; height: 96px; }
+      .agent-profile .agent-profile__mail { grid-area: mail; align-self: stretch; }
+    }
   </style>
 </head>
 <body>
@@ -334,6 +340,7 @@
             <svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg>
           </button>
         </label>
+        <div class="filter-scroll">
 
         <div class="filter-anchor" id="anchorType"><button class="filter-select" type="button" data-filter="type" id="btnType" aria-expanded="false"><span id="labelType">Rent</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><button class="filter-pill" type="button" id="btnFeatured" aria-pressed="false" hidden>Featured</button>
 
@@ -371,6 +378,7 @@
             </svg>
           </button>
         </div>
+      </div>
       </form>
 
     </div>
@@ -750,6 +758,23 @@
       '<ul class="agent-profile__stats"><li>' + AGENT.years + '+ years</li><li>' + (AGENT.years * 18) + '+ families</li><li>' + AGENT.rating.toFixed(1) + ' rating</li></ul></div>' +
       '<a class="agent-profile__phone" href="tel:' + AGENT.phone.replace(/\s/g, "") + '">' + HLAgents.PHONE + '<span>' + AGENT.phone + '</span></a></div>' +
       '<a class="agent-profile__mail" href="mailto:' + AGENT.email + '">Email me</a></div>';
+
+    /* Sticky profile bar: appears once the profile card has scrolled away (phones) */
+    (function () {
+      var card = document.querySelector(".agent-profile__card");
+      if (!card) return;
+      var bar = document.createElement("div");
+      bar.className = "pf-bar";
+      bar.innerHTML = '<img class="pf-bar__photo" src="' + AGENT.photo + '" alt="" width="40" height="40" decoding="async"><span class="pf-bar__name"></span><a class="pf-bar__btn" href="mailto:' + AGENT.email + '">Email me</a>';
+      bar.querySelector(".pf-bar__name").textContent = AGENT.name;
+      document.body.appendChild(bar);
+      var phone = window.matchMedia("(max-width: 720px)");
+      var foot = document.querySelector(".site-footer");
+      function update() { bar.classList.toggle("is-on", phone.matches && card.getBoundingClientRect().bottom < 0 && !(foot && foot.getBoundingClientRect().top < window.innerHeight - 24)); }
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    })();
     document.getElementById("agentChipImg").src = AGENT.photo;
     document.getElementById("agentChipName").textContent = AGENT.name;
     const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

@@ -532,6 +532,14 @@
     @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 16px); } }
     /* Same header band as Search and Agents (white, soft shadow, same title); it sits mid-page, so no navbar offset */
     .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); }
+    /* Phones: tighter featured text block, quieter 'More' header band */
+    @media (max-width: 760px) {
+      .featured__meta { gap: 4px; padding: 16px 16px 32px; min-height: 0; }
+      .featured__meta-copy { gap: 4px; }
+      .featured__stats { gap: 0; }
+      .nb-more { background: transparent; box-shadow: none; }
+      .nb-more .search-title { font-size: var(--fs-title); }
+    }
     .nbs { padding: 16px var(--page-pad) 64px; }
     .nbs__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; max-width: 1312px; margin: 0 auto; }
     .nbs__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
@@ -615,6 +623,7 @@
           <input class="filter-query__input" id="searchInput" type="search" placeholder="Search here" aria-label="Search agents">
           <button class="filter-query__clear" type="button" id="searchClearBtn" aria-label="Clear search"><svg class="x-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path class="x-icon__a" pathLength="100" d="M2 8L8 2"/><path class="x-icon__b" pathLength="100" d="M8 8L2 2"/></svg></button>
         </label>
+        <div class="filter-scroll">
         <div class="filter-anchor" id="anchorLocation">
           <button class="filter-select" type="button" data-filter="location" id="btnLocation" aria-expanded="false">
             <span id="labelLocation">Location</span>
@@ -626,6 +635,7 @@
             <svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
           </button>
         </div>
+      </div>
       </form>
     </div>
 
@@ -1289,7 +1299,12 @@
         details.tabIndex = -1; details.setAttribute("aria-hidden", "true");
         details.addEventListener("click", function (e) { e.stopPropagation(); });
         card.appendChild(details);
-        card.addEventListener("click", function (e) { if (e.target.closest(".featured-card__details")) return; if (animating) return; goToNearestLogical(Number(card.dataset.logical)); });
+        card.addEventListener("click", function (e) {
+          if (e.target.closest(".featured-card__details")) return;
+          /* Touch has no hover "Details" button: tapping the centred card opens it */
+          if (window.matchMedia("(hover: none)").matches && card.classList.contains("is-active")) { window.location.href = HLNeighborhoods.href(item); return; }
+          if (animating) return; goToNearestLogical(Number(card.dataset.logical));
+        });
         bindCursor(card);
         return card;
       }
@@ -1333,8 +1348,7 @@
       function updateMeta(item) {
         nameEl.textContent = item.name; addressEl.textContent = item.address;
         document.getElementById("featuredStats").innerHTML =
-          '<span class="featured__stat"><span class="featured__stat-value">' + item.price + ' Avg price</span></span>' +
-          '<span class="featured__stat"><span class="featured__stat-value">(' + item.count + ' Listings)</span></span>';
+          '<span class="featured__stat"><span class="featured__stat-value">' + item.price + ' Avg price (' + item.count + ' Listings)</span></span>';
       }
       const more = document.getElementById("nbMoreLink");
       if (more) more.addEventListener("click", function (e) { e.preventDefault(); document.getElementById("more").scrollIntoView({ behavior: "smooth", block: "start" }); });
