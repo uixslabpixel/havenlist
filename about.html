@@ -651,6 +651,27 @@
     .ab-member__id p { margin: 4px 0 0; font: 400 var(--fs-body)/1.4 var(--font-ui); color: var(--ink-70); }
     .ab-member__social { display: flex; gap: 6px; }
     .ab-member__social a { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--white); box-shadow: var(--shadow-sm); border: 1px solid var(--ink-07); }
+
+    .ab-team__row { display: contents; }
+    .ab-profile--below { display: none; }
+    @media (max-width: 720px) {
+      /* Video card sits under the picture instead of on top of it */
+      .ab-hero__img .ab-profile { display: none; }
+      .ab-profile--below { display: flex; position: static; margin: 12px 24px 0; max-width: none; }
+
+      /* Rising pictures: 200x240, in front of the text, slightly soft for depth */
+      .ab-float { width: 200px; height: 240px; aspect-ratio: auto; z-index: 3; filter: blur(2px); }
+      .ab-story__text { position: relative; z-index: 1; }
+
+      /* Team: title + intro stay put, the cards swipe sideways */
+      .ab-team__grid { display: flex; flex-direction: column; gap: 16px; }
+      .ab-team__title, .ab-team__lead { grid-column: auto !important; }
+      .ab-team__row { display: flex; gap: 12px; overflow-x: auto; margin: 8px -24px 0; padding: 0 24px; scroll-snap-type: x mandatory; scroll-padding-inline: 24px; overscroll-behavior-x: contain; scrollbar-width: none; }
+      .ab-team__row::-webkit-scrollbar { display: none; }
+      .ab-team__row > .ab-member { flex: 0 0 min(68vw, 260px); scroll-snap-align: start; grid-row: auto !important; grid-column: auto !important; }
+      .ab-member__info { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+
     @media (max-width: 1100px) {
       .ab-team__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 24px; }
       .ab-team__grid > * { grid-row: auto !important; grid-column: auto !important; }
@@ -748,6 +769,10 @@
         <div class="ab-profile__text"><h2>Company profile</h2><p>Watch our company profile videos</p><span class="ab-profile__link">View video</span></div>
       </div>
     </div>
+    <div class="ab-profile ab-profile--below">
+      <div class="ab-profile__thumb"><img src="assets/about/video-thumb.webp" alt="" width="117" height="117"><span class="ab-profile__play"><img src="assets/about/play.svg" alt="" width="12" height="13"></span></div>
+        <div class="ab-profile__text"><h2>Company profile</h2><p>Watch our company profile videos</p><span class="ab-profile__link">View video</span></div>
+      </div>
 
     <section class="ab-story" id="abStory">
       <div class="ab-story__pin">
@@ -771,6 +796,7 @@
       <div class="ab-team__grid">
         <h2 class="ab-team__title" data-reveal>People behind havenlist</h2>
         <p class="ab-team__lead" data-reveal>Meet the Havenlist team, dedicated to build great experience for you to find your best livings</p>
+        <div class="ab-team__row">
         <article class="ab-member" style="grid-row:1;grid-column:1" data-reveal data-reveal-delay="0">
           <div class="ab-member__media" data-parallax><img src="assets/about/team-1.webp" alt="Sarah Chen" loading="lazy" width="560" height="586"></div>
           <div class="ab-member__info"><div class="ab-member__id"><h3>Sarah Chen</h3><p>Founder & CEO</p></div>
@@ -796,6 +822,7 @@
           <div class="ab-member__info"><div class="ab-member__id"><h3>Eleanor Brooks</h3><p>Operations Director</p></div>
             <div class="ab-member__social"><a href="#" aria-label="Eleanor Brooks on LinkedIn"><img src="assets/about/linkedin.svg" alt="" loading="lazy" width="16" height="16"></a><a href="#" aria-label="Eleanor Brooks on Instagram"><img src="assets/about/instagram.svg" alt="" loading="lazy" width="16" height="16"></a></div></div>
         </article>
+        </div>
       </div>
     </section>
   </main>
