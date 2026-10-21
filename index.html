@@ -1863,6 +1863,7 @@
        Desktop (≥1025px) is untouched by everything below. */
     .search-field { display: contents; }
     .touch-dots { display: none; }
+    .categories__cap { display: none; }
 
     @media (max-width: 1024px) {
       /* ----- Hero: image frame on top, search card overlapping its bottom edge ----- */
@@ -1893,16 +1894,17 @@
 
       .categories__inner { flex-direction: column; height: auto; padding: 56px 0 48px; gap: 24px; }
       .categories__copy { flex: none; height: auto; padding-inline: var(--page-pad); gap: 16px; }
-      .categories__nav { flex: none; height: auto; justify-content: flex-start; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--page-pad) * -1); padding-inline: var(--page-pad); }
-      .categories__nav::-webkit-scrollbar { display: none; }
-      .categories__item { flex: 0 0 auto; align-self: auto; width: auto; min-height: 0; padding: 8px 4px; cursor: pointer; pointer-events: auto; }
-      .categories__label { font-size: var(--fs-title); }
-      .categories__go { display: none; }
+      .categories__nav { display: none; }
       .categories__media { flex: none; width: 100%; max-width: none; height: auto; border-radius: 0; overflow: visible; background: transparent; }
-      .categories__slides { position: static; inset: auto; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+      .categories__slides { position: static; inset: auto; display: flex; gap: 16px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
       .categories__slides::-webkit-scrollbar { display: none; }
-      .categories__slide { position: relative !important; inset: auto; flex: 0 0 min(72vw, 420px); aspect-ratio: 4 / 5; border-radius: var(--radius-lg); scroll-snap-align: center; clip-path: none !important; visibility: visible !important; z-index: auto !important; pointer-events: auto; will-change: auto; }
-      .categories__slide img { transform: none !important; will-change: auto; }
+      /* each category is a card: picture on top, label + arrow underneath */
+      .categories__slide { position: relative !important; inset: auto; flex: 0 0 min(72vw, 360px); display: flex; flex-direction: column; gap: 14px; overflow: visible; scroll-snap-align: center; clip-path: none !important; visibility: visible !important; z-index: auto !important; pointer-events: auto; will-change: auto; }
+      .categories__slide img { position: relative; inset: auto; width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: var(--radius-lg); transform: none !important; will-change: auto; }
+      .categories__cap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-inline: 4px; color: var(--ink); }
+      .categories__cap .categories__label { font-size: var(--fs-title); color: var(--ink); }
+      .categories__cap .categories__go { opacity: 1; transform: none; pointer-events: auto; }
+      .categories__cap .categories__go .ui-arrow { opacity: 1; transform: none; }
       .categories .touch-dots { display: flex; margin-top: 16px; color: var(--ink); }
 
       .neighborhoods__inner { height: auto; padding: 56px 0 56px; display: flex; flex-direction: column; gap: 24px; }
@@ -1950,7 +1952,7 @@
       /* ----- Hero ----- */
       .hero { --hero-h: min(58svh, 520px); padding-bottom: 40px; }
       .hero-photo { object-position: center 88%; }
-      .hero-title { top: 14%; left: var(--page-pad); right: var(--page-pad); transform: none; width: auto; max-width: none; white-space: normal; font-size: clamp(44px, 14vw, 64px); line-height: 1.04; }
+      .hero-title { top: 15%; left: var(--page-pad); right: var(--page-pad); transform: none; width: auto; max-width: none; white-space: nowrap; font-size: clamp(28px, 9.4vw, 56px); line-height: 1.1; }
       .search-card { margin-top: calc(var(--hero-h) - 56px); padding: 36px 16px 20px; gap: 16px; border-radius: 28px; }
       .search-form { flex-direction: column; align-items: stretch; height: auto; padding: 0; gap: 12px; border: 0; background: transparent; box-shadow: none; }
       .search-form:focus-within { border-color: transparent; box-shadow: none; }
@@ -1958,7 +1960,9 @@
       .search-field:focus-within { border-color: rgba(30, 30, 30, 0.28); box-shadow: 0 5px 16px rgba(0, 0, 0, 0.06); }
       .btn-search { width: 100%; }
       .btn-search .hl-btn__inner { width: 100%; }
-      .suggestions { gap: 8px; }
+      .suggestions { flex-wrap: nowrap; justify-content: flex-start; align-self: stretch; width: auto; margin-inline: -16px; padding-inline: 16px; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent); }
+      .suggestions::-webkit-scrollbar { display: none; }
+      .suggestions .chip { flex: 0 0 auto; }
 
       /* ----- Featured ----- */
       .featured { --featured-card-w: min(84vw, 420px); --featured-card-h: min(88vw, 360px); --featured-gap: 12px; padding-top: 40px; }
@@ -2129,6 +2133,16 @@
       </div>
     </section>
 
+    <section class="page-section newl" id="new-listings" aria-labelledby="newlTitle">
+      <div class="section-head">
+        <h2 class="section-title" id="newlTitle">New listings</h2>
+        <a class="ui-btn ui-btn--raised" href="search.html?q=" aria-label="View all listings">
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+        </a>
+      </div>
+      <div class="card-row" id="newListings"></div>
+    </section>
+
     <section
       class="categories"
       id="categories"
@@ -2180,6 +2194,16 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <section class="stats" id="why" aria-labelledby="statsTitle">
+      <h2 id="statsTitle">What makes us different</h2>
+      <ul class="stats__list">
+        <li><b>98%</b><div><h3>Client satisfaction</h3><p>We have a 98% satisfaction rate.</p></div></li>
+        <li><b>500+</b><div><h3>Properties collection</h3><p>We offer 500 diverse properties.</p></div></li>
+        <li><b>12+</b><div><h3>Neighborhoods served</h3><p>We serve 12 neighborhoods with services.</p></div></li>
+        <li><b>15+</b><div><h3>Years of experience</h3><p>We have 15 years of real estate experience.</p></div></li>
+      </ul>
     </section>
 
     <section
@@ -2406,6 +2430,16 @@ said about us</h2>
         </div>
       </div>
     </section>
+
+    <section class="page-section news" id="insights" aria-labelledby="newsTitle">
+      <div class="section-head">
+        <h2 class="section-title" id="newsTitle">Latest insights</h2>
+        <a class="ui-btn ui-btn--raised" href="insights.html" aria-label="View all insights">
+          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+        </a>
+      </div>
+      <div class="card-row" id="newsGrid"></div>
+    </section>
   </div>
 
   <footer class="site-footer">
@@ -2542,6 +2576,8 @@ said about us</h2>
 
   <script src="assets/listings-store.js"></script>
   <script src="wishlist.js"></script>
+  <script src="listing-card.js"></script>
+  <script src="assets/insights-data.js"></script>
   <script src="smooth-scroll.js"></script>
   <script>
 
@@ -3232,6 +3268,19 @@ said about us</h2>
         drive(true);
         onScrollFrame(() => drive());
         window.addEventListener("resize", () => drive());
+        slides.forEach((slide, i) => {
+          const label = items[i].querySelector(".categories__label");
+          const cap = document.createElement("a");
+          cap.className = "categories__cap";
+          cap.href = "search.html?type=" + encodeURIComponent(label.textContent.trim().split(" ")[0]);
+          cap.appendChild(label.cloneNode(true));
+          cap.appendChild(items[i].querySelector(".categories__go").cloneNode(true));
+          slide.appendChild(cap);
+        });
+        const catMedia = slidesRoot.parentNode;
+        const syncA11y = () => { if (touchMQ.matches) catMedia.removeAttribute("aria-hidden"); else catMedia.setAttribute("aria-hidden", "true"); };
+        syncA11y();
+        touchMQ.addEventListener("change", syncA11y);
         initSwipeRow({ track: slidesRoot, slides: slides, items: items, host: slidesRoot.parentNode, onIndex: bindActiveMenu(items), onWide: () => drive(true) });
       })();
 
@@ -4195,6 +4244,29 @@ said about us</h2>
         });
         foot.appendChild(copy);
       })();
+    })();
+  </script>
+  <script>
+    /* New listings and Latest insights: same cards (and data) as the Search and Insights pages */
+    (function () {
+      function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+      var listings = document.getElementById("newListings");
+      if (listings && window.HLCard && window.HavenlistStore) {
+        var all = HavenlistStore.get("search");
+        var fresh = all.filter(function (l) { return /new|just/i.test(l.badge || ""); });
+        var rest = all.filter(function (l) { return fresh.indexOf(l) === -1; });
+        HLCard.mount(listings, fresh.concat(rest).slice(0, 4));
+      }
+
+      var news = document.getElementById("newsGrid");
+      var CAL = '<svg class="ins-cal" width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>';
+      if (news && window.HL_INSIGHTS) {
+        news.innerHTML = HL_INSIGHTS.slice(0, 4).map(function (c) {
+          return '<a class="ins-card nb-card" href="insight.html?id=' + c.id + '"><div class="nb-card__media"><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"><span class="ins-tag">' + esc(c.type) + '</span></div>' +
+            '<div class="ins-card__body"><h3 class="ins-card__title">' + esc(c.title) + '</h3><div class="ins-meta"><span>' + CAL + esc(c.date) + '</span></div></div></a>';
+        }).join("");
+      }
     })();
   </script>
   <script src="nav-links.js"></script>
