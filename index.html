@@ -1974,10 +1974,12 @@
     }
 
     /* ========== WHAT MAKES US DIFFERENT (Figma: Why_choose_us) ========== */
-    .why { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; padding: 80px var(--page-pad); background: var(--paper); }
+    .why { position: relative; height: 380vh; background: var(--paper); }
+    /* Pinned: the section holds the screen while scrolling steps through the four rows (setRow in the script below) */
+    .why__pin { position: sticky; top: 0; height: 100vh; min-height: 560px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(16px, 4vh, 40px); padding: calc(var(--nav-h, 64px) + clamp(8px, 3vh, 32px)) var(--page-pad) clamp(24px, 6vh, 64px); overflow: hidden; }
     .why__title { text-align: center; font: 500 clamp(32px, 3.4vw, 48px)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
     .why__list { list-style: none; width: 100%; max-width: 980px; }
-    .why__row { display: flex; align-items: center; gap: 16px; min-height: 152px; padding: 16px 0; border-bottom: 1px solid transparent; cursor: pointer; transition: border-color 0.3s var(--ease); }
+    .why__row { display: flex; align-items: center; gap: 16px; min-height: clamp(104px, 17vh, 152px); padding: 16px 0; border-bottom: 1px solid transparent; transition: border-color 0.3s var(--ease); }
     .why__num { flex: 1 1 0; min-width: 0; font: 500 120px/1 var(--font-display); letter-spacing: -0.03em; color: var(--ink-20); transition: color 0.3s var(--ease); }
     .why__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .why__label { font: 400 var(--fs-title)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink-20); transition: color 0.3s var(--ease); }
@@ -2001,7 +2003,8 @@
     .mi-sep { width: 8px; }
     .mi-feature { display: flex; gap: 8px; min-height: 480px; padding: 8px; background: var(--white); border-radius: var(--radius-xl); box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02); color: inherit; text-decoration: none; }
     .mi-feature__media { flex: 0 0 43%; position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--ink-10); }
-    .mi-feature__media img, .mi-card__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* Taller than the frame so it can drift inside it (parallax.js sets --py), like the listing cards */
+    .mi-feature__media img, .mi-card__media img { position: absolute; left: 0; top: -10%; width: 100%; height: 120%; object-fit: cover; translate: 0 var(--py, 0px); will-change: translate; }
     .mi-feature__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 24px; }
     .mi-feature__text { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
     .mi-feature__title { font: 500 var(--fs-heading)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
@@ -2016,7 +2019,16 @@
     .mi-card__more { display: inline-flex; align-items: center; height: 40px; font: 500 var(--fs-body)/1.4 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink); }
 
     @media (max-width: 1024px) {
-      .why { min-height: 0; gap: 24px; padding: 56px var(--page-pad); }
+      /* New listings: two rows that swipe together */
+      .newl .card-row { display: grid; grid-template-columns: none; grid-template-rows: repeat(2, auto); grid-auto-flow: column; grid-auto-columns: min(68vw, 300px); gap: var(--space-4); }
+      .why { height: auto; }
+      .why__pin { position: static; height: auto; min-height: 0; gap: 24px; padding: 56px var(--page-pad); overflow: visible; }
+      /* No pin below desktop: every row shows its full content */
+      .why__row { border-bottom-color: var(--ink-10); }
+      .why__num, .why__label { color: var(--ink); }
+      .why__label { font-weight: 500; }
+      .why__more { grid-template-rows: 1fr; }
+      .why__desc { opacity: 1; }
       .mi { padding: 56px var(--page-pad); }
       .mi__inner { gap: 24px; }
       .mi-feature { min-height: 0; }
@@ -2265,13 +2277,15 @@
     </section>
 
     <section class="why" id="why" aria-labelledby="whyTitle">
+      <div class="why__pin">
       <h2 class="why__title" id="whyTitle">What makes us different</h2>
       <ul class="why__list" id="whyList">
-        <li class="why__row" tabindex="0"><span class="why__num">98%</span><div class="why__body"><h3 class="why__label">Client satisfaction</h3><div class="why__more"><p class="why__desc">We have a 98% satisfaction rate.</p></div></div></li>
-        <li class="why__row is-active" aria-current="true" tabindex="0"><span class="why__num">500+</span><div class="why__body"><h3 class="why__label">Properties collection</h3><div class="why__more"><p class="why__desc">Explore our 500 properties with unique features. Whether you need a cozy apartment or spacious home, we have something for you.</p></div></div></li>
-        <li class="why__row" tabindex="0"><span class="why__num">12+</span><div class="why__body"><h3 class="why__label">Neighborhoods served</h3><div class="why__more"><p class="why__desc">We serve 12 neighborhoods with services.</p></div></div></li>
-        <li class="why__row" tabindex="0"><span class="why__num">15+</span><div class="why__body"><h3 class="why__label">Years of experience</h3><div class="why__more"><p class="why__desc">We have 15 years of real estate experience.</p></div></div></li>
+        <li class="why__row is-active" aria-current="true"><span class="why__num">98%</span><div class="why__body"><h3 class="why__label">Client satisfaction</h3><div class="why__more"><p class="why__desc">We have a 98% satisfaction rate.</p></div></div></li>
+        <li class="why__row"><span class="why__num">500+</span><div class="why__body"><h3 class="why__label">Properties collection</h3><div class="why__more"><p class="why__desc">Explore our 500 properties with unique features. Whether you need a cozy apartment or spacious home, we have something for you.</p></div></div></li>
+        <li class="why__row"><span class="why__num">12+</span><div class="why__body"><h3 class="why__label">Neighborhoods served</h3><div class="why__more"><p class="why__desc">We serve 12 neighborhoods with services.</p></div></div></li>
+        <li class="why__row"><span class="why__num">15+</span><div class="why__body"><h3 class="why__label">Years of experience</h3><div class="why__more"><p class="why__desc">We have 15 years of real estate experience.</p></div></div></li>
       </ul>
+      </div>
     </section>
 
     <section
@@ -4327,7 +4341,7 @@ said about us</h2>
         var all = HavenlistStore.get("search");
         var fresh = all.filter(function (l) { return /new|just/i.test(l.badge || ""); });
         var rest = all.filter(function (l) { return fresh.indexOf(l) === -1; });
-        HLCard.mount(listings, fresh.concat(rest).slice(0, 4));
+        HLCard.mount(listings, fresh.concat(rest).slice(0, 8));
       }
 
       var body = document.getElementById("miBody");
@@ -4337,26 +4351,40 @@ said about us</h2>
       if (body && window.HL_INSIGHTS && HL_INSIGHTS.length) {
         var f = HL_INSIGHTS[0], rest = HL_INSIGHTS.slice(1, 5);
         body.innerHTML =
-          '<a class="mi-feature" href="insight.html?id=' + f.id + '"><div class="mi-feature__media"><img src="' + esc(f.img) + '" alt="" loading="lazy" decoding="async"></div>' +
+          '<a class="mi-feature" href="insight.html?id=' + f.id + '"><div class="mi-feature__media" data-parallax><img src="' + esc(f.img) + '" alt="" loading="lazy" decoding="async"></div>' +
             '<div class="mi-feature__body">' + meta(f) + '<div class="mi-feature__text"><h3 class="mi-feature__title">' + esc(f.title) + '</h3><p class="mi-feature__desc">' + esc(f.lead || f.desc) + '</p></div><span class="ins-read">Read more</span></div></a>' +
           '<div class="mi-grid">' + rest.map(function (c) {
-            return '<a class="mi-card" href="insight.html?id=' + c.id + '"><div class="mi-card__media"><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"></div>' +
+            return '<a class="mi-card" href="insight.html?id=' + c.id + '"><div class="mi-card__media" data-parallax><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"></div>' +
               '<div class="mi-card__body"><div class="mi-card__top">' + meta(c) + '<h3 class="mi-card__title">' + esc(c.title) + '</h3></div><span class="mi-card__more">Read more</span></div></a>';
           }).join("") + '</div>';
       }
 
-      /* What makes us different: the row under the pointer (or focus / tap) becomes the active one */
+      /* What makes us different: pinned on desktop; scroll position picks the active row.
+         Below 1025px every row is expanded (CSS), so there is nothing to drive. */
+      var why = document.getElementById("why");
       var rows = Array.prototype.slice.call(document.querySelectorAll(".why__row"));
-      var cur = rows.findIndex(function (r) { return r.classList.contains("is-active"); });
+      var wide = window.matchMedia("(min-width: 1025px)");
+      var cur = 0, ticking = false;
       function setRow(i) {
         if (i === cur) return;
-        if (cur >= 0) { rows[cur].classList.remove("is-active"); rows[cur].removeAttribute("aria-current"); }
+        rows[cur].classList.remove("is-active"); rows[cur].removeAttribute("aria-current");
         rows[i].classList.add("is-active"); rows[i].setAttribute("aria-current", "true"); cur = i;
       }
-      rows.forEach(function (r, i) { ["mouseenter", "focus", "click"].forEach(function (ev) { r.addEventListener(ev, function () { setRow(i); }); }); });
+      function sync() {
+        ticking = false;
+        if (!wide.matches || !why) return;
+        var r = why.getBoundingClientRect(), span = r.height - window.innerHeight;
+        var p = span > 0 ? Math.min(1, Math.max(0, -r.top / span)) : 0;
+        setRow(Math.min(rows.length - 1, Math.floor(p * rows.length)));
+      }
+      function queue() { if (!ticking) { ticking = true; requestAnimationFrame(sync); } }
+      window.addEventListener("scroll", queue, { passive: true });
+      window.addEventListener("resize", queue);
+      sync();
     })();
   </script>
   <script src="nav-links.js"></script>
   <script src="rise.js"></script>
+  <script src="parallax.js"></script>
 </body>
 </html>

@@ -30,7 +30,7 @@
     chars.forEach(function (ch) {
       if (!ch.trim()) { html += " "; return; }
       var norm = c ? (k - c) / c : 0; k++;
-      html += '<span class="tx__c" aria-hidden="true" style="--o:' + (norm * 0.55).toFixed(3) + "em;--d:" + ((1 - Math.abs(norm)) * 0.22).toFixed(3) + 's">' +
+      html += '<span class="tx__c" aria-hidden="true" style="--o:' + (norm * 0.55).toFixed(3) + "em;--d:" + (Math.abs(norm) * 0.22).toFixed(3) + 's">' +
         ch.replace(/&/g, "&amp;").replace(/</g, "&lt;") + "</span>";
     });
     el.__fx = txt;

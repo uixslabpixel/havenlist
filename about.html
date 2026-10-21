@@ -633,9 +633,9 @@
 
     .ab-story { position: relative; height: 280vh; margin-top: 40px; }
     .ab-story__pin { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; padding: 0 var(--page-pad); overflow: hidden; }
-    .ab-story__text { margin: 0; max-width: 860px; text-align: center; font: 500 clamp(28px, 3.4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .ab-story__text { position: relative; margin: 0; max-width: 860px; text-align: center; font: 500 clamp(24px, 3.4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
     .ab-story__text .w { color: rgba(30, 30, 30, 0.16); }
-    .ab-float { position: absolute; width: clamp(120px, 15vw, 216px); aspect-ratio: 312 / 400; object-fit: cover; border-radius: var(--radius-md); will-change: transform; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); }
+    .ab-float { position: absolute; width: clamp(84px, 15vw, 216px); aspect-ratio: 312 / 400; object-fit: cover; border-radius: var(--radius-md); will-change: transform; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); }
     .ab-float--l { left: clamp(24px, 4.5vw, 64px); top: 0; }
     .ab-float--r { right: clamp(24px, 4.5vw, 64px); top: 0; }
 
@@ -652,15 +652,20 @@
     .ab-member__social { display: flex; gap: 6px; }
     .ab-member__social a { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: var(--white); box-shadow: var(--shadow-sm); border: 1px solid var(--ink-07); }
     @media (max-width: 1100px) {
-      .ab-team__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; }
+      .ab-team__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 24px; }
       .ab-team__grid > * { grid-row: auto !important; grid-column: auto !important; }
       .ab-team__title, .ab-team__lead { grid-column: 1 / -1 !important; }
     }
     @media (max-width: 720px) {
       .ab-hero, .ab-team { padding-left: 24px; padding-right: 24px; }
       .ab-hero__img { margin: 0 24px; } .ab-profile__text p { display: none; }
-      .ab-story { height: auto; } .ab-story__pin { position: static; height: auto; padding: 56px 24px; } .ab-float { display: none; }
-      .ab-story__text .w { color: var(--ink) !important; }
+      /* Team: two across, social icons under the name */
+      .ab-team__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 12px; }
+      .ab-member { gap: 12px; }
+      .ab-member__info { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .ab-member__id h3 { font-size: var(--fs-body); }
+      .ab-member__id p { font-size: var(--fs-small); }
+      .ab-story__pin { padding: 0 24px; }
 
     }
 
@@ -952,7 +957,7 @@
         });
         var N = words.length, cur = 0, target = 0, raf = 0;
         var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
-        var wide = function () { return window.innerWidth > 720; };
+        var wide = function () { return true; };
         /* Image heights are cached (paint runs every frame; reading offsetHeight right
            after the colour writes would force a layout each time) */
         var flH = 0, frH = 0;

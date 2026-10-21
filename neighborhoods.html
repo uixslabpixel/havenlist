@@ -511,8 +511,8 @@
         --featured-card-h: 280px;
         --featured-gap: 16px;
         height: auto;
-        min-height: 100vh;
-        padding: 48px 0 32px;
+        min-height: 0;
+        padding: 32px 0 40px;
       }
 
       .featured__head { padding: 0 24px 24px; }
@@ -529,15 +529,20 @@
 
     /* Same section as the homepage's Featured Listings; the page's own navbar offset is added on top */
     .nbf { padding-top: var(--nav-h); }
-    @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 24px); } }
-    .nb-more { margin-top: 0; background: transparent; box-shadow: none; padding-top: 32px; scroll-margin-top: var(--nav-h); }
-    .nb-more .search-title { font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; }
+    @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 16px); } }
+    /* Same header band as Search and Agents (white, soft shadow, same title); it sits mid-page, so no navbar offset */
+    .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); }
     .nbs { padding: 16px var(--page-pad) 64px; }
     .nbs__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; max-width: 1312px; margin: 0 auto; }
     .nbs__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
-    @media (max-width: 1100px) { .nbs__grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 1100px) { .nbs__grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 900px) { .nb-fade { width: 60px; } .nb-caption__meta { font-size: var(--fs-body); } }
-    @media (max-width: 560px) { .nbs__grid { grid-template-columns: 1fr; } .nb-arrow--prev { left: 8px; } .nb-arrow--next { right: 8px; } }
+    @media (max-width: 760px) {
+      .nbs { padding-top: 24px; }
+      .nbs__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+    }
+    /* Phones: the featured carousel is swiped, so the arrows go */
+    @media (max-width: 640px) { .featured__nav { display: none; } .featured__fade { width: 24px; } }
   </style>
 </head>
 <body><svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse"><stop stop-color="#1E1E1E" stop-opacity="0.7"/><stop offset="1" stop-color="#1E1E1E"/></linearGradient></defs></svg>
@@ -1264,8 +1269,8 @@
           cursorTarget.x = e.clientX - rect.left - h; cursorTarget.y = e.clientY - rect.top - h;
           if (jump) { cursorPos.x = cursorTarget.x; cursorPos.y = cursorTarget.y; details.style.transform = "translate3d(" + cursorPos.x + "px, " + cursorPos.y + "px, 0)"; }
         }
-        card.addEventListener("pointerenter", function (e) { if (!card.classList.contains("is-active")) return; setFromEvent(e, true); cursorActive = true; card.classList.add("is-hovering"); startCursorLoop(); });
-        card.addEventListener("pointermove", function (e) { if (!card.classList.contains("is-active")) return; setFromEvent(e, !cursorActive); cursorActive = true; card.classList.add("is-hovering"); startCursorLoop(); });
+        card.addEventListener("pointerenter", function (e) { if (e.pointerType === "touch" || !card.classList.contains("is-active")) return; setFromEvent(e, true); cursorActive = true; card.classList.add("is-hovering"); startCursorLoop(); });
+        card.addEventListener("pointermove", function (e) { if (e.pointerType === "touch" || !card.classList.contains("is-active")) return; setFromEvent(e, !cursorActive); cursorActive = true; card.classList.add("is-hovering"); startCursorLoop(); });
         card.addEventListener("pointerleave", function () { cursorActive = false; card.classList.remove("is-hovering"); });
       }
       function buildCard(item, logicalIndex, copyIndex) {
@@ -1361,6 +1366,15 @@
       }
       document.getElementById("featuredPrev").addEventListener("click", () => goToVisual(visual - 1));
       document.getElementById("featuredNext").addEventListener("click", () => goToVisual(visual + 1));
+      /* Swipe on touch screens: a mostly-horizontal flick moves one card */
+      let swipeX = 0, swipeY = 0, swiping = false;
+      viewport.addEventListener("touchstart", function (e) { swipeX = e.touches[0].clientX; swipeY = e.touches[0].clientY; swiping = true; }, { passive: true });
+      viewport.addEventListener("touchend", function (e) {
+        if (!swiping) return;
+        swiping = false;
+        const dx = e.changedTouches[0].clientX - swipeX, dy = e.changedTouches[0].clientY - swipeY;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) goToVisual(visual + (dx < 0 ? 1 : -1));
+      }, { passive: true });
       renderTrack(); updateMeta(LISTINGS[logical]); position(true);
       let resizeTimer = 0;
       window.addEventListener("resize", function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(function () { if (!animating) position(true); }, 120); });
