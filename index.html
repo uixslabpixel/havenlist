@@ -2038,6 +2038,9 @@
       .mi-card__media { flex: 0 0 40%; aspect-ratio: 4 / 3; }
     }
     @media (max-width: 640px) {
+      /* New listings on phones: one swipe row of the first four cards */
+      .newl .card-row { grid-template-rows: auto; }
+      .newl .card-row > :nth-child(n+5) { display: none; }
       .why__row { min-height: 0; align-items: flex-start; padding: 20px 0; }
       .why__num { flex: 0 0 42%; font-size: clamp(44px, 14vw, 96px); }
       .why__label { font-size: var(--fs-title-sm); }
