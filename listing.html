@@ -63,7 +63,7 @@
 
     /* ========== DETAIL PAGE ========== */
     .detail {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 80px var(--page-pad) 0;
       display: grid;
@@ -692,7 +692,7 @@
 
     /* Similar properties */
     .similar {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 24px var(--page-pad) 48px;
     }

@@ -60,7 +60,7 @@
 
     /* ========== DETAIL PAGE ========== */
     .detail {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 80px var(--page-pad) 0;
       display: grid;
@@ -561,7 +561,7 @@
 
     /* Similar properties */
     .similar {
-      max-width: 1440px;
+      max-width: calc(var(--content-w) + 2 * var(--page-pad));
       margin: 0 auto;
       padding: 24px var(--page-pad) 48px;
     }
@@ -619,7 +619,7 @@
     .ins-lead { text-wrap: balance; margin: 0; max-width: 612px; font: 400 var(--fs-body)/1.4 var(--font-ui); color: rgba(30, 30, 30, 0.8); }
     .ins-cta { display: flex; gap: 12px; margin-top: 16px; }
 
-    .ins-feature { position: relative; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 40px; max-width: 1440px; margin: 0 auto; }
+    .ins-feature { position: relative; display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 40px; max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; }
     .ins-nav--prev .ui-arrow { transform: scaleX(-1); }
     :root { --ease-featured: cubic-bezier(.38, 0, 0, 1); --ease-slide: cubic-bezier(.38, 0, 0, 1); }
     .ins-slides { position: relative; width: min(1016px, 100%); height: 400px; display: flex; gap: 8px; padding: 8px; background: var(--white); border-radius: var(--radius-xl); box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02); cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; outline: none; }
@@ -643,7 +643,7 @@
     .ins-slide__foot { display: flex; align-items: center; justify-content: space-between; }
     .ins-ctrls { display: flex; gap: 8px; }
 
-    .ins-more { max-width: 1440px; margin: 0 auto; padding: 72px var(--page-pad) 96px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
+    .ins-more { max-width: calc(var(--content-w) + 2 * var(--page-pad)); margin: 0 auto; padding: 72px var(--page-pad) 96px; display: flex; flex-direction: column; align-items: center; gap: 32px; }
     .ins-more__title { margin: 0; font: 500 clamp(32px, 4vw, 40px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); text-align: center; }
     .ins-form { display: flex; align-items: center; gap: 10px; width: min(640px, 100%); }
     .ins-search { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; height: 40px; padding: 4px 16px 4px 12px; background: var(--white); border: 1px solid var(--ink-07); border-radius: 46px; box-shadow: 0 2px 3px rgba(0, 0, 0, 0.02); color: var(--ink-70); }

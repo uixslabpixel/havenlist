@@ -75,7 +75,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 32px 16px;
-      max-width: 1312px;
+      max-width: var(--content-w);
       margin: 0 auto;
     }
 
@@ -219,7 +219,7 @@
 }
     .agent-profile__mail { flex: none; align-self: center; display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 24px; border-radius: 999px; border: 1px solid var(--ink-10, rgba(0,0,0,.12)); font: 500 var(--fs-body)/1 var(--font-ui); color: var(--ink); text-decoration: none; background: #fff; transition: background .2s; }
 
-    .listings__empty { max-width: 1312px; margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
+    .listings__empty { max-width: var(--content-w); margin: 0 auto; padding: 48px 0; text-align: center; font: 400 var(--fs-body)/1.5 var(--font-ui); color: var(--ink-70); }
     /* Phones: text on the left, photo on the right; the email button runs full width underneath */
     @media (max-width: 720px) {
       .agent-profile__card { display: grid; grid-template-columns: minmax(0, 1fr) 96px; grid-template-areas: "main photo" "mail mail"; align-items: start; gap: 12px 16px; }
