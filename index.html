@@ -13,27 +13,14 @@
     img { max-width: none; }
 
     :root {
-      --ink: #1e1e1e;
-      --ink-70: rgba(30, 30, 30, 0.7);
-      --ink-40: rgba(30, 30, 30, 0.4);
-      --ink-10: rgba(30, 30, 30, 0.1);
-      --ink-07: rgba(30, 30, 30, 0.07);
-      --paper: #fafaf9;
-      --white: #ffffff;
-      --page-pad: 64px;
-      --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-      --ease-soft: cubic-bezier(0.33, 0.1, 0.25, 1);
+      /* homepage-only motion tokens (shared tokens live in design-system.css) */
       --ease-slide: cubic-bezier(0.38, 0, 0, 1);
       --dur-fast: 0.45s;
-      --dur: 0.75s;
       --dur-slide: 0.95s;
       --dur-featured: 1000ms;
       --ease-featured: cubic-bezier(0.38, 0, 0, 1);
       /* One tempo for every navbar tone change (transparent ⇄ white) */
       --nav-tone: 0.6s cubic-bezier(0.33, 0.1, 0.25, 1);
-      --font-display: "Inter Display", "Inter", system-ui, sans-serif;
-      --font-ui: "Geist", system-ui, sans-serif;
     }
 
     .page {
@@ -231,18 +218,22 @@
       transition: background-color var(--nav-tone), border-color var(--nav-tone);
     }
 
-    .navbar:not(.is-solid) .icon-btn:hover {
+    @media (hover: hover) {
+.navbar:not(.is-solid) .icon-btn:hover {
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.28);
     }
+}
 
     .navbar.is-solid .icon-btn {
       border-color: var(--ink-10);
     }
 
-    .navbar.is-solid .icon-btn:hover {
+    @media (hover: hover) {
+.navbar.is-solid .icon-btn:hover {
       border-color: rgba(30, 30, 30, 0.18);
     }
+}
 
     /* Heart: outline draws from top cleft, clockwise — slow & elegant */
 
@@ -474,7 +465,9 @@
       transition: color 0.4s var(--ease);
       /* reset shared-rule props this variant never had */ flex: 0 1 auto; }
 
-    .tab:hover { color: var(--ink); }
+    @media (hover: hover) {
+.tab:hover { color: var(--ink); }
+}
 
     .tab[aria-selected="true"] {
       color: var(--ink);
@@ -553,10 +546,12 @@
 
     .search-clear.is-visible { display: inline-flex; }
 
-    .search-clear:hover {
+    @media (hover: hover) {
+.search-clear:hover {
       opacity: 1;
       background: rgba(30, 30, 30, 0.06);
     }
+}
 
     .search-clear svg {
       display: block;
@@ -826,35 +821,6 @@
     }
 
     /* Mobile stays pinned too — the items only follow scroll now */
-    @media (max-width: 900px) {
-      .categories__inner {
-        flex-direction: column;
-        padding: 64px var(--page-pad) 48px;
-        gap: 32px;
-      }
-
-      .categories__copy {
-        height: auto;
-        gap: 24px;
-      }
-
-      .categories__nav {
-        justify-content: flex-start;
-      }
-
-      .categories__item {
-        min-height: 56px;
-        padding: 12px 4px;
-      }
-
-      .categories__media {
-        flex: 1 1 auto;
-        width: 100%;
-        max-width: none;
-        height: auto;
-        min-height: 0;
-      }
-    }
 
     /* ========== NEIGHBORHOODS (pinned scroll) ========== */
     .neighborhoods {
@@ -1074,14 +1040,6 @@
     .neighborhoods__go.ui-btn {
       background: var(--white);
       border-color: transparent;
-    }
-
-    @media (max-width: 720px) {
-      .neighborhoods__title { justify-self: stretch; }
-      .neighborhoods__stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; justify-items: center; gap: 20px; height: auto; }
-      .neighborhoods__media { order: 1; width: min(100%, 34vh); height: auto; aspect-ratio: 1 / 1; }
-      .neighborhoods__list { order: 2; align-items: center; text-align: center; width: 100%; gap: 4px; }
-      .neighborhoods__stage > :not(.neighborhoods__list):not(.neighborhoods__media) { order: 3; justify-self: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1392,28 +1350,6 @@
       }
     }
 
-    @media (max-width: 900px) {
-      .featured {
-        --featured-card-w: min(86vw, 420px);
-        --featured-card-h: 280px;
-        --featured-gap: 16px;
-        height: auto;
-        min-height: 100vh;
-        padding: 48px 0 32px;
-      }
-
-      .featured__head { padding: 0 24px 24px; }
-      .featured__fade { width: 72px; }
-      .featured__nav--prev { left: 12px; }
-      .featured__nav--next { right: 12px; }
-      .featured-card__details {
-        width: 52px;
-        height: 52px;
-        font-size: var(--fs-caption);
-      }
-      .featured__meta { padding: 24px 16px 40px; }
-    }
-
     /* ========== TEAM AGENTS ========== */
     .agents {
       position: relative;
@@ -1606,50 +1542,6 @@
       display: block;
       width: 16px;
       height: 16px;
-    }
-
-    @media (max-width: 900px) {
-      .agents {
-        height: auto;
-        min-height: 100vh;
-        padding: 56px var(--page-pad) 64px;
-      }
-
-      .agents__head {
-        margin-bottom: 24px;
-      }
-
-      .agents__row {
-        gap: 10px;
-        height: min(420px, 118vw);
-        max-height: none;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
-      }
-
-      .agents__card {
-        flex: 0 0 72px;
-        scroll-snap-align: start;
-        transition: flex-basis var(--dur) var(--ease-soft), flex-grow var(--dur) var(--ease-soft);
-      }
-
-      .agents__card.is-active {
-        flex: 0 0 min(72vw, 320px);
-      }
-
-      .agents__info {
-        padding: 20px 16px;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
-
-      .agents__action {
-        width: 36px;
-        height: 36px;
-      }
     }
 
     /* ========== TESTIMONIALS ========== */
@@ -1962,78 +1854,118 @@
       }
     }
 
-    @media (max-width: 900px) {
-      .testimonials {
-        height: auto;
-        min-height: 100vh;
-        padding: 56px var(--page-pad) 48px;
-      }
-
-      .testimonials__layout {
-        height: auto;
-      }
-
-      .testimonials__photo {
-        height: 280px;
-      }
-
-      .testimonials__controls {
-        flex-wrap: wrap;
-        gap: 16px;
-        padding-left: 0;
-        min-height: 0;
-      }
-
-      .testimonials__thumbs {
-        gap: 6px;
-      }
-
-      .testimonials__thumb {
-        width: 52px;
-        height: 52px;
-      }
-    }
-
     @media (max-width: 1100px) {
       .hero-title { font-size: clamp(48px, 9vw, 88px); letter-spacing: -0.02em; }
 
     }
 
-    @media (max-width: 900px) {
-      :root { --page-pad: 24px; }
+    /* ========== RESPONSIVE — tablet ≤1024px, mobile ≤640px (breakpoints: design-system.css) ==========
+       Desktop (≥1025px) is untouched by everything below. */
+    .search-field { display: contents; }
+    .touch-dots { display: none; }
 
-      .nav-links { display: none; }
-
-      .hero {
-        width: 100vw;
-        height: 100vh;
-        min-height: 0;
-      }
-
-      .hero-base {
-        top: 0;
-        width: 100vw;
-        height: min(80vh, calc(100vw / 1.6));
-        transform: translateX(-50%);
-      }
-
-      .hero-title {
-        top: 16%;
-        font-size: clamp(36px, 10vw, 56px);
-      }
-
+    @media (max-width: 1024px) {
+      /* ----- Hero: image frame on top, search card overlapping its bottom edge ----- */
+      .hero { --hero-h: min(62svh, 640px); height: auto; min-height: 0; padding-bottom: 56px; }
+      .hero-base { height: var(--hero-h); width: 100%; }
+      .hero-photo { object-position: center 92%; }
+      .hero-title { top: 17%; font-size: clamp(48px, 9vw, 84px); }
       .search-card {
-        position: relative;
-        left: auto;
-        top: auto;
-        transform: none;
-        margin: -72px auto 0;
-        width: calc(100% - (var(--page-pad) * 2));
-        padding: 36px 16px 28px;
-        border-radius: 28px;
+        position: relative; left: auto; bottom: auto; transform: none;
+        margin: calc(var(--hero-h) - 72px) auto 0;
+        width: calc(100% - (var(--page-pad) * 2)); max-width: 822px;
+        padding: 40px 24px 28px; border-radius: 32px;
       }
-
       .tabs { transform: translateX(-50%); }
+
+      /* ----- Featured: one card at a time, swipe to move ----- */
+      .featured { --featured-card-w: min(78vw, 560px); --featured-card-h: min(52vw, 380px); --featured-gap: 16px; height: auto; min-height: 0; padding: 56px 0 24px; }
+      .featured__head { padding: 0 var(--page-pad) 24px; }
+      .featured__viewport { touch-action: pan-y pinch-zoom; }
+      .featured__fade { width: 48px; }
+      .featured__nav--prev { left: var(--page-pad); }
+      .featured__nav--next { right: var(--page-pad); }
+      .featured__meta { padding: 24px var(--page-pad) 40px; }
+
+      /* ----- Browse by type / Explore neighborhoods: no pin, swipe row + dots ----- */
+      .categories, .neighborhoods { height: auto; }
+      .categories__pin, .neighborhoods__pin { position: static; height: auto; overflow: visible; }
+
+      .categories__inner { flex-direction: column; height: auto; padding: 56px 0 48px; gap: 24px; }
+      .categories__copy { flex: none; height: auto; padding-inline: var(--page-pad); gap: 16px; }
+      .categories__nav { flex: none; height: auto; justify-content: flex-start; flex-direction: row; flex-wrap: nowrap; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--page-pad) * -1); padding-inline: var(--page-pad); }
+      .categories__nav::-webkit-scrollbar { display: none; }
+      .categories__item { flex: 0 0 auto; align-self: auto; width: auto; min-height: 0; padding: 8px 4px; cursor: pointer; pointer-events: auto; }
+      .categories__label { font-size: var(--fs-title); }
+      .categories__go { display: none; }
+      .categories__media { flex: none; width: 100%; max-width: none; height: auto; border-radius: 0; overflow: visible; background: transparent; }
+      .categories__slides { position: static; inset: auto; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+      .categories__slides::-webkit-scrollbar { display: none; }
+      .categories__slide { position: relative !important; inset: auto; flex: 0 0 min(72vw, 420px); aspect-ratio: 4 / 5; border-radius: var(--radius-lg); scroll-snap-align: center; clip-path: none !important; visibility: visible !important; z-index: auto !important; pointer-events: auto; will-change: auto; }
+      .categories__slide img { transform: none !important; will-change: auto; }
+      .categories .touch-dots { display: flex; margin-top: 16px; color: var(--ink); }
+
+      .neighborhoods__inner { height: auto; padding: 56px 0 56px; display: flex; flex-direction: column; gap: 24px; }
+      .neighborhoods__title { justify-self: auto; padding-inline: var(--page-pad); font-size: var(--fs-heading); }
+      .neighborhoods__stage { display: flex; flex-direction: column; align-items: center; gap: 20px; height: auto; }
+      .neighborhoods__media { order: 1; width: 100%; height: auto; aspect-ratio: auto; margin: 0; border-radius: 0; overflow: visible; background: transparent; box-shadow: none; }
+      .neighborhoods__slides { position: static; inset: auto; display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+      .neighborhoods__slides::-webkit-scrollbar { display: none; }
+      .neighborhoods__slide { position: relative !important; inset: auto; flex: 0 0 min(72vw, 380px); aspect-ratio: 1 / 1; border-radius: 24px; scroll-snap-align: center; clip-path: none !important; visibility: visible !important; z-index: auto !important; pointer-events: auto; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28); will-change: auto; }
+      .neighborhoods__slide img { transform: none !important; will-change: auto; }
+      .neighborhoods .touch-dots { display: flex; margin-top: 20px; color: var(--white); }
+      .neighborhoods__bg { transition: opacity 0.5s var(--ease); }
+      .neighborhoods__list { order: 3; width: 100%; align-items: center; text-align: center; padding-inline: var(--page-pad); }
+      .neighborhoods__item { display: none; padding: 0; text-align: center; }
+      .neighborhoods__item.is-active { display: block; }
+      .neighborhoods__label { font-size: var(--fs-section); opacity: 1; transition: none; }
+      .neighborhoods__meta { order: 4; justify-content: center; }
+
+      /* ----- Agents: equal cards in a swipe row, details always visible ----- */
+      .agents { height: auto; min-height: 0; padding: 56px 0 56px; content-visibility: visible; }
+      .agents__head { padding-inline: var(--page-pad); margin-bottom: 24px; }
+      .agents__row { height: auto; max-height: none; gap: 12px; overflow-x: auto; overflow-y: hidden; padding-inline: var(--page-pad); scroll-padding-inline: var(--page-pad); scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+      .agents__row::-webkit-scrollbar { display: none; }
+      .agents__card, .agents__card.is-active { flex: 0 0 min(72vw, 320px); height: min(112vw, 440px); scroll-snap-align: center; }
+      .agents__card img, .agents__card.is-active img { transform: none; }
+      .agents__shade { opacity: 1; }
+      .agents__info { opacity: 1; transform: none; padding: 20px 16px; }
+      .agents__action { width: 40px; height: 40px; }
+      .agents__info { gap: 8px; }
+
+      /* ----- Testimonials: sized to content ----- */
+      .testimonials { height: auto; min-height: 0; padding: 56px var(--page-pad) 48px; content-visibility: visible; }
+      .testimonials__layout { height: auto; }
+      .testimonials__photo { height: 280px; }
+      .testimonials__body { flex: none; min-height: 0; padding: 24px 8px 8px; }
+      .testimonials__controls { flex-wrap: wrap; gap: 16px; padding-left: 0; min-height: 0; }
+      .testimonials__thumbs { gap: 6px; }
+      .testimonials__thumb { width: 52px; height: 52px; }
+    }
+
+    @media (max-width: 640px) {
+      /* ----- Navbar: logo, heart, burger; "Sell with us" moves into the menu ----- */
+      .navbar .btn-sell { display: none; }
+
+      /* ----- Hero ----- */
+      .hero { --hero-h: min(58svh, 520px); padding-bottom: 40px; }
+      .hero-photo { object-position: center 88%; }
+      .hero-title { top: 14%; left: var(--page-pad); right: var(--page-pad); transform: none; width: auto; max-width: none; white-space: normal; font-size: clamp(44px, 14vw, 64px); line-height: 1.04; }
+      .search-card { margin-top: calc(var(--hero-h) - 56px); padding: 36px 16px 20px; gap: 16px; border-radius: 28px; }
+      .search-form { flex-direction: column; align-items: stretch; height: auto; padding: 0; gap: 12px; border: 0; background: transparent; box-shadow: none; }
+      .search-form:focus-within { border-color: transparent; box-shadow: none; }
+      .search-field { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 8px 0 18px; border: 1px solid var(--ink-10); border-radius: 46px; background: var(--white); box-shadow: 0 5px 10px rgba(0, 0, 0, 0.03); transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease); }
+      .search-field:focus-within { border-color: rgba(30, 30, 30, 0.28); box-shadow: 0 5px 16px rgba(0, 0, 0, 0.06); }
+      .btn-search { width: 100%; }
+      .btn-search .hl-btn__inner { width: 100%; }
+      .suggestions { gap: 8px; }
+
+      /* ----- Featured ----- */
+      .featured { --featured-card-w: min(84vw, 420px); --featured-card-h: min(88vw, 360px); --featured-gap: 12px; padding-top: 40px; }
+      .featured__title { font-size: var(--fs-heading); }
+      .featured__fade { width: 24px; }
+      .featured__nav { display: none; }
+      .featured__meta { padding-top: 20px; }
     }
   </style>
 </head>
@@ -2127,26 +2059,28 @@
         </div>
 
         <form class="search-form" id="panel-search" role="search" aria-label="Property search">
-          <span class="search-icon" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <input
-            class="search-input"
-            id="searchInput"
-            type="search"
-            name="q"
-            placeholder="Search property or location"
-            autocomplete="off"
-            aria-label="Search property or location"
-          >
-          <button class="search-clear" type="button" id="searchClear" aria-label="Clear search">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M3 3l6 6M9 3L3 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            </svg>
-          </button>
+          <div class="search-field">
+            <span class="search-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <input
+              class="search-input"
+              id="searchInput"
+              type="search"
+              name="q"
+              placeholder="Search property or location"
+              autocomplete="off"
+              aria-label="Search property or location"
+            >
+            <button class="search-clear" type="button" id="searchClear" aria-label="Clear search">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M3 3l6 6M9 3L3 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
           <button class="btn-search hl-btn hl-btn--black hl-btn--lg" type="submit">
             <span class="hl-btn__inner">Search</span>
           </button>
@@ -2593,6 +2527,8 @@ said about us</h2>
             </ul>
           </div>
         </div>
+
+        <a class="mega-menu__sell hl-btn hl-btn--black hl-btn--lg" href="sell.html"><span class="hl-btn__inner">Sell with us</span></a>
 
         <div class="mega-menu__contact">
           <p class="mega-menu__group-label">Contact</p>
@@ -3220,7 +3156,58 @@ said about us</h2>
         );
       }
 
-      /* Categories — pinned scroll, scroll-driven only */
+      /* Touch widths (≤1024px): the pinned sections become swipe rows with dots. The scroll-driven
+         version stays for desktop; this keeps the same "active item" UI in step with the swipe. */
+      const touchMQ = window.matchMedia("(max-width: 1024px)");
+      function initSwipeRow(o) {
+        const track = o.track, slides = o.slides;
+        const dots = document.createElement("div");
+        dots.className = "dots touch-dots";
+        dots.setAttribute("aria-hidden", "true");
+        slides.forEach(() => { const d = document.createElement("span"); d.className = "dots__dot"; dots.appendChild(d); });
+        o.host.appendChild(dots);
+        const dotEls = Array.from(dots.children);
+        let idx = -1, ticking = false;
+
+        function nearest() {
+          const t = track.getBoundingClientRect();
+          const mid = t.left + t.width / 2;
+          let best = 0, bd = Infinity;
+          slides.forEach((s, i) => {
+            const r = s.getBoundingClientRect();
+            const d = Math.abs(r.left + r.width / 2 - mid);
+            if (d < bd) { bd = d; best = i; }
+          });
+          return best;
+        }
+        function sync(force) {
+          if (!touchMQ.matches) return;
+          const i = nearest();
+          if (i === idx && !force) return;
+          idx = i;
+          dotEls.forEach((d, n) => d.classList.toggle("is-active", n === i));
+          o.onIndex(i);
+        }
+        function goTo(i) {
+          const t = track.getBoundingClientRect(), r = slides[i].getBoundingClientRect();
+          const left = track.scrollLeft + (r.left - t.left) - (t.width - r.width) / 2;
+          const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          track.scrollTo({ left: Math.max(0, left), behavior: calm ? "auto" : "smooth" });
+        }
+        track.addEventListener("scroll", () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => { ticking = false; sync(); });
+        }, { passive: true });
+        o.items.forEach((item, i) => item.addEventListener("click", () => { if (touchMQ.matches) goTo(i); }));
+        touchMQ.addEventListener("change", () => {
+          if (touchMQ.matches) { track.scrollLeft = 0; sync(true); }
+          else { idx = -1; o.onWide(); }
+        });
+        if (touchMQ.matches) sync(true);
+      }
+
+      /* Categories — pinned scroll, scroll-driven only (swipe row on touch widths) */
       (function initCategories() {
         const root = document.getElementById("categories");
         const nav = document.getElementById("categoriesNav");
@@ -3240,10 +3227,12 @@ said about us</h2>
           onActive: bindActiveMenu(items),
         });
 
-        ANIM.listeners.push(() => stack.setTarget(stack.posFromScroll()));
-        stack.setTarget(stack.posFromScroll(), true);
-        onScrollFrame(() => stack.setTarget(stack.posFromScroll()));
-        window.addEventListener("resize", () => stack.setTarget(stack.posFromScroll()));
+        const drive = (instant) => { if (!touchMQ.matches) stack.setTarget(stack.posFromScroll(), instant); };
+        ANIM.listeners.push(() => drive());
+        drive(true);
+        onScrollFrame(() => drive());
+        window.addEventListener("resize", () => drive());
+        initSwipeRow({ track: slidesRoot, slides: slides, items: items, host: slidesRoot.parentNode, onIndex: bindActiveMenu(items), onWide: () => drive(true) });
       })();
 
       /* Neighborhoods — pinned scroll, scroll-driven only; bg follows the wipe */
@@ -3321,10 +3310,20 @@ said about us</h2>
           },
         });
 
-        ANIM.listeners.push(() => stack.setTarget(stack.posFromScroll()));
-        stack.setTarget(stack.posFromScroll(), true);
-        onScrollFrame(() => stack.setTarget(stack.posFromScroll()));
-        window.addEventListener("resize", () => stack.setTarget(stack.posFromScroll()));
+        const drive = (instant) => { if (!touchMQ.matches) stack.setTarget(stack.posFromScroll(), instant); };
+        ANIM.listeners.push(() => drive());
+        drive(true);
+        onScrollFrame(() => drive());
+        window.addEventListener("resize", () => drive());
+        initSwipeRow({
+          track: slidesRoot, slides: slides, items: items, host: slidesRoot.parentNode,
+          onIndex: (idx) => {
+            setActiveMenu(idx);
+            setCount(idx, true);
+            bgs.forEach((bg, n) => { bg.style.opacity = n === idx ? "1" : "0"; bg.style.zIndex = n === idx ? "2" : "1"; });
+          },
+          onWide: () => drive(true),
+        });
       })();
 
       /* Featured listings — equal-size infinite carousel + parallax */
@@ -3429,7 +3428,7 @@ said about us</h2>
           }
 
           card.addEventListener("pointerenter", function (e) {
-            if (!card.classList.contains("is-active")) return;
+            if (e.pointerType !== "mouse" || !card.classList.contains("is-active")) return;
             setFromEvent(e, true);
             cursorActive = true;
             card.classList.add("is-hovering");
@@ -3437,7 +3436,7 @@ said about us</h2>
           });
 
           card.addEventListener("pointermove", function (e) {
-            if (!card.classList.contains("is-active")) return;
+            if (e.pointerType !== "mouse" || !card.classList.contains("is-active")) return;
             setFromEvent(e, !cursorActive);
             cursorActive = true;
             card.classList.add("is-hovering");
@@ -3678,6 +3677,18 @@ said about us</h2>
 
         document.getElementById("featuredPrev").addEventListener("click", function () { step(-1); });
         document.getElementById("featuredNext").addEventListener("click", function () { step(1); });
+
+        /* Swipe on touch screens: a mostly-horizontal flick moves one card */
+        let swipeX = 0, swipeY = 0, swiping = false;
+        viewport.addEventListener("touchstart", function (e) {
+          swipeX = e.touches[0].clientX; swipeY = e.touches[0].clientY; swiping = true;
+        }, { passive: true });
+        viewport.addEventListener("touchend", function (e) {
+          if (!swiping) return;
+          swiping = false;
+          const dx = e.changedTouches[0].clientX - swipeX, dy = e.changedTouches[0].clientY - swipeY;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+        }, { passive: true });
 
         const allBtn = document.querySelector(".featured__all");
         if (allBtn) {
