@@ -2770,6 +2770,9 @@ body.is-menu-open {
   .pager__btn { min-width: 44px; height: 44px; }
   .menu-btn { top: 10px; width: 44px; height: 44px; }
   .menu-btn-spacer { width: 44px; height: 44px; }
+  /* Text links that are shorter than 44px keep their look; an invisible layer extends the tap area */
+  .site-footer__col a, .site-footer__legal a, .site-footer__email, .agent-card__phone, .logo { position: relative; }
+  .site-footer__col a::before, .site-footer__legal a::before, .site-footer__email::before, .agent-card__phone::before, .logo::before { content: ""; position: absolute; inset: -9px -6px; }
 }
 
 /* ---------- Cards in grids on phones: price on its own line ---------- */
