@@ -328,6 +328,11 @@ img { display: block; max-width: 100%; }
   .site-footer__row { flex-direction: column; gap: 32px; }
   .site-footer__cols { width: 100%; }
 }
+@media (max-width: 640px) {
+  .site-footer__panel { padding: 24px 20px; }
+  .site-footer__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+  .site-footer__bottom { flex-wrap: wrap; gap: 8px 16px; }
+}
 
 /* ==================== 5. ICON MOTION ==================== */
 /* Havenlist icon motion — shared by index, search and listing.
