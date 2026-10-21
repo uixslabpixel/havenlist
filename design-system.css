@@ -338,9 +338,15 @@ img { display: block; max-width: 100%; }
 }
 @media (max-width: 760px) {
   .site-footer { padding: 64px 24px 24px; gap: 56px; }
-  .site-footer__panel { padding: 24px; }
-  .site-footer__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 16px; }
-  .site-footer__bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+  /* Flatten the panel so the blocks can be re-ordered:
+     logo + address, email, link blocks (2x2), ©, then privacy | terms last */
+  .site-footer__panel { padding: 24px; gap: 0; }
+  .site-footer__row, .site-footer__brand, .site-footer__bottom { display: contents; }
+  .site-footer__brand > div:first-child { order: 1; }
+  .site-footer__email { order: 2; align-self: flex-start; margin-top: 16px; }
+  .site-footer__cols { order: 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 16px; margin-top: 32px; }
+  .site-footer__copy { order: 4; margin-top: 32px; }
+  .site-footer__legal { order: 5; flex-wrap: nowrap; gap: 16px; margin-top: 12px; white-space: nowrap; }
 }
 
 /* ==================== 5. ICON MOTION ==================== */
