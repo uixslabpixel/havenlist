@@ -1,12 +1,11 @@
 /* Havenlist comments — leave a comment on any spot of any page, Figma style.
    The "Feedback" button (or the C key) switches comment mode on: click anywhere to drop a pin and write.
-   Everyone sees the pins on the page and can reply. Comments are filed as GitHub issues through /api/feedback;
-   the "feedback-triage" skill reads them back and fixes them. */
+   Comments live in this browser (no server). The "Salin" button copies all open comments as text + data,
+   to paste into the Claude chat; the "feedback-triage" skill recaps them and fixes them in parallel. */
 (function () {
   "use strict";
-  var API = "/api/feedback";
-  var KEY = "hl.feedback.name";
-  var MINE = "hl.feedback.mine";
+  var KEY = "hl.feedback.items.v2";
+  var NAME = "hl.feedback.name";
   var CATS = [["layout", "Tampilan"], ["bug", "Bug"], ["copy", "Teks"], ["idea", "Ide"]];
   var PRIOS = [["low", "Rendah"], ["med", "Sedang"], ["high", "Tinggi"]];
 
@@ -17,20 +16,18 @@
   }
   function bp() { var w = window.innerWidth; return w <= 640 ? "mobile" : w <= 1024 ? "tablet" : "desktop"; }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); }
-  function getName() { try { return localStorage.getItem(KEY) || ""; } catch (e) { return ""; } }
-  function setName(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
-  function readMine() { try { return JSON.parse(localStorage.getItem(MINE)) || []; } catch (e) { return []; } }
-  function writeMine(a) { try { localStorage.setItem(MINE, JSON.stringify(a.slice(-30))); } catch (e) {} }
-  function ago(iso) {
-    var s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  function getName() { try { return localStorage.getItem(NAME) || ""; } catch (e) { return ""; } }
+  function setName(v) { try { localStorage.setItem(NAME, v); } catch (e) {} }
+  function loadAll() { try { var a = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
+  function saveAll(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
+  function ago(ts) {
+    var s = Math.max(0, (Date.now() - ts) / 1000);
     if (s < 60) return "baru saja";
     if (s < 3600) return Math.floor(s / 60) + " mnt lalu";
     if (s < 86400) return Math.floor(s / 3600) + " jam lalu";
     return Math.floor(s / 86400) + " hari lalu";
   }
-  function json(url, opts) {
-    return fetch(url, opts).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { s: r.status, j: j }; }); });
-  }
+  function labelOf(list, k) { for (var i = 0; i < list.length; i++) if (list[i][0] === k) return list[i][1]; return ""; }
 
   /* Short, stable-ish CSS path: tag#id or tag.class, :nth-of-type when siblings share the tag */
   function selectorOf(el) {
@@ -65,39 +62,41 @@
   var root = host.attachShadow({ mode: "open" });
   root.innerHTML =
     "<style>" +
-    "*{box-sizing:border-box}button{font:inherit;color:inherit;cursor:pointer}" +
-    ".fab{pointer-events:auto;position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));height:40px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:#1e1e1e;color:#fff;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.25)}" +
+    "*{box-sizing:border-box}button{font:inherit;color:inherit;cursor:pointer}[hidden]{display:none!important}" +
+    ".dock{pointer-events:auto;position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}" +
+    ".fab,.copy{height:40px;padding:0 14px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:#1e1e1e;color:#fff;font-weight:500;box-shadow:0 4px 14px rgba(0,0,0,.25)}" +
+    ".copy{background:#fff;color:#1e1e1e;border:1px solid #dcdcd8}" +
     ".fab[aria-pressed=true]{background:#e5484d}" +
-    ".fab b[hidden]{display:none}.fab b{min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:10px;background:#e5484d;font-size:12px}.fab[aria-pressed=true] b{background:#fff;color:#e5484d}" +
+    ".fab b{min-width:20px;height:20px;padding:0 6px;display:inline-grid;place-items:center;border-radius:10px;background:#e5484d;font-size:12px}.fab[aria-pressed=true] b{background:#fff;color:#e5484d}" +
     ".bar{pointer-events:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);padding:10px 16px;background:#1e1e1e;color:#fff;border-radius:999px;font-weight:500;display:none;text-align:center}.bar.on{display:block}" +
     ".pin{pointer-events:auto;position:fixed;width:28px;height:28px;margin:-28px 0 0 -14px;display:grid;place-items:center;border-radius:50% 50% 50% 0;background:#e5484d;color:#fff;font:600 12px/1 system-ui,sans-serif;box-shadow:0 0 0 2px #fff,0 3px 10px rgba(0,0,0,.3);border:0;padding:0;transform:rotate(-45deg)}" +
-    ".pin>span{transform:rotate(45deg)}.pin.draft{background:#1e1e1e}.pin.on{background:#1e1e1e}" +
+    ".pin>span{transform:rotate(45deg)}.pin.draft,.pin.on{background:#1e1e1e}" +
     ".card{pointer-events:auto;position:fixed;width:min(340px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;padding:16px;background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.28);display:none}.card.on{display:block}" +
-    "@media(max-width:760px){.card{left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%;max-height:80vh;border-radius:20px 20px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}.fab{left:auto;right:12px}}" +
+    "@media(max-width:760px){.card{left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%;max-height:80vh;border-radius:20px 20px 0 0;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}.dock{left:auto;right:12px}}" +
     ".card h4{margin:0 0 2px;font-size:15px;line-height:1.3;font-weight:600}.sub{margin:0 0 10px;color:#6b6b68;font-size:12px;word-break:break-word}" +
     ".lab{display:block;margin:10px 0 6px;font-size:12px;color:#6b6b68}" +
     ".seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{padding:6px 11px;border:1px solid #dcdcd8;border-radius:999px;background:#fff;font-size:13px}.seg button[aria-pressed=true]{background:#1e1e1e;border-color:#1e1e1e;color:#fff}" +
     "textarea,input{width:100%;padding:10px 12px;border:1px solid #dcdcd8;border-radius:12px;font:inherit;background:#fff}textarea{min-height:84px;resize:vertical}input{height:40px;border-radius:999px;padding:0 14px}textarea:focus,input:focus{outline:2px solid #1e1e1e;outline-offset:1px}" +
-    ".row{display:flex;gap:8px;margin-top:12px}.row button{flex:1;height:42px;border-radius:999px;border:1px solid #dcdcd8;background:#fff;font-weight:500}.row .go{background:#1e1e1e;border-color:#1e1e1e;color:#fff}.row button:disabled{opacity:.5;cursor:default}" +
+    ".row{display:flex;gap:8px;margin-top:12px}.row button{flex:1;height:42px;border-radius:999px;border:1px solid #dcdcd8;background:#fff;font-weight:500}.row .go{background:#1e1e1e;border-color:#1e1e1e;color:#fff}" +
     ".err{margin:8px 0 0;color:#c4262b;font-size:12px}" +
-    ".msg{padding:10px 0;border-top:1px solid #eee}.msgs>.msg:first-child{border-top:0;padding-top:0}.who{font-weight:600;font-size:13px}.who small{font-weight:400;color:#6b6b68;margin-left:6px}.txt{margin:2px 0 0;white-space:pre-wrap;word-break:break-word}" +
+    ".who{font-weight:600;font-size:13px}.who small{font-weight:400;color:#6b6b68;margin-left:6px}.txt{margin:2px 0 0;white-space:pre-wrap;word-break:break-word}" +
     ".tags{margin:0 0 8px;color:#6b6b68;font-size:12px}.x{float:right;border:0;background:none;font-size:20px;line-height:1;padding:0 2px;color:#6b6b68}" +
-    ".toast{pointer-events:none;position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:10px 16px;background:#1e1e1e;color:#fff;border-radius:999px;opacity:0;transition:opacity .2s}.toast.on{opacity:1}" +
+    ".toast{pointer-events:none;position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 24px);padding:10px 16px;background:#1e1e1e;color:#fff;border-radius:999px;opacity:0;transition:opacity .2s;text-align:center}.toast.on{opacity:1}" +
     "</style>" +
     '<div class="pins"></div>' +
-    '<button class="fab" type="button" aria-pressed="false" title="Komentar (C)"><span class="t">Feedback</span> <b hidden>0</b></button>' +
+    '<div class="dock"><button class="copy" type="button" hidden>Salin</button><button class="fab" type="button" aria-pressed="false" title="Komentar (C)"><span class="t">Feedback</span> <b hidden>0</b></button></div>' +
     '<div class="bar" role="status">Klik untuk berkomentar · Esc selesai</div>' +
     '<form class="card compose" aria-label="Komentar baru"><h4>Komentar baru</h4><p class="sub"></p>' +
     '<textarea class="ct" maxlength="2000" placeholder="Apa yang ingin diubah di sini?" aria-label="Komentar"></textarea>' +
     '<span class="lab">Jenis</span><div class="seg" data-k="cat"></div><span class="lab">Prioritas</span><div class="seg" data-k="prio"></div>' +
     '<span class="lab">Nama (opsional)</span><input class="nm" maxlength="40" autocomplete="name" placeholder="Nama Anda">' +
-    '<p class="err" role="alert"></p><div class="row"><button type="button" data-a="cancel">Batal</button><button class="go" type="submit">Kirim</button></div></form>' +
-    '<div class="card thread" aria-label="Thread komentar"></div>' +
+    '<p class="err" role="alert"></p><div class="row"><button type="button" data-a="cancel">Batal</button><button class="go" type="submit">Simpan</button></div></form>' +
+    '<div class="card thread" aria-label="Komentar"></div>' +
     '<div class="toast" role="status"></div>';
 
   var $ = function (s) { return root.querySelector(s); };
-  var fab = $(".fab"), bar = $(".bar"), pinsEl = $(".pins"), compose = $("form.compose"), thread = $(".thread"), toastEl = $(".toast");
-  var ct = $(".ct"), nm = $(".nm"), err = compose.querySelector(".err"), go = compose.querySelector(".go"), sub = compose.querySelector(".sub");
+  var fab = $(".fab"), copyBtn = $(".copy"), bar = $(".bar"), pinsEl = $(".pins"), compose = $("form.compose"), thread = $(".thread"), toastEl = $(".toast");
+  var ct = $(".ct"), nm = $(".nm"), err = compose.querySelector(".err"), sub = compose.querySelector(".sub");
   var form = { cat: "layout", prio: "med" };
   [["cat", CATS], ["prio", PRIOS]].forEach(function (pair) {
     var k = pair[0], wrap = $('.seg[data-k="' + k + '"]');
@@ -110,13 +109,18 @@
   });
 
   var tT = 0;
-  function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tT); tT = setTimeout(function () { toastEl.classList.remove("on"); }, 2600); }
+  function toast(m) { toastEl.textContent = m; toastEl.classList.add("on"); clearTimeout(tT); tT = setTimeout(function () { toastEl.classList.remove("on"); }, 3200); }
   function inUI(t) { return t === host || (t && host.contains && host.contains(t)); }
 
-  /* ---------- comments on this page (everyone's), anchored to elements ---------- */
-  var items = [];          // {n, anchor:{selector,dx,dy,x,y}, text, author, cat, prio, at, replies}
-  var openN = null;        // thread currently open
-  var draft = null;        // {anchor, element} while composing
+  /* ---------- comments (kept in this browser) ---------- */
+  var all = loadAll();      // every comment, every page: {id, page, anchor, element, env, text, author, cat, prio, at, done}
+  var openId = null;        // thread currently open
+  var draft = null;         // {anchor, element} while composing
+  function here() { return all.filter(function (c) { return c.page === pageKey() && !c.done; }); }
+  function pending() { return all.filter(function (c) { return !c.done; }); }
+  function byId(id) { for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i]; return null; }
+  function numberOf(c) { return pending().indexOf(c) + 1; }
+
   function resolve(a) {
     var el = null;
     try { el = a.selector ? document.querySelector(a.selector) : null; } catch (e) {}
@@ -127,9 +131,8 @@
     }
     return { x: a.x - scrollX, y: a.y - scrollY };
   }
-  function anchorOf(n) { for (var i = 0; i < items.length; i++) if (items[i].n === n) return items[i].anchor; return null; }
   function paintPins() {
-    var list = items.map(function (it) { return { id: it.n, label: it.n, a: it.anchor, on: it.n === openN }; });
+    var list = here().map(function (c) { return { id: c.id, label: numberOf(c), a: c.anchor, on: c.id === openId }; });
     if (draft) list.push({ id: "draft", label: "+", a: draft.anchor, on: true, draft: true });
     var html = "";
     list.forEach(function (p) {
@@ -138,8 +141,9 @@
       html += '<button type="button" class="pin' + (p.draft ? " draft" : "") + (p.on ? " on" : "") + '" data-id="' + p.id + '" aria-label="' + (p.draft ? "Komentar baru" : "Komentar " + p.label) + '" style="left:' + pos.x.toFixed(1) + "px;top:" + pos.y.toFixed(1) + 'px"><span>' + esc(p.label) + "</span></button>";
     });
     pinsEl.innerHTML = html;
-    var n = items.length, b = fab.querySelector("b");
+    var n = pending().length, b = fab.querySelector("b");
     b.hidden = !n; b.textContent = n;
+    copyBtn.hidden = !n; copyBtn.textContent = "Salin " + n;
   }
   function placeCard(card, anchor) {
     if (!card.classList.contains("on") || !anchor || innerWidth <= 760) return;
@@ -156,19 +160,10 @@
     if (raf) return;
     raf = requestAnimationFrame(function () {
       raf = 0; paintPins();
-      if (openN != null) placeCard(thread, anchorOf(openN));
+      var c = openId && byId(openId);
+      if (c) placeCard(thread, c.anchor);
       if (draft) placeCard(compose, draft.anchor);
     });
-  }
-
-  function load() {
-    json(API + "?page=" + encodeURIComponent(pageKey())).then(function (r) {
-      var server = (r.s === 200 && Array.isArray(r.j.items)) ? r.j.items : [];
-      /* a comment sent a moment ago may not be in the cached list yet */
-      var seen = {}; server.forEach(function (i) { seen[i.n] = 1; });
-      readMine().forEach(function (m) { if (m.page === pageKey() && !seen[m.item.n] && Date.now() - m.at < 120000) server.push(m.item); });
-      items = server; paintPins();
-    }).catch(function () {});
   }
 
   /* ---------- comment mode ---------- */
@@ -203,7 +198,7 @@
   function openCompose() {
     closeThread();
     sub.textContent = draft.element.section ? draft.element.section + " · " + draft.element.tag : draft.anchor.selector;
-    err.textContent = ""; ct.value = ""; nm.value = getName(); go.disabled = false; go.textContent = "Kirim";
+    err.textContent = ""; ct.value = ""; nm.value = getName();
     compose.classList.add("on"); paintPins(); placeCard(compose, draft.anchor);
     setTimeout(function () { ct.focus({ preventScroll: true }); }, 30);
   }
@@ -217,67 +212,75 @@
     if (!text) { err.textContent = "Tulis komentarnya dulu."; ct.focus(); return; }
     var name = nm.value.trim().slice(0, 40); setName(name);
     var d = draft;
-    var payload = {
-      comment: text, author: name, category: form.cat, priority: form.prio, page: pageKey(), title: document.title.slice(0, 120),
-      anchor: d.anchor, element: { selector: d.anchor.selector, tag: d.element.tag, text: d.element.text, section: d.element.section, scrollY: Math.round(scrollY) },
-      env: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1, bp: bp(), touch: matchMedia("(hover: none)").matches, ua: navigator.userAgent.slice(0, 200) }
-    };
-    go.disabled = true; go.textContent = "Mengirim…"; err.textContent = "";
-    json(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).then(function (r) {
-      if (r.s === 200 && r.j.ok) {
-        var item = { n: r.j.number, anchor: d.anchor, text: text, author: name || "Anonim", cat: form.cat, prio: form.prio, at: new Date().toISOString(), replies: 0 };
-        items.push(item);
-        var mine = readMine(); mine.push({ page: pageKey(), at: Date.now(), item: item }); writeMine(mine);
-        compose.classList.remove("on"); draft = null; paintPins(); toast("Terkirim · #" + item.n);
-      } else {
-        err.textContent = r.s === 429 ? "Terlalu sering. Coba lagi sebentar." : r.s === 503 ? "Server belum disetel (GITHUB_TOKEN)." : "Gagal mengirim. Komentar tetap di sini, coba lagi.";
-        go.disabled = false; go.textContent = "Kirim";
-      }
-    }).catch(function () { err.textContent = "Tidak ada koneksi. Komentar tetap di sini, coba lagi."; go.disabled = false; go.textContent = "Kirim"; });
+    all.push({
+      id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+      page: pageKey(), title: document.title.slice(0, 120), text: text, author: name, cat: form.cat, prio: form.prio, at: Date.now(), done: false,
+      anchor: d.anchor,
+      element: { selector: d.anchor.selector, tag: d.element.tag, text: d.element.text, section: d.element.section, scrollY: Math.round(scrollY) },
+      env: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio || 1, bp: bp(), touch: matchMedia("(hover: none)").matches }
+    });
+    saveAll(all);
+    compose.classList.remove("on"); draft = null; paintPins(); toast("Tersimpan · tekan Salin untuk kirim ke Claude");
   });
 
   /* ---------- threads ---------- */
-  function labelOf(list, k) { for (var i = 0; i < list.length; i++) if (list[i][0] === k) return list[i][1]; return ""; }
-  function msgHTML(who, at, text) { return '<div class="msg"><div class="who">' + esc(who) + "<small>" + esc(at ? ago(at) : "") + '</small></div><p class="txt">' + esc(text) + "</p></div>"; }
-  function openThread(n) {
-    var it = null; items.forEach(function (i) { if (i.n === n) it = i; });
-    if (!it) return;
-    closeCompose(); openN = n;
+  function openThread(id) {
+    var c = byId(id); if (!c) return;
+    closeCompose(); openId = id;
     thread.innerHTML = '<button type="button" class="x" data-a="close" aria-label="Tutup">×</button>' +
-      '<p class="tags">#' + it.n + " · " + esc(labelOf(CATS, it.cat)) + " · " + esc(labelOf(PRIOS, it.prio)) + "</p>" +
-      '<div class="msgs">' + msgHTML(it.author || "Anonim", it.at, it.text) + '<div class="replies">' + (it.replies ? '<p class="sub">Memuat balasan…</p>' : "") + "</div></div>" +
-      '<form class="reply"><span class="lab">Balas</span><textarea maxlength="1000" placeholder="Tulis balasan…" aria-label="Balasan"></textarea>' +
-      '<input class="rn" maxlength="40" placeholder="Nama (opsional)" value="' + esc(getName()) + '" style="margin-top:8px"><p class="err" role="alert"></p>' +
-      '<div class="row"><button class="go" type="submit">Balas</button></div></form>';
-    thread.classList.add("on"); paintPins(); placeCard(thread, it.anchor);
-    if (it.replies) json(API + "?issue=" + n).then(function (r) {
-      var box = thread.querySelector(".replies"); if (!box || openN !== n) return;
-      box.innerHTML = (r.s === 200 && r.j.comments ? r.j.comments : []).map(function (c) { return msgHTML(c.author, c.at, c.text); }).join("");
-    }).catch(function () {});
+      '<p class="tags">#' + numberOf(c) + " · " + esc(labelOf(CATS, c.cat)) + " · " + esc(labelOf(PRIOS, c.prio)) + " · " + esc(c.env.bp) + " " + c.env.w + "×" + c.env.h + "</p>" +
+      '<div class="who">' + esc(c.author || "Anonim") + "<small>" + esc(ago(c.at)) + '</small></div><p class="txt">' + esc(c.text) + "</p>" +
+      '<div class="row"><button type="button" data-a="del">Hapus</button><button class="go" type="button" data-a="done">Selesai</button></div>';
+    thread.classList.add("on"); paintPins(); placeCard(thread, c.anchor);
   }
-  function closeThread() { if (openN == null) return; openN = null; thread.classList.remove("on"); paintPins(); }
-  thread.addEventListener("click", function (e) { if (e.target.getAttribute("data-a") === "close") closeThread(); });
-  thread.addEventListener("keydown", function (e) { if (e.key === "Escape") closeThread(); e.stopPropagation(); });
-  thread.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var f = e.target, ta = f.querySelector("textarea"), text = ta.value.trim(), er = f.querySelector(".err"), btn = f.querySelector(".go");
-    if (!text) { er.textContent = "Tulis balasannya dulu."; return; }
-    var name = f.querySelector(".rn").value.trim().slice(0, 40); setName(name);
-    var n = openN; btn.disabled = true; er.textContent = "";
-    json(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reply: true, issue: n, text: text, author: name }) }).then(function (r) {
-      btn.disabled = false;
-      if (r.s === 200 && r.j.ok) {
-        var box = thread.querySelector(".replies"); if (box) box.insertAdjacentHTML("beforeend", msgHTML(name || "Anonim", new Date().toISOString(), text));
-        ta.value = ""; items.forEach(function (i) { if (i.n === n) i.replies = (i.replies || 0) + 1; }); toast("Balasan terkirim");
-      } else { er.textContent = r.s === 429 ? "Terlalu sering. Coba lagi sebentar." : "Gagal mengirim. Coba lagi."; }
-    }).catch(function () { btn.disabled = false; er.textContent = "Tidak ada koneksi."; });
+  function closeThread() { if (openId == null) return; openId = null; thread.classList.remove("on"); paintPins(); }
+  thread.addEventListener("click", function (e) {
+    var a = e.target.getAttribute("data-a"), id = openId;
+    if (a === "close") closeThread();
+    if (a === "done" || a === "del") {
+      var c = byId(id); if (!c) return;
+      if (a === "done") c.done = true; else all.splice(all.indexOf(c), 1);
+      saveAll(all); closeThread(); paintPins(); toast(a === "done" ? "Ditandai selesai" : "Dihapus");
+    }
   });
+  thread.addEventListener("keydown", function (e) { if (e.key === "Escape") closeThread(); e.stopPropagation(); });
   pinsEl.addEventListener("click", function (e) {
     var b = e.target.closest(".pin"); if (!b) return;
     var id = b.getAttribute("data-id"); if (id === "draft") return;
     e.stopPropagation();
     if (mode) setMode(false);
-    var n = Number(id); if (openN === n) closeThread(); else openThread(n);
+    if (openId === id) closeThread(); else openThread(id);
+  });
+
+  /* ---------- copy for Claude ---------- */
+  function exportText() {
+    var list = pending();
+    var byPage = {};
+    list.forEach(function (c) { (byPage[c.page] = byPage[c.page] || []).push(c); });
+    var lines = ["# Feedback Havenlist — " + list.length + " komentar", ""];
+    Object.keys(byPage).forEach(function (p) {
+      lines.push("## " + p);
+      byPage[p].forEach(function (c) {
+        lines.push(numberOf(c) + ". [" + labelOf(CATS, c.cat) + " · " + labelOf(PRIOS, c.prio) + " · " + c.env.bp + " " + c.env.w + "×" + c.env.h + (c.env.touch ? " sentuh" : "") + "] " + c.text.replace(/\s*\n\s*/g, " ") +
+          "\n   bagian: " + (c.element.section || "-") + " — `" + c.element.selector + "`" + (c.author ? " (dari " + c.author + ")" : ""));
+      });
+      lines.push("");
+    });
+    var data = list.map(function (c) { return { n: numberOf(c), page: c.page, category: c.cat, priority: c.prio, comment: c.text, author: c.author, anchor: c.anchor, element: c.element, env: c.env }; });
+    lines.push("```json feedback-batch", JSON.stringify(data), "```");
+    return lines.join("\n");
+  }
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+    return new Promise(function (ok, fail) {
+      var ta = document.createElement("textarea"); ta.value = t; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy") ? ok() : fail(); } catch (e) { fail(e); } ta.remove();
+    });
+  }
+  copyBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var n = pending().length;
+    copyText(exportText()).then(function () { toast("Disalin · " + n + " komentar. Tempel ke chat Claude."); }, function () { toast("Gagal menyalin. Izinkan akses clipboard."); });
   });
 
   /* ---------- toggle, shortcuts, mount ---------- */
@@ -289,11 +292,12 @@
     if (e.key === "c" || e.key === "C") setMode(!mode);
   });
   /* tapping the page (outside the cards) closes an open thread */
-  document.addEventListener("click", function (e) { if (!mode && openN != null && !inUI(e.target)) closeThread(); });
+  document.addEventListener("click", function (e) { if (!mode && openId != null && !inUI(e.target)) closeThread(); });
+  window.addEventListener("storage", function (e) { if (e.key === KEY) { all = loadAll(); schedule(); } });
 
   function mount() {
     document.body.appendChild(host);
-    load();
+    paintPins();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     window.addEventListener("load", schedule);

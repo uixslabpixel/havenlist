@@ -14,12 +14,13 @@ Open `http://127.0.0.1:8791`
 
 ## Page comments (feedback)
 
-Leave a comment on any spot of any page, Figma style; each comment becomes a GitHub issue.
+Leave a comment on any spot of any page, Figma style. No setup, no server, no login.
 
-1. In Vercel → Settings → Environment Variables add `GITHUB_TOKEN` (fine-grained token for this repo only,
-   permission *Issues: Read and write*), then redeploy.
-2. On the site press the floating **Feedback** button (or the **C** key), click a spot, write the comment, send.
-   Pins are visible to everyone on that page; click a pin to read the thread and reply. Closing the issue on GitHub
-   removes the pin. There is no login, so anyone can comment.
-3. Ask Claude to "rekap feedback": it reads the issues, recaps them per page and fixes them in parallel
+1. On the site press the floating **Feedback** button (or the **C** key), click a spot, write the comment, save.
+   A numbered pin stays on that spot (in your browser). Click a pin to mark it **Selesai** or delete it.
+2. Press **Salin** (appears once there are comments): all open comments are copied as readable text plus data.
+3. Paste it into the Claude chat and say "rekap feedback": Claude recaps per page and fixes in parallel
    (see `.claude/skills/feedback-triage/SKILL.md`).
+
+`api/feedback.js` can instead file comments as GitHub issues (needs `GITHUB_TOKEN` in Vercel), but the widget
+does not call it right now.
