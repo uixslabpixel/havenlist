@@ -1972,6 +1972,73 @@
       .featured__nav { display: none; }
       .featured__meta { padding-top: 20px; }
     }
+
+    /* ========== WHAT MAKES US DIFFERENT (Figma: Why_choose_us) ========== */
+    .why { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; padding: 80px var(--page-pad); background: var(--paper); }
+    .why__title { text-align: center; font: 500 clamp(32px, 3.4vw, 48px)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
+    .why__list { list-style: none; width: 100%; max-width: 980px; }
+    .why__row { display: flex; align-items: center; gap: 16px; min-height: 152px; padding: 16px 0; border-bottom: 1px solid transparent; cursor: pointer; transition: border-color 0.3s var(--ease); }
+    .why__num { flex: 1 1 0; min-width: 0; font: 500 120px/1 var(--font-display); letter-spacing: -0.03em; color: var(--ink-20); transition: color 0.3s var(--ease); }
+    .why__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .why__label { font: 400 var(--fs-title)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink-20); transition: color 0.3s var(--ease); }
+    .why__more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s var(--ease); }
+    .why__desc { min-height: 0; overflow: hidden; font: 400 var(--fs-body)/1.4 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink-70); opacity: 0; transition: opacity 0.3s var(--ease); }
+    .why__desc::before { content: ""; display: block; height: 16px; }
+    .why__row.is-active { border-bottom-color: var(--ink-10); }
+    .why__row.is-active .why__num { color: var(--ink); }
+    .why__row.is-active .why__label { font-weight: 500; color: var(--ink); }
+    .why__row.is-active .why__more { grid-template-rows: 1fr; }
+    .why__row.is-active .why__desc { opacity: 1; }
+
+    /* ========== MARKET INSIGHTS (Figma: insight) ========== */
+    .mi { padding: 64px var(--page-pad); background: var(--paper); }
+    .mi__inner { max-width: 1312px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+    .mi__head { display: flex; align-items: center; gap: 8px; }
+    .mi__title { font: 500 clamp(32px, 3.4vw, 48px)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); white-space: nowrap; }
+    .mi__body { display: flex; flex-direction: column; gap: 32px; }
+    .mi-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 400 var(--fs-body)/1.4 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink-80); }
+    .mi-meta > span { display: inline-flex; align-items: center; gap: 4px; }
+    .mi-sep { width: 8px; }
+    .mi-feature { display: flex; gap: 8px; min-height: 480px; padding: 8px; background: var(--white); border-radius: var(--radius-xl); box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.02); color: inherit; text-decoration: none; }
+    .mi-feature__media { flex: 0 0 43%; position: relative; border-radius: var(--radius-lg); overflow: hidden; background: var(--ink-10); }
+    .mi-feature__media img, .mi-card__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .mi-feature__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 24px; }
+    .mi-feature__text { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+    .mi-feature__title { font: 500 var(--fs-heading)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
+    .mi-feature__desc { font: 400 var(--fs-body)/1.4 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink-70); }
+    .mi-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 16px; }
+    .mi-card { display: flex; gap: 16px; min-height: 240px; color: inherit; text-decoration: none; }
+    .mi-card__media { flex: 0 0 50.6%; position: relative; border-radius: var(--radius-md); overflow: hidden; background: #ddd; }
+    .mi-card__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 16px 0; }
+    .mi-card__top { display: flex; flex-direction: column; gap: 16px; }
+    .mi-card .mi-meta { font-size: var(--fs-small); }
+    .mi-card__title { font: 500 var(--fs-title-sm)/1.2 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
+    .mi-card__more { display: inline-flex; align-items: center; height: 40px; font: 500 var(--fs-body)/1.4 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink); }
+
+    @media (max-width: 1024px) {
+      .why { min-height: 0; gap: 24px; padding: 56px var(--page-pad); }
+      .mi { padding: 56px var(--page-pad); }
+      .mi__inner { gap: 24px; }
+      .mi-feature { min-height: 0; }
+      .mi-feature__media { flex-basis: 45%; }
+      .mi-grid { grid-template-columns: 1fr; gap: 24px; }
+      .mi-card { min-height: 0; }
+      .mi-card__media { flex: 0 0 40%; aspect-ratio: 4 / 3; }
+    }
+    @media (max-width: 640px) {
+      .why__row { min-height: 0; align-items: flex-start; padding: 20px 0; }
+      .why__num { flex: 0 0 42%; font-size: clamp(44px, 14vw, 96px); }
+      .why__label { font-size: var(--fs-title-sm); }
+      .mi-feature { flex-direction: column; }
+      .mi-feature__media { flex: none; aspect-ratio: 4 / 3; }
+      .mi-feature__body { gap: 16px; padding: 16px; }
+      .mi-feature__title { font-size: var(--fs-title); }
+      .mi-card { gap: 12px; }
+      .mi-card__media { flex: 0 0 112px; aspect-ratio: 1 / 1; }
+      .mi-card__body { gap: 8px; padding: 0; justify-content: flex-start; }
+      .mi-card__top { gap: 8px; }
+      .mi-card__more { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -2197,13 +2264,13 @@
       </div>
     </section>
 
-    <section class="stats" id="why" aria-labelledby="statsTitle">
-      <h2 id="statsTitle">What makes us different</h2>
-      <ul class="stats__list">
-        <li><b>98%</b><div><h3>Client satisfaction</h3><p>We have a 98% satisfaction rate.</p></div></li>
-        <li><b>500+</b><div><h3>Properties collection</h3><p>We offer 500 diverse properties.</p></div></li>
-        <li><b>12+</b><div><h3>Neighborhoods served</h3><p>We serve 12 neighborhoods with services.</p></div></li>
-        <li><b>15+</b><div><h3>Years of experience</h3><p>We have 15 years of real estate experience.</p></div></li>
+    <section class="why" id="why" aria-labelledby="whyTitle">
+      <h2 class="why__title" id="whyTitle">What makes us different</h2>
+      <ul class="why__list" id="whyList">
+        <li class="why__row" tabindex="0"><span class="why__num">98%</span><div class="why__body"><h3 class="why__label">Client satisfaction</h3><div class="why__more"><p class="why__desc">We have a 98% satisfaction rate.</p></div></div></li>
+        <li class="why__row is-active" aria-current="true" tabindex="0"><span class="why__num">500+</span><div class="why__body"><h3 class="why__label">Properties collection</h3><div class="why__more"><p class="why__desc">Explore our 500 properties with unique features. Whether you need a cozy apartment or spacious home, we have something for you.</p></div></div></li>
+        <li class="why__row" tabindex="0"><span class="why__num">12+</span><div class="why__body"><h3 class="why__label">Neighborhoods served</h3><div class="why__more"><p class="why__desc">We serve 12 neighborhoods with services.</p></div></div></li>
+        <li class="why__row" tabindex="0"><span class="why__num">15+</span><div class="why__body"><h3 class="why__label">Years of experience</h3><div class="why__more"><p class="why__desc">We have 15 years of real estate experience.</p></div></div></li>
       </ul>
     </section>
 
@@ -2432,14 +2499,16 @@ said about us</h2>
       </div>
     </section>
 
-    <section class="page-section news" id="insights" aria-labelledby="newsTitle">
-      <div class="section-head">
-        <h2 class="section-title" id="newsTitle">Latest insights</h2>
-        <a class="ui-btn ui-btn--raised" href="insights.html" aria-label="View all insights">
-          <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
-        </a>
+    <section class="mi" id="insights" aria-labelledby="miTitle">
+      <div class="mi__inner">
+        <div class="mi__head">
+          <h2 class="mi__title" id="miTitle">Market insights</h2>
+          <a class="ui-btn ui-btn--raised" href="insights.html" aria-label="View all insights">
+            <span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>
+          </a>
+        </div>
+        <div class="mi__body" id="miBody"></div>
       </div>
-      <div class="card-row" id="newsGrid"></div>
     </section>
   </div>
 
@@ -4261,14 +4330,30 @@ said about us</h2>
         HLCard.mount(listings, fresh.concat(rest).slice(0, 4));
       }
 
-      var news = document.getElementById("newsGrid");
+      var body = document.getElementById("miBody");
       var CAL = '<svg class="ins-cal" width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>';
-      if (news && window.HL_INSIGHTS) {
-        news.innerHTML = HL_INSIGHTS.slice(0, 4).map(function (c) {
-          return '<a class="ins-card nb-card" href="insight.html?id=' + c.id + '"><div class="nb-card__media"><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"><span class="ins-tag">' + esc(c.type) + '</span></div>' +
-            '<div class="ins-card__body"><h3 class="ins-card__title">' + esc(c.title) + '</h3><div class="ins-meta"><span>' + CAL + esc(c.date) + '</span></div></div></a>';
-        }).join("");
+      var DOT = '<span class="mi-sep" aria-hidden="true"></span>';
+      function meta(c) { return '<div class="mi-meta"><span>' + esc(c.tag) + '</span>' + DOT + '<span>' + CAL + esc(c.date) + '</span></div>'; }
+      if (body && window.HL_INSIGHTS && HL_INSIGHTS.length) {
+        var f = HL_INSIGHTS[0], rest = HL_INSIGHTS.slice(1, 5);
+        body.innerHTML =
+          '<a class="mi-feature" href="insight.html?id=' + f.id + '"><div class="mi-feature__media"><img src="' + esc(f.img) + '" alt="" loading="lazy" decoding="async"></div>' +
+            '<div class="mi-feature__body">' + meta(f) + '<div class="mi-feature__text"><h3 class="mi-feature__title">' + esc(f.title) + '</h3><p class="mi-feature__desc">' + esc(f.lead || f.desc) + '</p></div><span class="ins-read">Read more</span></div></a>' +
+          '<div class="mi-grid">' + rest.map(function (c) {
+            return '<a class="mi-card" href="insight.html?id=' + c.id + '"><div class="mi-card__media"><img src="' + esc(c.img) + '" alt="" loading="lazy" decoding="async"></div>' +
+              '<div class="mi-card__body"><div class="mi-card__top">' + meta(c) + '<h3 class="mi-card__title">' + esc(c.title) + '</h3></div><span class="mi-card__more">Read more</span></div></a>';
+          }).join("") + '</div>';
       }
+
+      /* What makes us different: the row under the pointer (or focus / tap) becomes the active one */
+      var rows = Array.prototype.slice.call(document.querySelectorAll(".why__row"));
+      var cur = rows.findIndex(function (r) { return r.classList.contains("is-active"); });
+      function setRow(i) {
+        if (i === cur) return;
+        if (cur >= 0) { rows[cur].classList.remove("is-active"); rows[cur].removeAttribute("aria-current"); }
+        rows[i].classList.add("is-active"); rows[i].setAttribute("aria-current", "true"); cur = i;
+      }
+      rows.forEach(function (r, i) { ["mouseenter", "focus", "click"].forEach(function (ev) { r.addEventListener(ev, function () { setRow(i); }); }); });
     })();
   </script>
   <script src="nav-links.js"></script>
