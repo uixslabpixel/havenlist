@@ -46,6 +46,17 @@
       .ds-cards, .ds-field-row { grid-template-columns: 1fr; }
       .ds-type { grid-template-columns: 1fr; gap: var(--space-1); }
     }
+    @media (max-width: 560px) {
+      .ds { padding-bottom: 72px; }
+      .ds-hero { padding: 40px 0 32px; }
+      .ds-sec { padding-top: 48px; }
+      .ds-sub { margin-top: var(--space-8); }
+      .ds-board { padding: var(--space-4); gap: var(--space-3); }
+      .ds-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+      .ds-board .pager { flex-wrap: wrap; justify-content: center; gap: 8px; padding-top: 0; }
+      .ds-board .pager__list { flex-wrap: wrap; justify-content: center; }
+      .ds-type > * { min-width: 0; overflow-wrap: anywhere; }
+    }
   </style>
 </head>
 <body>
