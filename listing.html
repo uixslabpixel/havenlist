@@ -680,8 +680,9 @@
       }
 
       .detail__aside { position: static; padding-bottom: 0; }
+      .nav-actions .btn-sell { display: none; }
       .similar { padding-inline: 32px; }
-      .similar__grid { grid-template-columns: repeat(2, 1fr); }
+      .similar__grid { grid-template-columns: repeat(3, 1fr); }
 
     }
 
@@ -696,7 +697,8 @@
       .gallery__thumb { flex: 1 1 calc(50% - 6px); height: 140px; }
       .features__card { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-auto-flow: row; }
       .form__row { flex-direction: column; }
-      .similar__grid { grid-template-columns: 1fr; }
+      .similar__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+      .similar__title { font-size: 24px; }
     }
 
   </style>
@@ -946,8 +948,9 @@
     </div>
   </footer>
 
-  <div class="mega-menu" id="megaMenu" hidden>
+  <div class="mega-menu mega-menu--m" id="megaMenu" hidden>
     <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
       <div class="mega-menu__media">
         <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
       </div>
@@ -995,7 +998,7 @@
 
         <div class="mega-menu__contact">
           <p class="mega-menu__group-label">Contact</p>
-          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span></a>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
       </div>
     </div>
