@@ -61,5 +61,21 @@ window.HLScroll = (function () {
     requestAnimationFrame(step);
   }
 
+  /* In-page links (#section) glide on every page and screen size. Pages that
+     already handle a link themselves call preventDefault, so those are skipped. */
+  document.addEventListener("click", (e) => {
+    if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const id = a.getAttribute("href").slice(1);
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    e.preventDefault();
+    const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 64;
+    to(target.getBoundingClientRect().top + window.scrollY - nav - 8);
+    history.replaceState(null, "", "#" + id);
+  });
+
   return { to };
 })();

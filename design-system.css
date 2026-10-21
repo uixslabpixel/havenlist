@@ -2834,3 +2834,9 @@ body.is-menu-open {
 @media (max-width: 760px) {
   .search-title { font-size: var(--fs-heading); }
 }
+
+/* Phones: scroll reveals off — content is simply there (lighter, no pop-in while scrolling) */
+@media (max-width: 760px) {
+  .fx-ready [data-reveal], .fx-ready [data-reveal].is-in { opacity: 1; transform: none; transition: none; }
+  .fx-ready [data-clip], .fx-ready [data-clip].is-in { clip-path: none; transition: none; }
+}
