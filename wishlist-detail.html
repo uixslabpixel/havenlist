@@ -682,8 +682,28 @@
     .wl__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px 16px; }
     /* Photos fill the frame's full height; the width follows the image's own scale */
     
-    @media (max-width: 1100px) { .wl__grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 900px) { .wl { padding: 32px 24px 72px; } .wl__title { font-size: 36px; } .wl__lists { grid-template-columns: repeat(2, 1fr); } }
+    /* ----- Responsive ----- */
+    @media (max-width: 1100px) {
+      .nav-actions .btn-sell { display: none; }
+      .wl { padding: 96px 32px 72px; }
+      .wl__title { font-size: 40px; }
+      .wl__lists { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .wl__grid { grid-template-columns: repeat(3, 1fr); }
+      .wl__sec { padding-top: 48px; }
+    }
+    @media (max-width: 760px) {
+      .wl { padding: 88px 24px 56px; }
+      .wl__top { padding: 8px 0 16px; }
+      .wl__title { font-size: 32px; text-align: center; }
+      .wl__lists { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+      .wl__grid { grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+      .wl__name { font-size: var(--fs-body); }
+      .wl__count { font-size: var(--fs-small); }
+      .wl__h2 { font-size: 24px; }
+      .wl__sec { padding-top: 40px; }
+    }
+    /* No hover on touch: keep the delete button visible */
+    @media (hover: none) { .wl__del { opacity: 1; } }
   </style>
 </head>
 <body>
@@ -827,8 +847,9 @@
     </div>
   </footer>
 
-  <div class="mega-menu" id="megaMenu" hidden>
+  <div class="mega-menu mega-menu--m" id="megaMenu" hidden>
     <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
       <div class="mega-menu__media">
         <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
       </div>
@@ -876,7 +897,7 @@
 
         <div class="mega-menu__contact">
           <p class="mega-menu__group-label">Contact</p>
-          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span></a>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
       </div>
     </div>
