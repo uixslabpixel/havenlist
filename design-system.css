@@ -102,19 +102,19 @@
   --pop-r-to: 20px;
   --pop-gap: 10px;
   --pop-shadow: 0.12;
-  /* Page transitions (tuned from the ?tweak=1 panel, see vt-tweaks.js) */
-  --vt-wipe-dur: 0.85s;
-  --vt-wipe-ease: cubic-bezier(0.65, 0, 0.2, 1);
-  --vt-wipe-in-shift: 7vh;
-  --vt-wipe-away-shift: 9vh;
+  /* Page transitions (final values, tuned with the dev panel) */
+  --vt-wipe-dur: 1000ms;
+  --vt-wipe-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --vt-wipe-in-shift: 10vh;
+  --vt-wipe-away-shift: 10vh;
   --vt-wipe-dim: 0.9;
-  --vt-wipe-in-opacity: 0.4;
-  --vt-wipe-away-opacity: 0.5;
-  --vt-hero-dur: 0.8s;
-  --vt-hero-ease: cubic-bezier(0.5, 0, 0.1, 1);
-  --vt-fade-out: 0.3s;
-  --vt-fade-in: 0.6s;
-  --vt-fade-delay: 0.12s;
+  --vt-wipe-in-opacity: 1;
+  --vt-wipe-away-opacity: 1;
+  --vt-hero-dur: 1000ms;
+  --vt-hero-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --vt-fade-out: 400ms;
+  --vt-fade-in: 800ms;
+  --vt-fade-delay: 300ms;
   /* Button hover wash (see the hover block below) */
   --hover-veil: rgba(30, 30, 30, 0.01);
   --hover-dur: 0.6s;

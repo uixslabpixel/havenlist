@@ -4,28 +4,14 @@
      card's picture grows into the detail page's main picture, and on the way back it shrinks into the card
      you came from. Browsers without support just navigate.
    Loaded synchronously in <head>: pagereveal fires before the first paint.
-   The motion numbers are CSS variables (--vt-*); add ?tweak=1 to any page's URL for the panel that tunes them. */
+   The motion numbers are CSS variables (--vt-*, in design-system.css :root). */
 (function () {
   "use strict";
-  var NAME = "hl-hero", STORE = "hl.vt", BACK = "hl.vt.back", TWEAKS = "havenlist.vtTweaks.v1";
+  var NAME = "hl-hero", STORE = "hl.vt", BACK = "hl.vt.back";
   var DEST = { listing: "#galleryMain", agent: "#heroPhoto", neighborhood: "#heroPhoto", insight: "#heroPhoto" };
   var CARD = ".card, .agent-card, .ins-card, .mi-card, .mi-feature, .featured-card, .agent";
   var MEDIA = ".card__media, .agent-card__media, .nb-card__media, .mi-card__media, .mi-feature__media, .agent__photo";
   var root = document.documentElement;
-
-  /* saved tweak values apply on every page, so the panel's changes are felt right away */
-  try {
-    var saved = JSON.parse(localStorage.getItem(TWEAKS) || "{}");
-    Object.keys(saved).forEach(function (k) { if (/^--vt-[\w-]+$/.test(k)) root.style.setProperty(k, saved[k]); });
-  } catch (x) {}
-  /* Dev panel: hidden for everyone. It only loads when the URL has ?tweak=1 (vt-tweaks.js; its test buttons keep ?tweak=1 on the next page). */
-  if (/[?&]tweak(=1|=true)?(&|$)/.test(location.search)) {
-    document.addEventListener("DOMContentLoaded", function () {
-      var s = document.createElement("script");
-      s.src = "vt-tweaks.js";
-      document.body.appendChild(s);
-    });
-  }
 
   function kindOf(path) {
     var m = /^\/(listing|agent|neighborhood|insight)(?:\.html)?\/?$/.exec(path);
