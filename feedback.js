@@ -1,6 +1,6 @@
 /* Havenlist comments — leave a comment on any spot of any page, Figma style.
    The "Feedback" button (or the C key) switches comment mode on: click anywhere to drop a pin and write.
-   Comments live in this browser (no server). The "Salin" button copies all open comments as text + data,
+   Comments live in this browser (no server). The "Salin" button copies all open comments as text + data and marks them solved (they leave the page),
    to paste into the Claude chat; the "feedback-triage" skill recaps them and fixes them in parallel. */
 (function () {
   "use strict";
@@ -264,8 +264,13 @@
   }
   copyBtn.addEventListener("click", function (e) {
     e.stopPropagation();
-    var n = pending().length;
-    copyText(exportText()).then(function () { toast("Disalin · " + n + " komentar. Tempel ke chat Claude."); }, function () { toast("Gagal menyalin. Izinkan akses clipboard."); });
+    var list = pending(), n = list.length;
+    copyText(exportText()).then(function () {
+      /* Handed over to Claude: the copied comments are marked solved and leave the page, so they aren't sent twice */
+      list.forEach(function (c) { c.done = true; });
+      saveAll(all); closeThread(); paintPins();
+      toast("Disalin · " + n + " komentar. Tempel ke chat Claude; komentar ini otomatis selesai.");
+    }, function () { toast("Gagal menyalin. Izinkan akses clipboard."); });
   });
 
   /* ---------- toggle, shortcuts, mount ---------- */
