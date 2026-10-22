@@ -27,6 +27,21 @@
     ["fadeDelay", "Page fade-in delay", 0, 800, 10, "ms", "--vt-fade-delay", function (n) { return n + "ms"; }]
   ];
   var SELECTS = [["wipeEase", "Wipe easing", "--vt-wipe-ease", "Smooth"], ["heroEase", "Picture easing", "--vt-hero-ease", "Cinematic"]];
+  /* what each control does (shown under its label) */
+  var DESC = {
+    wipeDur: "Lama seluruh gerakan wipe antar halaman. Makin besar makin lambat.",
+    wipeIn: "Halaman baru mulai dari seberapa jauh di bawah (atau di atas) layar sebelum naik ke posisinya. Dalam % tinggi layar.",
+    wipeAway: "Seberapa jauh halaman lama bergeser keluar saat ditutup halaman baru.",
+    wipeInOp: "Transparansi awal halaman baru. 0% = mulai transparan, 100% = langsung solid.",
+    wipeAwayOp: "Transparansi halaman lama di ujung gerakan. 100% = tetap solid sampai tertutup.",
+    wipeDim: "Halaman lama meredup sampai kecerahan ini saat ditutup. 100% = tidak meredup.",
+    wipeEase: "Kurva percepatan wipe. Smooth: pelan-cepat-pelan. Out expo: cepat di awal lalu mengerem.",
+    heroDur: "Lama foto kartu membesar jadi foto halaman detail (dan mengecil saat kembali).",
+    fadeOut: "Lama halaman lama memudar hilang saat berpindah dari kartu ke halaman detail.",
+    fadeIn: "Lama halaman detail memudar masuk.",
+    fadeDelay: "Jeda sebelum halaman detail mulai memudar masuk. Dengan jeda, foto yang bergerak terlihat lebih dulu.",
+    heroEase: "Kurva percepatan gerakan foto. Cinematic: lambat di awal, cepat di tengah, mengerem halus."
+  };
   var DEFAULTS = { wipeDur: 850, wipeIn: 7, wipeAway: 9, wipeInOp: 40, wipeAwayOp: 50, wipeDim: 90, heroDur: 800, fadeOut: 300, fadeIn: 600, fadeDelay: 120, wipeEase: "Smooth", heroEase: "Cinematic" };
 
   var v = {};
@@ -55,11 +70,12 @@
     /* the panel stays put while the page wipes; the old copy waits until the new page's panel is there */
     "::view-transition-group(hl-vtw){animation:none}::view-transition-old(hl-vtw){animation:none}" +
     ".vtw__btn{display:block;margin-left:auto;height:36px;padding:0 14px;border-radius:36px;background:var(--ink);color:#fff;font-weight:500;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.18)}" +
-    ".vtw__card{position:absolute;right:0;bottom:44px;width:304px;max-height:calc(100vh - 80px);overflow:auto;padding:14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none}" +
+    ".vtw__card{position:absolute;right:0;bottom:44px;width:324px;max-height:calc(100vh - 80px);overflow:auto;padding:14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none}" +
     ".vtw.is-open .vtw__card{display:block}" +
     ".vtw__title{font:500 14px var(--font-display);margin-bottom:10px;letter-spacing:-.01em}" +
     ".vtw__sec{margin:12px 0 8px;font-weight:500;color:var(--ink-40);letter-spacing:.02em;text-transform:uppercase;font-size:10px}" +
-    ".vtw__row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-bottom:10px}" +
+    ".vtw__row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-bottom:12px}" +
+    ".vtw__desc{grid-column:1/3;margin:0 0 6px;font-size:11px;line-height:1.35;color:var(--ink-60,var(--ink-70));opacity:.85}.vtw__sec+.vtw__desc{margin:-4px 0 8px}" +
     ".vtw__row label{color:var(--ink-70)}.vtw__row output{font-variant-numeric:tabular-nums;font-weight:500}" +
     ".vtw__row input[type=range]{grid-column:1/3;width:100%;margin:0;accent-color:#1e1e1e}" +
     ".vtw__row select{grid-column:1/3;height:30px;border:1px solid var(--ink-10);border-radius:8px;padding:0 8px;background:#fff;font:inherit}" +
@@ -72,10 +88,10 @@
   wrap.className = "vtw";
   wrap.innerHTML =
     '<div class="vtw__card" role="group" aria-label="Page transition tweaks"><div class="vtw__title">Page transition</div>' +
-    '<div class="vtw__sec">Test (opens the next / previous page in the menu)</div><div class="vtw__btns vtw__tests"></div>' +
-    '<div class="vtw__sec">Wipe</div><div class="vtw__wipe"></div>' +
-    '<div class="vtw__sec">Card picture &harr; detail picture</div><div class="vtw__hero"></div>' +
-    '<div class="vtw__sec">&nbsp;</div><div class="vtw__btns vtw__acts"></div></div>' +
+    '<div class="vtw__sec">Test</div><p class="vtw__desc">Buka halaman berikutnya atau sebelumnya di urutan menu supaya transisi wipe langsung terlihat. Panel ini tetap terbuka.</p><div class="vtw__btns vtw__tests"></div>' +
+    '<div class="vtw__sec">Wipe</div><p class="vtw__desc">Transisi antar halaman biasa (link navbar, menu): halaman baru naik atau turun menutupi halaman lama.</p><div class="vtw__wipe"></div>' +
+    '<div class="vtw__sec">Card picture &harr; detail picture</div><p class="vtw__desc">Dari kartu (listing, agent, neighborhood, insight) ke halaman detail: foto kartu membesar jadi foto utama, lalu mengecil lagi saat kembali.</p><div class="vtw__hero"></div>' +
+    '<div class="vtw__sec">Actions</div><p class="vtw__desc">Reset: kembali ke nilai awal. Copy values: salin blok CSS untuk dikirim ke Claude. Hide panel: sembunyikan panel (tombol Tweak muncul lagi).</p><div class="vtw__btns vtw__acts"></div></div>' +
     '<button class="vtw__btn" type="button" aria-expanded="false">Page transition</button>';
   document.body.appendChild(wrap);
   var toggle = wrap.querySelector(".vtw__btn"), OPEN = "hl.tweak.vt.open";
@@ -97,6 +113,12 @@
     r.appendChild(l);
     return r;
   }
+  function describe(r, key) {
+    if (!DESC[key]) return;
+    var p = document.createElement("p");
+    p.className = "vtw__desc"; p.textContent = DESC[key];
+    r.appendChild(p);
+  }
   var HERO_KEYS = { heroDur: 1, fadeOut: 1, fadeIn: 1, fadeDelay: 1, heroEase: 1 };
   function host(key) { return wrap.querySelector(HERO_KEYS[key] ? ".vtw__hero" : ".vtw__wipe"); }
   SLIDERS.forEach(function (d) {
@@ -104,12 +126,13 @@
     input.type = "range"; input.min = d[2]; input.max = d[3]; input.step = d[4];
     function paint() { out.textContent = v[key] + d[5]; input.value = v[key]; }
     input.addEventListener("input", function () { v[key] = Number(input.value); paint(); apply(); });
-    r.appendChild(out); r.appendChild(input);
+    r.appendChild(out); describe(r, key); r.appendChild(input);
     host(key).appendChild(r);
     paints[key] = paint; paint();
   });
   SELECTS.forEach(function (d) {
     var key = d[0], r = row(d[1]), sel = document.createElement("select");
+    describe(r, key);
     Object.keys(EASES).forEach(function (n) {
       var o = document.createElement("option");
       o.value = n; o.textContent = n + (EASES[n] === "linear" ? "" : "  " + EASES[n].replace("cubic-bezier", ""));
