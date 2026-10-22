@@ -6,11 +6,11 @@
       rating: rating, years: years, phone: phone, email: id + "@havenlist.com", listings: listings, bio: bio };
   }
   var AGENTS = [
-    a("sarah-chen", "Sarah Chen", "Senior agent", 4, "Pacific Heights", ["Luxury homes", "Family homes"], 4.9, 12, "+1 415 555 0142", ["s1", "s3", "s9"],
+    a("sarah-chen", "Sarah Chen", "Senior agent", 4, "Pacific Heights", ["Luxury homes", "Family homes"], 4.9, 12, "+1 415 555 0142", ["s1", "s3", "s9", "s15"],
       "Sarah has guided more than 300 families through Pacific Heights and Presidio Heights, with a focus on architecturally significant homes."),
-    a("alexander-josh", "Alexander Josh", "Lead consultant", 2, "Marina District", ["Condos", "Investment"], 4.8, 9, "+1 415 555 0178", ["s10", "s2", "s7"],
+    a("alexander-josh", "Alexander Josh", "Lead consultant", 2, "Marina District", ["Condos", "Investment"], 4.8, 9, "+1 415 555 0178", ["s10", "s2", "s7", "s16"],
       "Alexander specialises in waterfront condos and investment properties around the Marina and Russian Hill."),
-    a("daniel-weber", "Daniel Weber", "Senior agent", 3, "Noe Valley", ["Family homes", "First-time buyers"], 4.7, 8, "+1 415 555 0113", ["s5", "s11", "s12"],
+    a("daniel-weber", "Daniel Weber", "Senior agent", 3, "Noe Valley", ["Family homes", "First-time buyers"], 4.7, 8, "+1 415 555 0113", ["s5", "s11", "s12", "s14"],
       "Daniel helps first-time buyers and growing families find their place in Noe Valley, Bernal Heights and the Sunset."),
     a("emily-zhang", "Emily Zhang", "Lead consultant", 4, "Russian Hill", ["Luxury homes", "Condos"], 5.0, 11, "+1 415 555 0166", ["s2", "s6", "s8"],
       "Emily represents boutique condos and penthouses across Nob Hill, Rincon Hill and Russian Hill."),
@@ -18,7 +18,7 @@
       "Priya works with renters and first-time buyers in Cole Valley, the Haight and the Inner Sunset."),
     a("omar-haddad", "Omar Haddad", "Senior agent", 2, "South Beach", ["Investment", "Condos"], 4.5, 7, "+1 415 555 0190", ["s7", "s8", "s6"],
       "Omar advises on investment condos in South Beach, SoMa and Mission Bay."),
-    a("lars-nielsen", "Lars Nielsen", "Lead consultant", 3, "Sea Cliff", ["Luxury homes", "Estates"], 4.9, 14, "+1 415 555 0105", ["s9", "s3", "s1"],
+    a("lars-nielsen", "Lars Nielsen", "Lead consultant", 3, "Sea Cliff", ["Luxury homes", "Estates"], 4.9, 14, "+1 415 555 0105", ["s9", "s13", "s3", "s1"],
       "Lars handles waterfront estates and view homes from Sea Cliff to the Presidio."),
     a("grace-lin", "Grace Lin", "Associate agent", 4, "Inner Sunset", ["Rentals", "Family homes"], 4.4, 4, "+1 415 555 0137", ["s11", "s4", "s12"],
       "Grace matches renters and families with homes near Golden Gate Park and the UCSF corridor."),
@@ -28,7 +28,7 @@
       "Maya specialises in architecturally significant homes and discreet off-market sales."),
     a("marcus-sterling", "Marcus Sterling", "Senior agent", 3, "Nob Hill", ["Investment", "Condos"], 4.7, 9, "+1 415 555 0184", ["s6", "s7", "s8"],
       "Marcus advises investors and downsizers on condos and small multi-unit buildings downtown."),
-    a("ethan-walsh", "Ethan Walsh", "Buyer specialist", 2, "Noe Valley", ["First-time buyers", "Rentals"], 4.6, 6, "+1 415 555 0139", ["s4", "s5", "s12"],
+    a("ethan-walsh", "Ethan Walsh", "Buyer specialist", 2, "Noe Valley", ["First-time buyers", "Rentals"], 4.6, 6, "+1 415 555 0139", ["s4", "s5", "s12", "s17"],
       "Ethan works exclusively with buyers, from first apartments to family homes in Noe Valley and Bernal Heights.")
   ];
   var LINKEDIN = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M14.625 0C15.2578 0 15.75 0.527 15.75 1.125V14.625C15.75 15.258 15.258 15.75 14.625 15.75H1.125C0.492 15.75 0 15.258 0 14.625V1.125C0 0.527 0.492 0 1.125 0H14.625ZM4.781 13.5V5.977H2.426V13.5H4.781ZM3.586 2.25C2.848 2.25 2.25 2.848 2.25 3.621C2.25 4.359 2.848 4.957 3.586 4.957C4.324 4.957 4.957 4.359 4.957 3.621C4.957 2.848 4.324 2.25 3.586 2.25ZM13.5 13.5V9.387C13.5 7.348 13.078 5.801 10.723 5.801C9.563 5.801 8.824 6.434 8.508 6.996H8.473V5.977H6.223V13.5H8.578V9.773C8.578 8.789 8.754 7.84 9.949 7.84C11.145 7.84 11.18 8.965 11.18 9.844V13.5H13.5Z" fill="currentColor" fill-opacity=".9"/></svg>';
