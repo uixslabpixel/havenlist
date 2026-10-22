@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Style guide — Hvnlst</title>
+  <meta name="description" content="The Hvnlst style guide: typography, colour, buttons, form inputs, icons, spacing, cards and motion, read live from design-system.css.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="design-system.css">
+  <style>
+    body { line-height: 1.4; }
+
+
+    @media (hover: hover) {
+.icon-btn:hover{
+      border-color: rgba(30, 30, 30, 0.18);
+    }
+}
+
+    /* Share: arrow then tray draw themselves on hover — same line language
+       as the heart */
+
+    /* ========== HL BUTTON (Figma decoration) ========== */
+
+    /* Arrow swap, in step with the label's rise (same duration + easing):
+       the current arrow leaves right, a fresh one slides in from the left */
+
+    .btn-sell.hl-btn--black {
+      height: 40px;
+      padding: 0;
+      background: transparent;
+      border-radius: 80px;
+    }
+
+    .btn-sell.hl-btn--black .hl-btn__inner {
+      padding: 0 16px;
+      font-size: var(--fs-small);
+    }
+
+    /* ========== SHARED ICON BUTTON + ARROW ========== */
+
+
+    /* ========== DETAIL PAGE ========== */
+
+
+    .detail__top {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+
+
+
+
+
+    /* Gallery */
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .gallery__main,
+    .gallery__thumb {
+      position: relative;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      background: #dddddd;
+      cursor: pointer;
+    }
+
+    .gallery__main { height: 500px; }
+
+
+
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+
+
+
+
+    /* Features */
+
+
+
+
+    /* Location + map */
+
+
+
+    /* The map is one element: in the page it fills its slot; opening lifts it to
+       a fixed box at the same spot and the box grows to the viewport (below the
+       navbar). container-type lets the artwork keep "cover" sizing at any size. */
+
+
+
+
+
+    .pin {
+      position: absolute;
+      display: block;
+      width: 3.386%;
+      aspect-ratio: 48.55 / 64;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    body.is-map-open { overflow: hidden; }
+
+    /* Sticky inquiry card */
+
+
+
+
+
+
+
+
+
+
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+
+        /* Tabs: each one rises into place beside the logo when its section has been
+       scrolled through (no fade — it moves in from below its own clip). */
+
+
+
+
+
+
+    /* Pill: the inquiry card's essentials, in the navbar. Unfolds from the
+       centre as the primary links rise out of the way (same moves as the
+       search page's filter bar). */
+
+    .nav-links a { transition: transform 0.4s var(--ease-morph) 0.12s; }
+
+    /* Links drop back in one after another as the pill folds away */
+    .nav-links a:nth-child(2) { transition-delay: 0.2s; }
+    .nav-links a:nth-child(3) { transition-delay: 0.28s; }
+
+    @media (min-width: 1280px) {
+
+      /* Closing (default): content lets go first, then the frame folds shut */
+
+      body.is-pill .nav-links {
+        visibility: hidden;
+        pointer-events: none;
+        transition: visibility 0s linear 0.45s;
+      }
+
+      /* Opening: links rise out in a short cascade, the frame unfolds
+         from the centre while they go, then the content settles in */
+      body.is-pill .nav-links a {
+        transform: translateY(-110%);
+        transition: transform 0.4s var(--ease-morph);
+      }
+
+      body.is-pill .nav-links a:nth-child(2) { transition-delay: 0.05s; }
+      body.is-pill .nav-links a:nth-child(3) { transition-delay: 0.1s; }
+
+    }
+
+    /* Similar properties */
+
+
+
+    /* Whole card is the link (the title's anchor stretches over it) */
+
+
+    @media (max-width: 760px) {
+      
+      .nav-links { display: none; }
+      .gallery__main { height: 280px; }
+    }
+
+  </style>
+  <style>
+    /* ---- Style guide: documentation layout only. Every sample below is styled by design-system.css, and the numbers are read from it live ---- */
+    body { background: var(--paper); line-height: var(--lh-body); }
+    .sg-hero { padding: calc(var(--nav-h) + 72px) var(--page-pad) 88px; text-align: center; }
+    .sg-hero h1 { margin: 0; font: 500 clamp(44px, 5.6vw, 72px)/1.05 var(--font-display); letter-spacing: var(--tracking-tight); color: var(--ink); }
+    .sg-hero p { max-width: 560px; margin: 24px auto 0; font: 400 var(--fs-body)/1.5 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink-70); }
+    .sg { display: grid; grid-template-columns: 200px minmax(0, 880px); gap: 48px; justify-content: center; padding: 0 var(--page-pad) var(--section-y); }
+    .sg-nav { position: sticky; top: calc(var(--nav-h) + 24px); align-self: start; }
+    .sg-nav__label, .sg-label { font: 500 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+    .sg-nav__list { list-style: none; margin: 20px 0 0; padding: 0; border-left: 1px solid var(--ink-10); }
+    .sg-nav__list a { display: block; margin-left: -1px; padding: 10px 16px; border-left: 1px solid transparent; font: 400 var(--fs-body)/1.3 var(--font-ui); letter-spacing: var(--tracking-ui); color: var(--ink-40); text-decoration: none; transition: color 0.2s var(--ease), border-color 0.2s var(--ease); }
+    .sg-nav__list a.is-active { color: var(--ink); border-left-color: var(--ink); }
+    @media (hover: hover) { .sg-nav__list a:hover { color: var(--ink); } }
+    .sg-main { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+    .sg-card { scroll-margin-top: calc(var(--nav-h) + 24px); padding: 32px; background: var(--white); border: 1px solid var(--ink-07); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); min-width: 0; }
+    .sg-card > .sg-label { display: block; padding-bottom: 20px; border-bottom: 1px solid var(--ink-10); }
+    .sg-note { margin: 16px 0 0; font: 400 var(--fs-small)/1.5 var(--font-ui); color: var(--ink-70); }
+    .sg-note code, .sg-code { font: 400 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-70); }
+    .sg-sub { margin-top: 28px; }
+    .sg-sub > h3 { margin: 0 0 12px; font: 500 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+    .sg-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+    .sg-dark { padding: 24px; background: var(--ink); border-radius: var(--radius-lg); color: #fff; }
+    /* typography */
+    .sg-type { padding: 24px 0 20px; border-bottom: 1px solid var(--ink-10); }
+    .sg-type:last-child { border-bottom: 0; padding-bottom: 0; }
+    .sg-type__sample { margin: 0 0 14px; color: var(--ink); overflow-wrap: anywhere; }
+    .sg-type__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; font: 400 var(--fs-small)/1.3 var(--font-ui); color: var(--ink-70); }
+    /* colour */
+    .sg-sw-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 32px; margin-top: 24px; }
+    .sg-sw-group h3 { margin: 0 0 12px; font: 500 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+    .sg-sw-row { display: flex; flex-wrap: wrap; gap: 14px; }
+    .sg-sw { width: 88px; }
+    .sg-sw__chip { height: 40px; border-radius: 6px; border: 1px solid var(--ink-07); background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%), linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%); background-size: 10px 10px; background-position: 0 0, 5px 5px; overflow: hidden; }
+    .sg-sw__chip i { display: block; width: 100%; height: 100%; }
+    .sg-sw__meta { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; font: 400 11px/1.3 var(--font-ui); color: var(--ink-70); }
+    .sg-sw__name { display: block; margin-top: 2px; font: 400 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-40); }
+    /* forms */
+    .sg-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+    .sg-form .filter-form { justify-content: flex-start; margin: 0; }
+    .sg-form .sg-wide { grid-column: 1 / -1; }
+    /* icons */
+    .sg-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 12px; }
+    .sg-icon { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 4px 10px; border: 1px solid var(--ink-07); border-radius: var(--radius-md); background: var(--paper); color: var(--ink); font: 400 11px/1.2 var(--font-ui); text-align: center; }
+    .sg-icon svg { width: auto; height: 20px; max-width: 24px; }
+    .sg-dark .sg-icon { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1); color: #fff; }
+    /* spacing, radius, motion */
+    .sg-scale { display: grid; grid-template-columns: 180px 1fr; gap: 8px 16px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--ink-07); }
+    .sg-scale:last-child { border-bottom: 0; }
+    .sg-bar { height: 16px; background: var(--ink); border-radius: 2px; }
+    .sg-shapes { display: flex; flex-wrap: wrap; gap: 20px; }
+    .sg-shape { display: flex; flex-direction: column; gap: 8px; font: 400 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink-70); }
+    .sg-shape__box { width: 88px; height: 88px; background: var(--paper); border: 1px solid var(--ink-10); }
+    .sg-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--row-gap) var(--col-gap); }
+    .sg-cards .nb-card__media { height: 220px; }
+    .sg-track { position: relative; height: 28px; background: var(--paper); border: 1px solid var(--ink-07); border-radius: var(--radius-pill); overflow: hidden; }
+    .sg-dot { position: absolute; left: 4px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); }
+    @media (max-width: 1100px) {
+      .sg { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      .sg-nav { position: sticky; top: var(--nav-h); z-index: 5; margin: 0 calc(var(--page-pad) * -1); padding: 12px var(--page-pad); background: var(--paper); border-bottom: 1px solid var(--ink-07); }
+      .sg-nav__label { display: none; }
+      .sg-nav__list { display: flex; gap: 8px; margin: 0; border-left: 0; overflow-x: auto; scrollbar-width: none; }
+      .sg-nav__list::-webkit-scrollbar { display: none; }
+      .sg-nav__list a { margin: 0; padding: 8px 14px; border: 1px solid var(--ink-10); border-radius: var(--radius-pill); white-space: nowrap; font-size: var(--fs-small); }
+      .sg-nav__list a.is-active { border-color: var(--ink); background: var(--ink); color: #fff; }
+      .sg-card { scroll-margin-top: calc(var(--nav-h) + 64px); }
+    }
+    @media (max-width: 760px) {
+      .sg-hero { padding-top: calc(var(--nav-h) + 40px); padding-bottom: 48px; }
+      .sg-card { padding: 20px; border-radius: var(--radius-lg); }
+      .sg-sw-groups, .sg-form { grid-template-columns: minmax(0, 1fr); }
+      .sg-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sg-cards .nb-card__media { height: 160px; }
+      .sg-scale { grid-template-columns: minmax(0, 1fr); }
+      .sg-type__meta { flex-direction: column; }
+    }
+  </style>
+  <script src="vt.js"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-car" viewBox="0 0 14 13"><path d="M3.22656 2.21484L2.51562 4.375H11.4844L10.7734 2.21484C10.582 1.66797 10.0898 1.3125 9.51562 1.3125H4.48438C3.91016 1.3125 3.41797 1.66797 3.22656 2.21484ZM1.09375 4.51172L1.99609 1.80469C2.35156 0.710938 3.36328 0 4.48438 0H9.51562C10.6367 0 11.6484 0.710938 12.0039 1.80469L12.9062 4.51172C13.5625 4.75781 14 5.38672 14 6.125V11.5938C14 11.9492 13.6992 12.25 13.3438 12.25C12.9883 12.25 12.6875 11.9492 12.6875 11.5938V10.5H1.3125V11.5938C1.3125 11.9492 1.01172 12.25 0.65625 12.25C0.300781 12.25 0 11.9492 0 11.5938V6.125C0 5.38672 0.4375 4.75781 1.09375 4.51172ZM1.75 5.6875C1.50391 5.6875 1.3125 5.87891 1.3125 6.125V9.1875H12.6875V6.125C12.6875 5.87891 12.4961 5.6875 12.25 5.6875H1.75ZM3.0625 6.5625C3.55469 6.5625 3.9375 6.94531 3.9375 7.4375C3.9375 7.92969 3.55469 8.3125 3.0625 8.3125C2.57031 8.3125 2.1875 7.92969 2.1875 7.4375C2.1875 6.94531 2.57031 6.5625 3.0625 6.5625ZM10.0625 7.4375C10.0625 6.94531 10.4453 6.5625 10.9375 6.5625C11.4297 6.5625 11.8125 6.94531 11.8125 7.4375C11.8125 7.92969 11.4297 8.3125 10.9375 8.3125C10.4453 8.3125 10.0625 7.92969 10.0625 7.4375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse"><stop stop-color="#1E1E1E" stop-opacity="0.7"/><stop offset="1" stop-color="#1E1E1E"/></linearGradient>
+</defs></svg>
+
+  <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
+    <span class="menu-btn__burger" aria-hidden="true">
+      <span class="menu-btn__line menu-btn__line--top"></span>
+      <span class="menu-btn__line menu-btn__line--bot"></span>
+    </span>
+    <svg class="menu-btn__x" viewBox="0 0 24 24" aria-hidden="true">
+      <!-- Both strokes start at the bottom and draw upward into the X -->
+      <line class="menu-btn__x-line menu-btn__x-line--a" pathLength="100" x1="5" y1="19" x2="19" y2="5"/>
+      <line class="menu-btn__x-line menu-btn__x-line--b" pathLength="100" x1="19" y1="19" x2="5" y2="5"/>
+    </svg>
+  </button>
+
+  <header class="navbar is-solid" id="navbar">
+    <a class="logo" href="index.html">Hvnlst.</a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a>
+      <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+      <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
+    </nav>
+
+    <!-- Takes the middle once the inquiry card has scrolled away -->
+
+    <div class="nav-actions">
+      <button class="icon-btn icon-btn--fav" type="button" id="favBtn" aria-label="Saved homes" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn-sell hl-btn hl-btn--black" type="button" id="sellBtn">
+        <span class="hl-btn__inner">Sell with us</span>
+      </button>
+      <span class="menu-btn-spacer" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main>
+    <section class="sg-hero" aria-labelledby="sgTitle">
+      <h1 id="sgTitle">Style Guide</h1>
+      <p>Control the website's style from our guide. Styles and components are documented here, with changes visible site-wide instantly.</p>
+    </section>
+
+    <div class="sg">
+      <nav class="sg-nav" aria-label="In this page">
+        <span class="sg-nav__label">In this page</span>
+        <ul class="sg-nav__list" id="sgNav">
+          <li><a href="#typography">Typography</a></li>
+          <li><a href="#color">Color</a></li>
+          <li><a href="#button">Button</a></li>
+          <li><a href="#form">Form Input</a></li>
+          <li><a href="#icons">Icons</a></li>
+          <li><a href="#spacing">Spacing &amp; Radius</a></li>
+          <li><a href="#cards">Cards</a></li>
+          <li><a href="#motion">Motion</a></li>
+        </ul>
+      </nav>
+
+      <div class="sg-main">
+        <section class="sg-card" id="typography" aria-labelledby="hTypography">
+          <h2 class="sg-label" id="hTypography">Typography</h2>
+          <div id="sgType"></div>
+        </section>
+
+        <section class="sg-card" id="color" aria-labelledby="hColor">
+          <h2 class="sg-label" id="hColor">Color</h2>
+          <p class="sg-note">Ink is the only text colour; secondary text, lines and fills are ink at a fixed alpha, so everything stays in one tone.</p>
+          <div class="sg-sw-groups" id="sgColors"></div>
+        </section>
+
+        <section class="sg-card" id="button" aria-labelledby="hButton">
+          <h2 class="sg-label" id="hButton">Buttons</h2>
+          <div class="sg-sub">
+            <h3>Primary and secondary</h3>
+            <div class="sg-row">
+              <button class="hl-btn hl-btn--black" type="button"><span class="hl-btn__inner">Sell with us</span></button>
+              <button class="hl-btn hl-btn--white" type="button"><span class="hl-btn__inner">Learn more</span></button>
+            </div>
+            <p class="sg-note"><code>.hl-btn.hl-btn--black</code> · <code>.hl-btn.hl-btn--white</code></p>
+          </div>
+          <div class="sg-sub">
+            <h3>Large</h3>
+            <div class="sg-row">
+              <a class="hl-btn hl-btn--lg hl-btn--black" href="#button"><span class="hl-btn__inner">View listings</span></a>
+              <a class="hl-btn hl-btn--lg hl-btn--white" href="#button"><span class="hl-btn__inner">Contact us</span></a>
+            </div>
+            <p class="sg-note"><code>.hl-btn--lg</code> for hero calls to action</p>
+          </div>
+          <div class="sg-sub">
+            <h3>Icon buttons</h3>
+            <div class="sg-row">
+              <button class="icon-btn icon-btn--fav" type="button" aria-label="Save"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z"/></svg></button>
+              <button class="ui-btn" type="button" aria-label="Next"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></button>
+              <a class="ui-btn ui-btn--raised" href="#button" aria-label="View all"><span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span></a>
+            </div>
+            <p class="sg-note"><code>.icon-btn</code> · <code>.ui-btn</code> · <code>.ui-btn--raised</code></p>
+          </div>
+          <div class="sg-sub">
+            <h3>Text links</h3>
+            <div class="sg-row">
+              <a href="#button"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+              <a class="back-link" href="#button"><span class="back-link__arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1"/></svg></span>Back to results</a>
+            </div>
+            <p class="sg-note">Hover any button or link: the label reveals letter by letter, centre first.</p>
+          </div>
+          <div class="sg-sub">
+            <h3>Chips and filters</h3>
+            <div class="sg-row">
+              <button class="chip" type="button">Modern house</button>
+              <button class="type-chip is-active" type="button">House</button>
+              <button class="type-chip" type="button">Condo</button>
+              <button class="loc-chip" type="button">Pacific Heights</button>
+            </div>
+            <p class="sg-note"><code>.chip</code> · <code>.type-chip</code> · <code>.loc-chip</code></p>
+          </div>
+        </section>
+
+        <section class="sg-card" id="form" aria-labelledby="hForm">
+          <h2 class="sg-label" id="hForm">Form input</h2>
+          <div class="sg-form" style="margin-top:24px">
+            <div class="ui-field"><label class="ui-field__label" for="sgA">Label*</label><input class="ui-input" id="sgA" type="text" placeholder="Text" autocomplete="off"></div>
+            <div class="ui-field"><label class="ui-field__label">Label*</label><div class="filter-anchor"><button class="filter-select" type="button"><span>Select...</span><svg class="chev" width="12" height="7" viewBox="0 0 12 7" fill="none" aria-hidden="true"><path pathLength="100" d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>
+            <div class="ui-field is-error"><label class="ui-field__label" for="sgB">Label (error)</label><input class="ui-input" id="sgB" type="text" placeholder="Text" autocomplete="off"><span class="ui-field__error">Please check this field.</span></div>
+            <div class="ui-field"><label class="ui-field__label" for="sgC">Textarea</label><textarea class="ui-input" id="sgC" placeholder="Text"></textarea></div>
+            <div class="sg-wide">
+              <form class="filter-form" role="search" onsubmit="return false"><label class="filter-query"><span class="filter-query__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><input class="filter-query__input" type="search" placeholder="Search listings" aria-label="Search"></label></form>
+            </div>
+            <div class="sg-wide sg-row">
+              <label class="facility"><input type="checkbox"> Checkbox</label>
+              <label class="facility"><input type="checkbox" checked> Checkbox</label>
+            </div>
+          </div>
+          <p class="sg-note"><code>.ui-field</code> · <code>.ui-input</code> · <code>.filter-select</code> · <code>.filter-query</code> · <code>.facility</code></p>
+        </section>
+
+        <section class="sg-card" id="icons" aria-labelledby="hIcons">
+          <h2 class="sg-label" id="hIcons">Icons</h2>
+          <div class="sg-sub"><h3>On light</h3><div class="sg-icons" id="sgIconsLight"></div></div>
+          <div class="sg-sub"><h3>On dark</h3><div class="sg-dark"><div class="sg-icons" id="sgIconsDark"></div></div></div>
+          <p class="sg-note">Icons are drawn in <code>currentColor</code> with a 1.35px round stroke, so they follow the text colour.</p>
+        </section>
+
+        <section class="sg-card" id="spacing" aria-labelledby="hSpacing">
+          <h2 class="sg-label" id="hSpacing">Spacing &amp; radius</h2>
+          <div class="sg-sub"><h3>Spacing (4px base)</h3><div id="sgSpace"></div></div>
+          <div class="sg-sub"><h3>Page layout</h3><div id="sgLayout"></div></div>
+          <div class="sg-sub"><h3>Radius</h3><div class="sg-shapes" id="sgRadius"></div></div>
+          <div class="sg-sub"><h3>Elevation</h3><div class="sg-shapes" id="sgShadow"></div></div>
+        </section>
+
+        <section class="sg-card" id="cards" aria-labelledby="hCards">
+          <h2 class="sg-label" id="hCards">Cards</h2>
+          <div class="sg-sub"><h3>Listing card</h3><div class="sg-cards" id="sgListings"></div></div>
+          <div class="sg-sub"><h3>Agent card</h3><div class="sg-cards" id="sgAgents"></div></div>
+          <div class="sg-sub"><h3>Neighborhood card</h3><div class="sg-cards" id="sgNeighborhoods"></div></div>
+          <p class="sg-note">Each card type is rendered by one template (<code>listing-card.js</code>, <code>agents.js</code>, <code>neighborhoods.js</code>), so every page shows the same card.</p>
+        </section>
+
+        <section class="sg-card" id="motion" aria-labelledby="hMotion">
+          <h2 class="sg-label" id="hMotion">Motion</h2>
+          <div class="sg-sub"><h3>Easing and duration</h3><div id="sgMotion"></div><div class="sg-row" style="margin-top:16px"><button class="hl-btn hl-btn--white" type="button" id="sgPlay"><span class="hl-btn__inner">Play all</span></button></div></div>
+          <div class="sg-sub"><h3>Page transitions</h3><div id="sgVt"></div><p class="sg-note">Pages wipe in menu order; from a card to its detail page the picture grows from the card (one image, no dissolve).</p></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+
+
+  <footer class="site-footer">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" srcset="assets/footer-bg-800.webp 800w, assets/footer-bg-1200.webp 1200w, assets/footer-bg.webp 1800w" sizes="100vw" alt="" width="1800" height="830" loading="lazy" decoding="async">
+
+    <div class="site-footer__cta">
+      <h2>Ready to sell your property?</h2>
+      <p>Get a free market valuation and a tailored selling strategy from our top agents.</p>
+      <div class="site-footer__actions">
+        <button class="site-footer__btn hl-btn hl-btn--white" type="button">
+          <span class="hl-btn__inner">
+            Get started
+            <span class="hl-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </span>
+        </button>
+        <button class="site-footer__contact" type="button">Contact us</button>
+      </div>
+    </div>
+
+    <div class="site-footer__panel">
+      <div class="site-footer__row">
+        <div class="site-footer__brand">
+          <div>
+            <a class="logo" href="index.html">Hvnlst.</a>
+            <p class="site-footer__addr">123 Harbor Avenue, Suite 400<br>San Francisco, CA 94111</p>
+          </div>
+          <div class="site-footer__legal">
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of services</a>
+          </div>
+        </div>
+
+        <div class="site-footer__cols">
+          <div class="site-footer__col">
+            <h3>Discover</h3>
+            <a href="search.html?q=">Listings</a>
+            <a href="agents.html">Agents</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
+            <a href="#">About</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Listings Type</h3>
+            <a href="#">Buy</a>
+            <a href="#">Rent</a>
+            <a href="#">Commercial</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Resources</h3>
+            <a href="insights.html">Insights</a>
+            <a href="#">Sell with Us</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Follow us</h3>
+            <a class="is-link" href="#">Instagram</a>
+            <a class="is-link" href="#">Pinterest</a>
+            <a class="is-link" href="#">Youtube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-footer__bottom">
+        <a class="site-footer__email" href="mailto:hello@havenlist.com">
+          hello@havenlist.com
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <span class="site-footer__copy">©2026 Havenlist</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="mega-menu mega-menu--m" id="megaMenu" hidden>
+    <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
+      <div class="mega-menu__media">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" loading="lazy" decoding="async" fetchpriority="low" width="609" height="914">
+      </div>
+
+      <div class="mega-menu__body">
+        <div class="mega-menu__grid">
+          <div>
+            <p class="mega-menu__group-label">Our pages</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="index.html"><span class="link-rise" data-text="Home">Home</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Listings Type</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="#buy"><span class="link-rise" data-text="Buy">Buy</span></a></li>
+              <li><a href="#rent"><span class="link-rise" data-text="Rent">Rent</span></a></li>
+              <li><a href="#commercial"><span class="link-rise" data-text="Commercial">Commercial</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Follow us</p>
+            <ul class="mega-menu__links mega-menu__links--md mega-menu__links--social">
+              <li><a href="#instagram"><span class="link-rise" data-text="Instagram">Instagram</span></a></li>
+              <li><a href="#youtube"><span class="link-rise" data-text="Youtube">Youtube</span></a></li>
+              <li><a href="#pinterest"><span class="link-rise" data-text="Pinterest">Pinterest</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Resources</p>
+            <ul class="mega-menu__links mega-menu__links--md">
+              <li><a href="#wishlist"><span class="link-rise" data-text="Wishlist">Wishlist</span></a></li>
+              <li><a href="#sell"><span class="link-rise" data-text="Sell with us">Sell with us</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mega-menu__contact">
+          <p class="mega-menu__group-label">Contact</p>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/listings-store.js"></script>
+  <script src="assets/agents.js"></script>
+  <script src="assets/neighborhoods.js?v=2"></script>
+  <script src="listing-card.js"></script>
+  <script src="wishlist.js"></script>
+  <script src="parallax.js"></script>
+  <script src="circle-menu.js"></script>
+  <script src="toast.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      var ICONS = [
+    ["Heart", `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>`],
+    ["Search", `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle pathLength="100" cx="7" cy="7" r="5.25" stroke="currentColor" stroke-width="1.5"/><path pathLength="100" d="M11 11l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`],
+    ["Filter", `<svg class="lines" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M2.5 4.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M4 8h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path pathLength="100" d="M5.5 11.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`],
+    ["Bed", `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7.5V4.5a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0112 4.5V7.5M1.5 11.5v-2A1.5 1.5 0 013 8h8a1.5 1.5 0 011.5 1.5v2M1.5 7.5h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`],
+    ["Bath", `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h9.5V9a2.5 2.5 0 01-2.5 2.5H5A2.5 2.5 0 012.5 9V3.5M3 3.5h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`],
+    ["Area", `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 8.5L8.5 2.5l3 3-6 6-3-3zM5 6l1 1M6.5 4.5l1 1M8 3l1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`],
+    ["Calendar", `<svg width="14" height="15" viewBox="0 0 14 15" fill="none" aria-hidden="true"><path d="M3.75 0C4.15625 0 4.5 0.34375 4.5 0.75V2H9.5V0.75C9.5 0.34375 9.84375 0 10.25 0C10.6562 0 11 0.34375 11 0.75V2H12C13.0938 2 14 2.90625 14 4V13C14 14.0938 13.0938 15 12 15H2C0.90625 15 0 14.0938 0 13V4C0 2.90625 0.90625 2 2 2H3V0.75C3 0.34375 3.34375 0 3.75 0ZM2 3.5C1.71875 3.5 1.5 3.71875 1.5 4V5.5H12.5V4C12.5 3.71875 12.2812 3.5 12 3.5H2ZM1.5 7V13C1.5 13.2812 1.71875 13.5 2 13.5H12C12.2812 13.5 12.5 13.2812 12.5 13V7H1.5Z" fill="currentColor"/></svg>`],
+    ["LinkedIn", `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M14.625 0C15.2578 0 15.75 0.527 15.75 1.125V14.625C15.75 15.258 15.258 15.75 14.625 15.75H1.125C0.492 15.75 0 15.258 0 14.625V1.125C0 0.527 0.492 0 1.125 0H14.625ZM4.781 13.5V5.977H2.426V13.5H4.781ZM3.586 2.25C2.848 2.25 2.25 2.848 2.25 3.621C2.25 4.359 2.848 4.957 3.586 4.957C4.324 4.957 4.957 4.359 4.957 3.621C4.957 2.848 4.324 2.25 3.586 2.25ZM13.5 13.5V9.387C13.5 7.348 13.078 5.801 10.723 5.801C9.563 5.801 8.824 6.434 8.508 6.996H8.473V5.977H6.223V13.5H8.578V9.773C8.578 8.789 8.754 7.84 9.949 7.84C11.145 7.84 11.18 8.965 11.18 9.844V13.5H13.5Z" fill="currentColor" fill-opacity=".9"/></svg>`],
+    ["Phone", `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path pathLength="100" d="M3.2875 0.0889C4.131 -0.1924 5.069 0.2139 5.444 1.0264L6.663 3.7451C7.006 4.4951 6.788 5.3389 6.163 5.8389L5.413 6.4639C6.225 8.0264 7.475 9.3076 9.006 10.1514L9.663 9.3389C10.163 8.7139 11.038 8.4951 11.756 8.8389L14.475 10.0889C15.288 10.4326 15.694 11.3701 15.413 12.2139C14.788 14.1826 12.819 15.8701 10.381 15.4326C4.975 14.4639 1.038 10.5576 0.069 5.1201C-0.369 2.7139 1.35 0.7451 3.2875 0.0889ZM4.069 1.6514C4.006 1.5264 3.881 1.4639 3.756 1.4951C2.35 1.9951 1.288 3.3389 1.569 4.8389C2.413 9.6514 5.85 13.1201 10.663 13.9639C12.163 14.2139 13.538 13.1514 14.006 11.7451C14.038 11.6201 13.975 11.4951 13.85 11.4326L11.131 10.1826C11.038 10.1514 10.913 10.1826 10.819 10.2764L9.788 11.5889C9.569 11.8389 9.194 11.9326 8.881 11.7764C6.6 10.7139 4.788 8.8389 3.788 6.5264C3.663 6.2139 3.756 5.8701 4.006 5.6514L5.225 4.6826C5.319 4.6201 5.35 4.4951 5.319 4.3701L4.069 1.6514Z" fill="currentColor" fill-opacity=".8"/></svg>`],
+    ["Arrow", `<svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>`],
+    ["Arrow back", `<svg width="17" height="12" viewBox="0 0 17 12" fill="none" style="transform:scaleX(-1)"><path d="M0.75 6H15.1M10.1 0.9L15.1 6L10.1 11.1" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>`],
+    ["Chevron", `<svg width="12" height="7" viewBox="0 0 12 7" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`],
+    ["Close", `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 8L8 2M8 8L2 2" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>`],
+    ["Menu", `<svg width="24" height="8" viewBox="0 0 24 8" fill="none"><path d="M0.5 0.5H23.5M0.5 7.5H23.5" stroke="currentColor" stroke-linecap="round"/></svg>`],
+    ["Share", `<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 10.25V2.4M4.9 5.4L8 2.3L11.1 5.4M2.75 9.6V11.9C2.75 12.95 3.55 13.75 4.6 13.75H11.4C12.45 13.75 13.25 12.95 13.25 11.9V9.6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>`],
+    ["Check", `<svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5l4 4 8-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`]
+  ];
+      var root = document.documentElement, $ = function (id) { return document.getElementById(id); };
+      var cs = function () { return getComputedStyle(root); };
+      var tok = function (n) { return cs().getPropertyValue(n).trim(); };
+      var probe = document.createElement("i");
+      probe.style.cssText = "position:absolute;left:-9999px;top:0;width:1px;height:1px";
+      document.body.appendChild(probe);
+
+      /* ---------- Typography: every row reads its numbers from the rendered sample ---------- */
+      var TYPE = [
+        ["Display", "var(--fs-display)", 500, "var(--font-display)", "var(--tracking-tight)", "1.05", "Find your livings"],
+        ["Section / page title", "var(--fs-section)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Featured listings"],
+        ["Heading", "var(--fs-heading)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Neighborhood guide"],
+        ["Title", "var(--fs-title)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Panel title"],
+        ["Title small", "var(--fs-title-sm)", 500, "var(--font-display)", "var(--tracking-tight)", "1.25", "Pacific Heights"],
+        ["Body", "var(--fs-body)", 400, "var(--font-ui)", "var(--tracking-ui)", "1.4", "Light-filled homes across the Bay Area, curated by local agents."],
+        ["Small", "var(--fs-small)", 400, "var(--font-ui)", "var(--tracking-ui)", "1.4", "2250 Vallejo St, San Francisco"],
+        ["Caption", "var(--fs-caption)", 400, "var(--font-ui)", "0", "1.4", "Updated 2 days ago"],
+        ["Label", "var(--fs-small)", 500, "var(--font-ui)", "0.04em", "1.2", "FEATURED"]
+      ];
+      var WEIGHT = { 400: "Regular", 500: "Medium", 600: "Semibold" };
+      var typeEl = $("sgType");
+      typeEl.innerHTML = TYPE.map(function (t, i) {
+        return '<div class="sg-type"><p class="sg-type__sample" id="sgT' + i + '" style="font-family:' + t[3] + ";font-size:" + t[1] + ";font-weight:" + t[2] + ";letter-spacing:" + t[4] + ";line-height:" + t[5] + (t[0] === "Label" ? ";text-transform:uppercase" : "") + '">' + t[6] + "</p>" +
+          '<div class="sg-type__meta"><span data-k="name"></span><span data-k="size"></span><span data-k="weight"></span><span data-k="ls"></span></div></div>';
+      }).join("");
+      function paintType() {
+        TYPE.forEach(function (t, i) {
+          var s = getComputedStyle($("sgT" + i)), meta = $("sgT" + i).nextElementSibling;
+          var fam = s.fontFamily.split(",")[0].replace(/["']/g, "").trim();
+          var px = parseFloat(s.fontSize), ls = s.letterSpacing === "normal" ? 0 : parseFloat(s.letterSpacing) / px * 100;
+          meta.querySelector('[data-k="name"]').textContent = "Name: " + fam;
+          meta.querySelector('[data-k="size"]').textContent = "Size: " + Math.round(px * 10) / 10 + "px";
+          meta.querySelector('[data-k="weight"]').textContent = "Weight: " + (WEIGHT[s.fontWeight] || s.fontWeight);
+          meta.querySelector('[data-k="ls"]').textContent = "Letter spacing: " + Math.round(ls * 10) / 10 + "%";
+        });
+      }
+
+      /* ---------- Colour: token -> hex + opacity ---------- */
+      function hex(n) { return ("0" + Math.round(n).toString(16)).slice(-2).toUpperCase(); }
+      function parse(token) {
+        probe.style.background = "var(" + token + ")";
+        var m = getComputedStyle(probe).backgroundColor.match(/[\d.]+/g) || [0, 0, 0], a = m.length > 3 ? parseFloat(m[3]) : 1;
+        return { hex: "#" + hex(m[0]) + hex(m[1]) + hex(m[2]), alpha: Math.round(a * 100) };
+      }
+      var COLORS = [
+        ["Text", ["--ink", "--ink-80", "--ink-70", "--ink-40", "--ink-20"]],
+        ["Background", ["--paper", "--white", "--chip"]],
+        ["Stroke", ["--ink-20", "--ink-10", "--ink-07"]],
+        ["State", ["--heart", "--danger", "--danger-bg"]]
+      ];
+      $("sgColors").innerHTML = COLORS.map(function (g) {
+        return '<div class="sg-sw-group"><h3>' + g[0] + '</h3><div class="sg-sw-row">' + g[1].map(function (n) {
+          var c = parse(n);
+          return '<div class="sg-sw"><div class="sg-sw__chip"><i style="background:var(' + n + ')"></i></div><div class="sg-sw__meta"><span>' + c.hex + "</span><span>" + c.alpha + '%</span></div><span class="sg-sw__name">' + n + "</span></div>";
+        }).join("") + "</div></div>";
+      }).join("");
+
+      /* ---------- Icons ---------- */
+      var iconHtml = ICONS.map(function (ic) { return '<div class="sg-icon">' + ic[1] + "<span>" + ic[0] + "</span></div>"; }).join("");
+      $("sgIconsLight").innerHTML = iconHtml; $("sgIconsDark").innerHTML = iconHtml;
+
+      /* ---------- Spacing, layout, radius, elevation ---------- */
+      $("sgSpace").innerHTML = ["--space-1", "--space-2", "--space-3", "--space-4", "--space-6", "--space-8", "--space-10", "--space-16"].map(function (s) {
+        return '<div class="sg-scale"><span class="sg-code">' + s + " · " + tok(s) + '</span><span class="sg-bar" style="width:var(' + s + ')"></span></div>';
+      }).join("");
+      var LAYOUT = [["--page-pad", "Page edge (24px phone, 32px tablet, 64px desktop)"], ["--content-w", "Content width (grows on large monitors)"], ["--section-y", "Section top and bottom padding"], ["--grid-top", "Filter header to first row of cards"], ["--grid-bottom", "Under the last row of cards"], ["--col-gap", "Gap between cards, sideways"], ["--row-gap", "Gap between rows of cards"], ["--nav-h", "Navbar height"], ["--control-h", "Buttons, fields, icon buttons"]];
+      function paintLayout() { $("sgLayout").innerHTML = LAYOUT.map(function (l) { return '<div class="sg-scale"><span class="sg-code">' + l[0] + " · " + tok(l[0]) + "</span><span>" + l[1] + "</span></div>"; }).join("") + '<div class="sg-scale"><span class="sg-code">breakpoints</span><span>Phone up to 760px (2-up) · tablet 761–1100px (3-up) · desktop from 1101px (4-up, 5-up from 1920px)</span></div>'; }
+      $("sgRadius").innerHTML = ["--radius-xs", "--radius-sm", "--radius-md", "--radius-lg", "--radius-xl", "--radius-pill"].map(function (r) { return '<div class="sg-shape"><div class="sg-shape__box" style="border-radius:var(' + r + ')"></div>' + r + "<br>" + tok(r) + "</div>"; }).join("");
+      $("sgShadow").innerHTML = ["--shadow-xs", "--shadow-sm", "--shadow-card", "--shadow-pop"].map(function (s) { return '<div class="sg-shape"><div class="sg-shape__box" style="border:0;border-radius:var(--radius-xl);background:var(--white);box-shadow:var(' + s + ')"></div>' + s + "</div>"; }).join("");
+
+      /* ---------- Cards ---------- */
+      HLCard.mount($("sgListings"), HavenlistStore.all().slice(0, 3));
+      HLAgents.mount($("sgAgents"), HLAgents.all().slice(0, 3));
+      HLNeighborhoods.mount($("sgNeighborhoods"), HLNeighborhoods.all().slice(0, 3));
+
+      /* ---------- Motion ---------- */
+      var EASES = [["--ease", "Default UI easing"], ["--ease-out", "Entrances, letter reveal"], ["--ease-soft", "Hover veil, image zoom"], ["--ease-morph", "Navbar and dropdown morphs"]];
+      $("sgMotion").innerHTML = EASES.map(function (e) {
+        return '<div class="sg-scale" style="grid-template-columns:220px 1fr"><span class="sg-code">' + e[0] + "<br>" + e[1] + '</span><div class="sg-track"><span class="sg-dot" data-ease="' + e[0] + '"></span></div></div>';
+      }).join("") + '<div class="sg-scale" style="grid-template-columns:220px 1fr"><span class="sg-code">--dur · --dur-morph</span><span>' + tok("--dur") + " base · " + tok("--dur-morph") + " morph</span></div>";
+      $("sgPlay").addEventListener("click", function () {
+        var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.querySelectorAll(".sg-dot").forEach(function (d) {
+          var w = d.parentNode.clientWidth - 28;
+          d.animate([{ transform: "translateX(0)" }, { transform: "translateX(" + w + "px)" }], { duration: reduce ? 1 : 1100, easing: tok(d.dataset.ease), fill: "forwards" }).finished.then(function () { setTimeout(function () { d.getAnimations().forEach(function (a) { a.cancel(); }); }, 500); });
+        });
+      });
+      var VT = [["--vt-wipe-dur", "Wipe between pages"], ["--vt-wipe-in-shift", "Incoming page starts below by"], ["--vt-hero-dur", "Card picture grows into detail picture"], ["--vt-fade-out", "Old page fades out"], ["--vt-fade-in", "New page fades in"], ["--vt-fade-delay", "Fade-in delay"]];
+      $("sgVt").innerHTML = VT.map(function (v) { return '<div class="sg-scale" style="grid-template-columns:220px 1fr"><span class="sg-code">' + v[0] + " · " + tok(v[0]) + "</span><span>" + v[1] + "</span></div>"; }).join("") + '<div class="sg-scale" style="grid-template-columns:220px 1fr"><span class="sg-code">--vt-wipe-ease</span><span class="sg-code">' + tok("--vt-wipe-ease") + "</span></div>";
+
+      paintType(); paintLayout();
+      window.addEventListener("resize", function () { paintType(); paintLayout(); });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintType);
+
+      /* ---------- Side nav follows the section in view ---------- */
+      var links = Array.prototype.slice.call(document.querySelectorAll("#sgNav a"));
+      var sections = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+      function spy() {
+        var y = innerHeight * 0.3, cur = 0;
+        sections.forEach(function (s, i) { if (s && s.getBoundingClientRect().top <= y) cur = i; });
+        links.forEach(function (a, i) { a.classList.toggle("is-active", i === cur); });
+      }
+      addEventListener("scroll", spy, { passive: true }); spy();
+      links.forEach(function (a) { a.addEventListener("click", function (e) { var t = document.querySelector(a.getAttribute("href")); if (!t) return; e.preventDefault(); t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); history.replaceState(null, "", a.getAttribute("href")); }); });
+
+      HLCircleMenu({ toast: function (m) { HLToast(m, 2600); } });
+    })();
+  </script>
+  <script src="nav-links.js"></script>
+  <script src="rise.js"></script>
+  <script src="feedback.js" defer></script>
+</body>
+</html>
