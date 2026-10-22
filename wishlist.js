@@ -105,7 +105,7 @@
   '.hlw-opt img{width:16px;height:16px;object-fit:contain;flex:none}' +
   '@media (max-width:560px){.hlw-share{left:16px!important;right:16px;width:auto}.hlw-title{font-size:20px}}' +
   /* card hearts + toast */
-  '.card__fav.is-saved .heart-outline,.icon-btn--fav.is-saved .heart-outline{fill:currentColor;animation:none;stroke-dashoffset:0}' +
+  '.card__fav.is-saved .heart-outline,.icon-btn--fav.is-saved .heart-outline{animation:none;stroke-dashoffset:0}' +
   '.hlw-toast{position:fixed;left:50%;bottom:28px;z-index:500;transform:translate(-50%,20px);padding:12px 18px;border-radius:999px;background:#1e1e1e;color:#fff;font:500 14px "Geist",system-ui,sans-serif;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;white-space:nowrap}' +
   '.hlw-toast.is-visible{opacity:1;transform:translate(-50%,0)}';
   var st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
@@ -264,9 +264,19 @@
   }
 
   /* ---------- hearts ---------- */
+  /* A second copy of the heart, filled, sits under the outline: saving makes it fill up from the bottom like a liquid */
+  function ensureFill(b) {
+    var o = b.querySelector(".heart-outline");
+    if (!o || b.querySelector(".heart-fill")) return;
+    var f = o.cloneNode(false);
+    ["stroke", "stroke-width", "stroke-linecap", "stroke-linejoin"].forEach(function (a) { f.removeAttribute(a); });
+    f.setAttribute("class", "heart-fill");
+    o.parentNode.insertBefore(f, o);
+  }
   function sync(root) {
     badge();
     (root || document).querySelectorAll("[data-wl-id]").forEach(function (b) {
+      ensureFill(b);
       var on = isSaved(b.getAttribute("data-wl-id"));
       b.classList.toggle("is-saved", on);
       b.setAttribute("aria-pressed", String(on));
@@ -289,6 +299,8 @@
     var nav = document.getElementById("favBtn");
     if (nav && /wishlist(\.html)?$/.test(location.pathname)) nav.classList.add("is-active");
     sync();
+    /* hearts already saved on load appear filled; only a save made on the page plays the liquid fill */
+    requestAnimationFrame(function () { requestAnimationFrame(function () { document.body.classList.add("hl-hearts-live"); }); });
   });
 
   window.HLWishlist = {

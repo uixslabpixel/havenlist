@@ -102,6 +102,19 @@
   --pop-r-to: 20px;
   --pop-gap: 10px;
   --pop-shadow: 0.12;
+  /* Page transitions (tuned from the ?tweak=1 panel, see vt-tweaks.js) */
+  --vt-wipe-dur: 0.85s;
+  --vt-wipe-ease: cubic-bezier(0.65, 0, 0.2, 1);
+  --vt-wipe-in-shift: 7vh;
+  --vt-wipe-away-shift: 9vh;
+  --vt-wipe-dim: 0.9;
+  --vt-wipe-in-opacity: 0.4;
+  --vt-wipe-away-opacity: 0.5;
+  --vt-hero-dur: 0.8s;
+  --vt-hero-ease: cubic-bezier(0.5, 0, 0.1, 1);
+  --vt-fade-out: 0.3s;
+  --vt-fade-in: 0.6s;
+  --vt-fade-delay: 0.12s;
   /* Button hover wash (see the hover block below) */
   --hover-veil: rgba(30, 30, 30, 0.01);
   --hover-dur: 0.6s;
@@ -635,6 +648,11 @@ button:hover > .x-icon .x-icon__b {
 .card:hover .card__media img { transform: scale(1.035); }
 }
 
+/* Cards leaving and entering a grid when a filter changes (listing-card.js) */
+.card.is-leaving { opacity: 0; scale: 0.96; transition: opacity 0.2s var(--ease), scale 0.2s var(--ease); }
+.card.is-entering { animation: hl-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 45ms) both; }
+@keyframes hl-card-in { from { opacity: 0; translate: 0 16px; } }
+
     .back-link {
       display: inline-flex;
       align-items: center;
@@ -665,7 +683,7 @@ button:hover > .x-icon .x-icon__b {
     }
 
 
-    .card__fav.is-saved .heart-outline { fill: currentColor; animation: none; stroke-dashoffset: 0; }
+    .card__fav.is-saved .heart-outline { animation: none; stroke-dashoffset: 0; }
 
 /* ========== AGENT CARD (agents page) ========== */
 .agent-card {
@@ -969,7 +987,20 @@ textarea.ui-input { height: auto; min-height: 96px; padding: 12px 16px; border-r
 .icon-btn--fav .heart-outline { transition: fill 0.3s var(--hover-ease, ease), stroke 0.3s var(--hover-ease, ease); }
 .detail__actions .icon-btn--fav.is-saved .heart-outline,
 .detail__actions .icon-btn--fav.is-active .heart-outline,
-.wl .icon-btn--fav.is-saved .heart-outline { fill: var(--heart); stroke: var(--heart); }
+.wl .icon-btn--fav.is-saved .heart-outline { stroke: var(--heart); }
+.detail__actions .icon-btn--fav, .wl .icon-btn--fav { --heart-fill: var(--heart); }
+
+/* Liquid heart: the filled copy (added by wishlist.js) rises from the bottom when a heart is saved */
+.heart-fill { fill: var(--heart-fill, currentColor); stroke: none; opacity: 0; transition: opacity 0.15s var(--ease); }
+.is-saved .heart-fill { opacity: 1; }
+body.hl-hearts-live .is-saved .heart-fill { animation: hl-heart-fill 0.9s cubic-bezier(0.3, 0.55, 0.3, 1) both; }
+@keyframes hl-heart-fill {
+  0%   { clip-path: polygon(0 106%, 50% 106%, 100% 106%, 100% 106%, 0 106%); }
+  35%  { clip-path: polygon(0 62%, 50% 48%, 100% 66%, 100% 106%, 0 106%); }
+  65%  { clip-path: polygon(0 30%, 50% 42%, 100% 22%, 100% 106%, 0 106%); }
+  85%  { clip-path: polygon(0 8%, 50% 0, 100% 10%, 100% 106%, 0 106%); }
+  100% { clip-path: polygon(0 -6%, 50% -6%, 100% -6%, 100% 106%, 0 106%); }
+}
 
 /* ----- Text hover: letters spread from the edges and close in toward the centre (rise.js).
    The .rise / .link-rise wrappers it adds are plain, static boxes. ----- */
@@ -1015,28 +1046,28 @@ html, html body { overflow-x: clip; }
 
 /* Page changes wipe vertically in menu order (vt.js sets .vt-next / .vt-prev on the new page): going to a page further
    down the menu, the new page rises from below; going back up, it drops in from above. Card -> detail (.vt-shared)
-   and equal-rank moves keep the quick fade. */
+   and equal-rank moves fade. Every number is a --vt-* variable (defaults in :root) so the ?tweak=1 panel can tune it. */
 :root.vt-shared::view-transition-old(root),
-:root:not(.vt-next):not(.vt-prev)::view-transition-old(root) { animation: hl-page-out 0.2s cubic-bezier(0.4, 0, 1, 1) both; }
+:root:not(.vt-next):not(.vt-prev)::view-transition-old(root) { animation: hl-page-out var(--vt-fade-out) cubic-bezier(0.4, 0, 1, 1) both; }
 :root.vt-shared::view-transition-new(root),
-:root:not(.vt-next):not(.vt-prev)::view-transition-new(root) { animation: hl-page-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+:root:not(.vt-next):not(.vt-prev)::view-transition-new(root) { animation: hl-page-in var(--vt-fade-in) cubic-bezier(0.22, 1, 0.36, 1) var(--vt-fade-delay) both; }
 :root:is(.vt-next, .vt-prev):not(.vt-shared)::view-transition-old(root),
 :root:is(.vt-next, .vt-prev):not(.vt-shared)::view-transition-new(root) { mix-blend-mode: normal; }
-:root.vt-next:not(.vt-shared)::view-transition-old(root) { animation: hl-wipe-away-up 0.85s cubic-bezier(0.65, 0, 0.2, 1) both; }
-:root.vt-next:not(.vt-shared)::view-transition-new(root) { animation: hl-wipe-in-up 0.85s cubic-bezier(0.65, 0, 0.2, 1) both; }
-:root.vt-prev:not(.vt-shared)::view-transition-old(root) { animation: hl-wipe-away-down 0.85s cubic-bezier(0.65, 0, 0.2, 1) both; }
-:root.vt-prev:not(.vt-shared)::view-transition-new(root) { animation: hl-wipe-in-down 0.85s cubic-bezier(0.65, 0, 0.2, 1) both; }
+:root.vt-next:not(.vt-shared)::view-transition-old(root) { animation: hl-wipe-away-up var(--vt-wipe-dur) var(--vt-wipe-ease) both; }
+:root.vt-next:not(.vt-shared)::view-transition-new(root) { animation: hl-wipe-in-up var(--vt-wipe-dur) var(--vt-wipe-ease) both; }
+:root.vt-prev:not(.vt-shared)::view-transition-old(root) { animation: hl-wipe-away-down var(--vt-wipe-dur) var(--vt-wipe-ease) both; }
+:root.vt-prev:not(.vt-shared)::view-transition-new(root) { animation: hl-wipe-in-down var(--vt-wipe-dur) var(--vt-wipe-ease) both; }
 ::view-transition-group(hl-navbar) { animation-duration: 0.35s; }
 
-/* Shared element (vt.js): a card's picture grows into the detail page's main picture */
-::view-transition-group(hl-hero) { animation-duration: 0.38s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); overflow: clip; border-radius: var(--radius-lg); }
+/* Shared element (vt.js): a card's picture grows into the detail page's main picture, and shrinks back into its card */
+::view-transition-group(hl-hero) { animation-duration: var(--vt-hero-dur); animation-timing-function: var(--vt-hero-ease); overflow: clip; border-radius: var(--radius-lg); }
 ::view-transition-old(hl-hero), ::view-transition-new(hl-hero) { width: 100%; height: 100%; object-fit: cover; }
-@media (hover: none) { ::view-transition-group(hl-hero) { animation-duration: 0.3s; } }
+@media (hover: none) { ::view-transition-group(hl-hero) { animation-duration: calc(var(--vt-hero-dur) * 0.8); } }
 
-@keyframes hl-wipe-in-up { from { clip-path: inset(100% 0 0 0); transform: translate3d(0, 7vh, 0); opacity: 0.4; } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }
-@keyframes hl-wipe-in-down { from { clip-path: inset(0 0 100% 0); transform: translate3d(0, -7vh, 0); opacity: 0.4; } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }
-@keyframes hl-wipe-away-up { from { transform: none; filter: none; opacity: 1; } to { transform: translate3d(0, -9vh, 0); filter: brightness(0.9); opacity: 0.5; } }
-@keyframes hl-wipe-away-down { from { transform: none; filter: none; opacity: 1; } to { transform: translate3d(0, 9vh, 0); filter: brightness(0.9); opacity: 0.5; } }
+@keyframes hl-wipe-in-up { from { clip-path: inset(100% 0 0 0); transform: translate3d(0, var(--vt-wipe-in-shift), 0); opacity: var(--vt-wipe-in-opacity); } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }
+@keyframes hl-wipe-in-down { from { clip-path: inset(0 0 100% 0); transform: translate3d(0, calc(var(--vt-wipe-in-shift) * -1), 0); opacity: var(--vt-wipe-in-opacity); } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }
+@keyframes hl-wipe-away-up { from { transform: none; filter: none; opacity: 1; } to { transform: translate3d(0, calc(var(--vt-wipe-away-shift) * -1), 0); filter: brightness(var(--vt-wipe-dim)); opacity: var(--vt-wipe-away-opacity); } }
+@keyframes hl-wipe-away-down { from { transform: none; filter: none; opacity: 1; } to { transform: translate3d(0, var(--vt-wipe-away-shift), 0); filter: brightness(var(--vt-wipe-dim)); opacity: var(--vt-wipe-away-opacity); } }
 @keyframes hl-page-out { to { opacity: 0; } }
 @keyframes hl-page-in { from { opacity: 0; transform: translate3d(0, 12px, 0); } }
 
@@ -2139,7 +2170,7 @@ body.is-compact .compact-bar > *:nth-child(5) {
   justify-content: space-between;
   height: var(--nav-h);
   padding: 0 var(--edge);
-  background: var(--white);
+  background: var(--nav-bg, var(--white));
   color: var(--ink);
   box-shadow: none;
   transform: translateY(0);

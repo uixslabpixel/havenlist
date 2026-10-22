@@ -4,11 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Neighborhoods — Havenlist</title>
-    <link rel="icon" href="data:,">
+    <link rel="expect" href="#vtReady" blocking="render">
+  <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="design-system.css">
   <style>
+    :root { --nav-bg: var(--paper); } /* the navbar takes the colour of the section under it */
 
     /* Same solid shadow as the homepage once listings scroll underneath */
     body.is-compact .navbar {
@@ -382,9 +384,9 @@
       align-items: center;
       justify-content: center;
       gap: 16px;
-      padding: 32px 24px 48px;
+      padding: 32px 24px 16px;
       text-align: center;
-      min-height: 148px;
+      min-height: 116px;
     }
 
     .featured__meta-copy {
@@ -471,10 +473,10 @@
     }
 
     /* Same section as the homepage's Featured Listings; the page's own navbar offset is added on top */
-    .nbf { padding-top: calc(var(--nav-h) + 40px); }
+    .nbf { padding-top: calc(var(--nav-h) + 48px); }
     @media (max-width: 900px) { .nbf { padding-top: calc(var(--nav-h) + 16px); } }
     /* Same header band as Search and Agents (white, soft shadow, same title); it sits mid-page, so no navbar offset */
-    .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); background: var(--paper); box-shadow: none; }
+    .nb-more { margin-top: 0; scroll-margin-top: var(--nav-h); background: var(--paper); box-shadow: none; padding-top: 8px; }
     /* Phones: tighter featured text block, quieter 'More' header band */
     @media (max-width: 760px) {
       .featured__meta { gap: 4px; padding: 16px 16px 32px; min-height: 0; }
@@ -1114,5 +1116,6 @@
   <script src="nav-links.js"></script>
   <script src="rise.js"></script>
   <script src="feedback.js" defer></script>
+  <span id="vtReady" hidden></span>
 </body>
 </html>

@@ -8,7 +8,7 @@
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
   function html(l) {
-    return '<article class="card">' +
+    return '<article class="card" data-id="' + esc(l.id) + '">' +
       '<div class="card__media">' +
         '<img src="' + esc(l.image) + '" alt="' + esc(l.alt || l.place) + '" loading="lazy" width="800" height="809">' +
         '<span class="card__badge">' + esc(l.badge || "For sale") + "</span>" +
@@ -26,12 +26,66 @@
       "</div></article>";
   }
 
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function build(list) {
+    var t = document.createElement("template");
+    t.innerHTML = list.map(html).join("");
+    return t.content;
+  }
+
+  /* Swap the cards in. When the grid already shows cards, the ones that stay slide to their new place (they are the
+     same elements, so pictures don't reload), the ones that go fade out first, and new ones rise in one by one. */
+  function commit(el, animate) {
+    var list = el.__next;
+    el.__next = null;
+    var old = {}, first = {};
+    if (animate) {
+      Array.prototype.forEach.call(el.children, function (c) {
+        if (c.classList.contains("is-leaving")) return;
+        old[c.dataset.id] = c;
+        first[c.dataset.id] = c.getBoundingClientRect();
+      });
+      var nodes = list.map(function (l) { return old[l.id] || build([l]).firstElementChild; });
+      el.replaceChildren.apply(el, nodes);
+      var moved = [], n = 0;
+      nodes.forEach(function (c) {
+        var f = first[c.dataset.id];
+        if (!f) { c.classList.add("is-entering"); c.style.setProperty("--i", n++); return; }
+        var r = c.getBoundingClientRect(), dx = f.left - r.left, dy = f.top - r.top;
+        if (dx || dy) { c.style.translate = dx + "px " + dy + "px"; moved.push(c); }
+      });
+      void el.offsetWidth;
+      moved.forEach(function (c) {
+        c.style.transition = "translate 0.55s cubic-bezier(0.22, 1, 0.36, 1)";
+        c.style.translate = "";
+      });
+      setTimeout(function () {
+        moved.forEach(function (c) { c.style.transition = ""; });
+        nodes.forEach(function (c) { c.classList.remove("is-entering"); c.style.removeProperty("--i"); });
+      }, 900 + n * 45);
+      if (window.HLWishlist) HLWishlist.sync(el);
+      return;
+    }
+    el.innerHTML = list.map(html).join("");
+    if (window.HLWishlist) HLWishlist.sync(el);
+  }
+
   window.HLCard = {
     html: html,
-    /* Render a list into a container in one write, then sync heart state */
+    /* Render a list into a container, then sync heart state */
     mount: function (el, list) {
-      el.innerHTML = list.map(html).join("");
-      if (window.HLWishlist) HLWishlist.sync(el);
+      el.__next = list;
+      if (el.__timer) return; /* a swap is already scheduled: it will use the latest list */
+      var cards = Array.prototype.slice.call(el.children);
+      var animate = !reduce && cards.length && el.offsetParent !== null && cards.every(function (c) { return c.classList.contains("card"); });
+      if (!animate) return commit(el, false);
+      var keep = {};
+      list.forEach(function (l) { keep[l.id] = 1; });
+      var leaving = cards.filter(function (c) { return !keep[c.dataset.id]; });
+      if (!leaving.length) return commit(el, true);
+      leaving.forEach(function (c) { c.classList.add("is-leaving"); });
+      el.__timer = setTimeout(function () { el.__timer = 0; commit(el, true); }, 220);
     }
   };
 })();

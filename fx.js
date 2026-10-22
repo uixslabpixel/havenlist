@@ -28,15 +28,23 @@
     })(t0);
   }
 
-  function scan() {
-    document.querySelectorAll("[data-reveal], [data-clip], [data-count]").forEach(function (el) {
-      if (el.__fx) return; el.__fx = 1;
-      if (el.hasAttribute("data-count") && !reduce) el.textContent = "0" + (el.getAttribute("data-suffix") || "");
-      if (io) io.observe(el); else { el.classList.add("is-in"); if (el.hasAttribute("data-count")) count(el); }
-    });
+  var SEL = "[data-reveal], [data-clip], [data-count]";
+  function watch(el) {
+    if (el.__fx) return; el.__fx = 1;
+    if (el.hasAttribute("data-count") && !reduce) el.textContent = "0" + (el.getAttribute("data-suffix") || "");
+    if (io) io.observe(el); else { el.classList.add("is-in"); if (el.hasAttribute("data-count")) count(el); }
   }
-  scan();
-  if (window.MutationObserver) new MutationObserver(function () { scan(); }).observe(document.body, { childList: true, subtree: true });
+  document.querySelectorAll(SEL).forEach(watch);
+  /* only what was just added needs a look */
+  if (window.MutationObserver) new MutationObserver(function (ms) {
+    ms.forEach(function (m) {
+      m.addedNodes.forEach(function (n) {
+        if (n.nodeType !== 1) return;
+        if (n.matches(SEL)) watch(n);
+        n.querySelectorAll(SEL).forEach(watch);
+      });
+    });
+  }).observe(document.body, { childList: true, subtree: true });
 
   var bar = document.querySelector(".read-progress__bar");
   if (bar) {

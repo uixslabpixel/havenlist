@@ -4,11 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Market insights — Havenlist</title>
-    <link rel="icon" href="data:,">
+    <link rel="expect" href="#vtReady" blocking="render">
+  <link rel="icon" href="data:,">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="design-system.css">
   <style>
+    :root { --nav-bg: var(--paper); } /* the navbar takes the colour of the section under it */
     body { line-height: 1.4; }
 
 
@@ -226,10 +228,13 @@
     .ins-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transform: translate3d(0, 0, 0) scale(1.05); backface-visibility: hidden; will-change: transform; -webkit-user-drag: none; }
     .ins-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; padding: 16px; }
     .ins-copy { flex: 1 1 auto; min-height: 0; display: flex; }
-    .ins-copy-inner { flex: 1 1 auto; display: flex; flex-direction: column; gap: 24px; transition: opacity var(--dur-fast) var(--ease-soft), transform var(--dur) var(--ease-soft); }
-    .ins-copy.is-out .ins-copy-inner { opacity: 0; transform: translateY(16px); transition: none; }
-    .ins-copy.is-in .ins-copy-inner { opacity: 0; transform: translateY(20px); transition: none; }
-    .ins-copy.is-show .ins-copy-inner { opacity: 1; transform: translateY(0); }
+    .ins-copy-inner { flex: 1 1 auto; display: flex; flex-direction: column; gap: 24px; }
+    /* Changing slide: the old text lifts away and fades, the new text rises from below, block by block */
+    .ins-copy-inner > * { transition: opacity 0.5s var(--ease-soft), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+    .ins-copy-inner > :nth-child(2) { transition-delay: 0.1s; }
+    .ins-copy.is-out .ins-copy-inner > * { opacity: 0; transform: translateY(-14px); transition: opacity 0.2s ease, transform 0.22s ease; transition-delay: 0s; }
+    .ins-copy.is-in .ins-copy-inner > * { opacity: 0; transform: translateY(32px); transition: none; }
+    .ins-copy.is-show .ins-copy-inner > * { opacity: 1; transform: none; }
     .ins-slide__text { margin: auto 0; }
 
     .ins-slide__text { display: flex; flex-direction: column; gap: 16px; }
@@ -733,5 +738,6 @@
   <script src="nav-links.js"></script>
   <script src="rise.js"></script>
   <script src="feedback.js" defer></script>
+  <span id="vtReady" hidden></span>
 </body>
 </html>

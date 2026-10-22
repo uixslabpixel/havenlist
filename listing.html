@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Listing — Havenlist</title>
     <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("fx-ready")</script>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/detail/main.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="design-system.css">
-  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
   <style>
     body { line-height: 1.4; }
 
@@ -138,6 +138,7 @@
     }
 
     .gallery__main { height: 500px; }
+    .gallery__main[data-parallax] > img { height: 120%; } /* the picture drifts inside its frame as you scroll (parallax.js) */
 
     .gallery__row {
       display: flex;
@@ -276,7 +277,7 @@
 
     /* The real map (Leaflet + OpenStreetMap data). The canvas is its own stacking
        context so Leaflet's panes never climb over the buttons around it. */
-    .map__canvas {
+    .map .map__canvas {
       position: absolute;
       inset: 0;
       z-index: 0;
@@ -290,18 +291,19 @@
     .map.is-expanded .map__canvas { cursor: grab; }
     .map.is-expanded .map__canvas:active { cursor: grabbing; }
 
-    .map__canvas .leaflet-control-attribution {
+
+    .map__canvas .maplibregl-ctrl-attrib {
       font-size: 11px;
       border-radius: 8px 0 0 0;
       background: rgba(255, 255, 255, 0.85);
     }
 
-    .hl-mk { background: none; border: 0; }
+    .hl-mk { width: 48px; height: 64px; background: none; border: 0; }
     .hl-mk .pin__shape { z-index: 0; }
     .hl-mk .pin__dot { z-index: 1; }
     .hl-mk .pin { position: relative; width: 100%; left: auto; top: auto; cursor: pointer; }
 
-    .leaflet-tooltip.hl-tip {
+    .maplibregl-popup.hl-tip .maplibregl-popup-content {
       padding: 6px 10px;
       border: 0;
       border-radius: var(--radius-sm);
@@ -310,34 +312,10 @@
       letter-spacing: -0.01em;
       color: var(--ink);
     }
-    .leaflet-tooltip.hl-tip::before { display: none; }
+    .maplibregl-popup.hl-tip .maplibregl-popup-tip { display: none; }
     .hl-tip small { display: block; font-weight: 400; color: var(--ink-70); }
 
-    /* Legend key: what each pin colour means (real places, see assets/geo.js) */
     .map__expand, .map__zoom { z-index: 6; }
-
-    .map__legend {
-      position: absolute;
-      left: 16px;
-      top: 16px;
-      z-index: 5;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 12px 14px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
-      font: 400 var(--fs-small)/1.2 var(--font-ui);
-      letter-spacing: -0.01em;
-      color: var(--ink);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s var(--ease);
-    }
-    .map.is-pins .map__legend { opacity: 1; }
-    .map__legend span { display: flex; align-items: center; gap: 8px; }
-    .map .map__legend .pin { position: relative; flex: none; width: 18px; opacity: 1; scale: 1; transition: none; }
 
     .pin {
       position: absolute;
@@ -347,23 +325,6 @@
     }
 
     .pin--main { z-index: 2; }
-
-    /* Legend pins stay hidden until the map is full screen, then pop in one by
-       one (--i = order, set in JS); the main pin is always there. */
-    .pin:not(.pin--main) {
-      opacity: 0;
-      scale: 0.5;
-      transform-origin: 50% 100%;
-      transition: opacity 0.2s var(--ease), scale 0.2s var(--ease);
-    }
-
-    .map.is-pins .pin:not(.pin--main) {
-      opacity: 1;
-      scale: 1;
-      transition:
-        opacity 0.35s var(--ease) calc(var(--i, 0) * 110ms),
-        scale 0.55s var(--ease-morph) calc(var(--i, 0) * 110ms);
-    }
 
     /* Opening the map: every other part of the page dissolves first. The map's
        own ancestors stay untouched (opacity would fade the fixed map with them). */
@@ -477,11 +438,12 @@
 }
     .map__zoom button:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
     .map__zoom svg { width: 12px; }
-    .map .map__legend { display: none !important; }
     /* Controls draw themselves on hover, like the other icon buttons */
     .map__expand path, .map__zoom path, .map__locate path, .map__locate circle { stroke-dasharray: 100; stroke-dashoffset: 0; }
     @media (hover: hover) {
-      .map__expand:hover path, .map__zoom button:not(:disabled):hover path, .map__locate:hover path, .map__locate:hover circle { animation: hl-draw 0.72s cubic-bezier(0.4, 0, 0.2, 1) both; }
+      .map__expand:hover path, .map__zoom button:not(:disabled):hover path, .map__locate:hover path, .map__locate:hover circle { animation: hl-draw 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
+      /* strokes draw one after another */
+      .map__expand:hover path:nth-child(2), .map__zoom button:hover path:nth-child(2), .map__locate:hover path { animation-delay: 0.3s; }
     }
     .map__zoom button + button { border-top: 1px solid var(--ink-07); }
 
@@ -539,6 +501,8 @@
     .spec svg { height: 14px; width: auto; flex: none; }
 
     .agent {
+      color: inherit;
+      text-decoration: none;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -588,7 +552,7 @@
        scrolled through (no fade — it moves in from below its own clip). */
     .sec-tabs {
       position: absolute;
-      left: calc(var(--page-pad) + 132px);
+      left: calc(var(--edge) + 132px);
       top: 50%;
       transform: translateY(-50%);
       display: none;
@@ -666,9 +630,6 @@
     /* Agent bar + inquiry bottom sheet (phones only) */
     .inq-bar, .inq-scrim, .inquiry__close { display: none; }
 
-    /* Pins and legend are visible on the small map too (it opens full screen on tap) */
-    .map:not(.is-expanded) .map__legend { left: 12px; top: 12px; gap: 4px; padding: 8px 10px; font-size: 12px; }
-    .map:not(.is-expanded) .map__legend .pin { width: 14px; }
 
 
     /* Photo lightbox: full-screen, swipe sideways (arrows + keys on desktop) */
@@ -723,9 +684,6 @@
     }
 
     @media (max-width: 760px) {
-      /* Small map: legend runs along the bottom so it doesn't cover the pins */
-      .map:not(.is-expanded) .map__legend { top: auto; bottom: 12px; left: 12px; right: 64px; flex-direction: row; flex-wrap: wrap; gap: 4px 12px; padding: 8px 10px; }
-
       /* Agent bar: follows the page once the gallery is behind you */
       .detail__main { padding-bottom: 0; }
       .similar { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
@@ -825,10 +783,6 @@
 <symbol id="i-plus" viewBox="0 0 13 13"><path d="M6.78125 0.65625V5.46875H11.5938C11.9492 5.46875 12.25 5.76953 12.25 6.125C12.25 6.48047 11.9492 6.78125 11.5938 6.78125H6.78125V11.5938C6.78125 11.9492 6.48047 12.25 6.125 12.25C5.76953 12.25 5.46875 11.9492 5.46875 11.5938V6.78125H0.65625C0.300781 6.78125 0 6.48047 0 6.125C0 5.76953 0.300781 5.46875 0.65625 5.46875H5.46875V0.65625C5.46875 0.300781 5.76953 0 6.125 0C6.48047 0 6.78125 0.300781 6.78125 0.65625Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
 <symbol id="i-minus" viewBox="0 0 13 2"><path d="M0 0.65625C0 0.300781 0.300781 0 0.65625 0H11.5938C11.9492 0 12.25 0.300781 12.25 0.65625C12.25 1.01172 11.9492 1.3125 11.5938 1.3125H0.65625C0.300781 1.3125 0 1.01172 0 0.65625Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
 <symbol id="p-main" viewBox="0 0 15 21"><path d="M0 7.38281C0 3.28125 3.35938 0 7.5 0C11.6406 0 15 3.28125 15 7.38281C15 12.0312 10.3125 17.6172 8.35938 19.7266C7.89062 20.2344 7.10938 20.2344 6.64062 19.7266C4.6875 17.6172 0 12.0312 0 7.38281ZM7.5 10C8.86719 10 10 8.86719 10 7.5C10 6.13281 8.86719 5 7.5 5C6.13281 5 5 6.13281 5 7.5C5 8.86719 6.13281 10 7.5 10Z" fill="#fff"/></symbol>
-<symbol id="p-0" viewBox="0 0 10 10"><path d="M0.9375 0.273438L1.21094 2.92969C1.21094 3.04688 1.30859 3.125 1.42578 3.125C1.52344 3.125 1.62109 3.04688 1.64062 2.92969L1.875 0.292969C1.89453 0.117188 2.03125 0 2.1875 0C2.34375 0 2.48047 0.117188 2.5 0.292969L2.73438 2.92969C2.75391 3.04688 2.85156 3.125 2.94922 3.125C3.06641 3.125 3.16406 3.04688 3.18359 2.92969L3.4375 0.273438C3.45703 0.117188 3.59375 0 3.75 0C3.90625 0 4.04297 0.117188 4.0625 0.273438L4.33594 2.92969C4.35547 3.04688 4.375 3.16406 4.375 3.28125C4.375 4.17969 3.69141 4.92188 2.8125 5V9.375C2.8125 9.72656 2.53906 10 2.1875 10C1.83594 10 1.5625 9.72656 1.5625 9.375V5C0.683594 4.92188 0 4.17969 0 3.28125C0 3.16406 0.0195312 3.04688 0.0390625 2.92969L0.3125 0.273438C0.332031 0.117188 0.46875 0 0.625 0C0.78125 0 0.917969 0.117188 0.9375 0.273438ZM8.4375 0C8.78906 0 9.0625 0.273438 9.0625 0.625V9.375C9.0625 9.72656 8.78906 10 8.4375 10C8.08594 10 7.8125 9.72656 7.8125 9.375V6.875H7.1875C6.50391 6.875 5.9375 6.30859 5.9375 5.625V3.4375C5.9375 0.625 8.125 0 8.4375 0Z" fill="#fff"/></symbol>
-<symbol id="p-1" viewBox="0 0 12 10"><path d="M2.5 1.25C2.5 0.566406 3.06641 0 3.75 0H7.5C8.18359 0 8.75 0.566406 8.75 1.25V2.5H10C10.6836 2.5 11.25 3.06641 11.25 3.75V8.75C11.25 9.43359 10.6836 10 10 10H1.25C0.566406 10 0 9.43359 0 8.75V3.75C0 3.06641 0.566406 2.5 1.25 2.5H2.5V1.25ZM5.3125 6.875C4.96094 6.875 4.6875 7.14844 4.6875 7.5V9.0625H6.5625V7.5C6.5625 7.14844 6.28906 6.875 5.9375 6.875H5.3125ZM2.5 7.1875V6.5625C2.5 6.38672 2.36328 6.25 2.1875 6.25H1.5625C1.38672 6.25 1.25 6.38672 1.25 6.5625V7.1875C1.25 7.36328 1.38672 7.5 1.5625 7.5H2.1875C2.36328 7.5 2.5 7.36328 2.5 7.1875ZM2.1875 5C2.36328 5 2.5 4.86328 2.5 4.6875V4.0625C2.5 3.88672 2.36328 3.75 2.1875 3.75H1.5625C1.38672 3.75 1.25 3.88672 1.25 4.0625V4.6875C1.25 4.86328 1.38672 5 1.5625 5H2.1875ZM10 7.1875V6.5625C10 6.38672 9.86328 6.25 9.6875 6.25H9.0625C8.88672 6.25 8.75 6.38672 8.75 6.5625V7.1875C8.75 7.36328 8.88672 7.5 9.0625 7.5H9.6875C9.86328 7.5 10 7.36328 10 7.1875ZM9.6875 5C9.86328 5 10 4.86328 10 4.6875V4.0625C10 3.88672 9.86328 3.75 9.6875 3.75H9.0625C8.88672 3.75 8.75 3.88672 8.75 4.0625V4.6875C8.75 4.86328 8.88672 5 9.0625 5H9.6875ZM5.15625 2.03125V2.65625H4.53125C4.35547 2.65625 4.21875 2.79297 4.21875 2.96875V3.28125C4.21875 3.45703 4.35547 3.59375 4.53125 3.59375H5.15625V4.21875C5.15625 4.39453 5.29297 4.53125 5.46875 4.53125H5.78125C5.95703 4.53125 6.09375 4.39453 6.09375 4.21875V3.59375H6.71875C6.89453 3.59375 7.03125 3.45703 7.03125 3.28125V2.96875C7.03125 2.79297 6.89453 2.65625 6.71875 2.65625H6.09375V2.03125C6.09375 1.85547 5.95703 1.71875 5.78125 1.71875H5.46875C5.29297 1.71875 5.15625 1.85547 5.15625 2.03125Z" fill="#fff"/></symbol>
-<symbol id="p-2" viewBox="0 0 12 11"><path d="M0.46875 0H1.34766C1.875 0 2.34375 0.371094 2.42188 0.898438L2.44141 0.9375H10.4883C10.8984 0.9375 11.1914 1.28906 11.1133 1.67969L10.5078 4.92188C10.3906 5.50781 9.88281 5.9375 9.27734 5.9375H3.33984L3.45703 6.48438C3.49609 6.71875 3.69141 6.875 3.90625 6.875H8.90625C9.16016 6.875 9.375 7.08984 9.375 7.34375C9.375 7.59766 9.16016 7.8125 8.90625 7.8125H3.90625C3.22266 7.8125 2.65625 7.32422 2.51953 6.66016L1.50391 1.07422C1.50391 0.996094 1.42578 0.9375 1.34766 0.9375H0.46875C0.214844 0.9375 0 0.722656 0 0.46875C0 0.214844 0.214844 0 0.46875 0ZM4.0625 10.3125C3.53516 10.3125 3.125 9.90234 3.125 9.375C3.125 8.84766 3.53516 8.4375 4.0625 8.4375C4.58984 8.4375 5 8.84766 5 9.375C5 9.90234 4.58984 10.3125 4.0625 10.3125ZM8.4375 10.3125C7.91016 10.3125 7.5 9.90234 7.5 9.375C7.5 8.84766 7.91016 8.4375 8.4375 8.4375C8.96484 8.4375 9.375 8.84766 9.375 9.375C9.375 9.90234 8.96484 10.3125 8.4375 10.3125Z" fill="#fff"/></symbol>
-<symbol id="p-3" viewBox="0 0 8 11"><path d="M0 1.875C0 0.839844 0.839844 0 1.875 0H5.625C6.66016 0 7.5 0.839844 7.5 1.875V6.875C7.5 7.65625 7.01172 8.33984 6.34766 8.61328L7.38281 9.86328C7.55859 10.0586 7.53906 10.3516 7.34375 10.5078C7.14844 10.6836 6.83594 10.6641 6.67969 10.4688L5.23438 8.75H2.28516L0.839844 10.4688C0.664062 10.6641 0.371094 10.6836 0.175781 10.5078C-0.0195312 10.3516 -0.0585938 10.0586 0.117188 9.86328L1.17188 8.61328C0.488281 8.33984 0 7.65625 0 6.875V1.875ZM1.25 2.5V4.375C1.25 4.72656 1.52344 5 1.875 5H5.625C5.97656 5 6.25 4.72656 6.25 4.375V2.5C6.25 2.14844 5.97656 1.875 5.625 1.875H1.875C1.52344 1.875 1.25 2.14844 1.25 2.5ZM3.75 7.5C4.10156 7.5 4.375 7.22656 4.375 6.875C4.375 6.52344 4.10156 6.25 3.75 6.25C3.39844 6.25 3.125 6.52344 3.125 6.875C3.125 7.22656 3.39844 7.5 3.75 7.5Z" fill="#fff"/></symbol>
 <symbol id="pin-shape" viewBox="0 0 48.55 64"><path transform="translate(1.24 1.21)" d="M23.947 61.1626L41.4402 35.3615C45.1597 29.8756 46.2351 22.9583 44.408 16.5873C42.7801 10.9111 38.9283 6.06817 33.7433 3.24255C27.079 -0.389227 19.0156 -0.339927 12.3962 3.37306L11.6203 3.8083C6.50239 6.67906 2.76795 11.5031 1.27118 17.1771C-0.325691 23.2305 0.774188 29.6788 4.28745 34.8605L22.1204 61.1626C22.5581 61.8083 23.5093 61.8083 23.947 61.1626Z" fill="#D9D9D9" stroke="#1E1E1E" stroke-opacity="0.1" stroke-width="1.1"/><path transform="translate(1.8 1.77)" d="M12.1113 3.2998C18.5652 -0.320314 26.4272 -0.36906 32.9248 3.17188C37.9788 5.92609 41.7357 10.6489 43.3232 16.1846C45.1058 22.4001 44.0554 29.148 40.4287 34.4971L22.9355 60.2979C22.7167 60.6207 22.2413 60.6207 22.0225 60.2979L4.18945 33.9961C0.76571 28.9463 -0.306195 22.6619 1.25 16.7627C2.70873 11.2334 6.3485 6.53195 11.3359 3.73438L12.1113 3.2998Z" fill="#fff"/></symbol>
 <linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse"><stop stop-color="#1E1E1E" stop-opacity="0.7"/><stop offset="1" stop-color="#1E1E1E"/></linearGradient>
 </defs></svg>
@@ -905,12 +859,12 @@
         <p class="detail__desc" id="detailDesc"></p>
       </div>
 
-      <section class="features" id="secFeatures" aria-label="Features">
+      <section class="features" id="secFeatures" data-reveal aria-label="Features">
         <h2 class="detail__h2">Features</h2>
         <div class="features__card" id="features"></div>
       </section>
 
-      <section class="location" id="secLocation" aria-label="Location">
+      <section class="location" id="secLocation" data-reveal aria-label="Location">
         <div class="location__head">
           <h2 class="detail__h2">Location</h2>
           <p class="detail__addr" id="locationAddr"></p>
@@ -918,16 +872,15 @@
         <div class="map-slot" id="mapSlot">
           <div class="map" id="map" role="button" tabindex="0" aria-label="Open the map" aria-expanded="false">
             <div class="map__canvas" id="mapCanvas" aria-label="Map of the area around the property"></div>
-            <div class="map__legend" id="mapLegend" aria-label="Map legend"></div>
             <button class="map__expand" type="button" id="mapToggle" aria-label="Expand map">
-              <svg class="icon-expand" viewBox="0 0 13 13" aria-hidden="true"><path pathLength="100" d="M7.5 1H12V5.5M12 1L7.8 5.2M5.5 12H1V7.5M1 12L5.2 7.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+              <svg class="icon-expand" viewBox="0 0 13 13" aria-hidden="true"><path pathLength="100" d="M7.8 5.2L12 1L7.5 1L12 1L12 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path pathLength="100" d="M5.2 7.8L1 12L5.5 12L1 12L1 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
               <svg class="icon-collapse" viewBox="0 0 14 14" aria-hidden="true"><path pathLength="100" d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
             </button>
             <button class="map__locate" type="button" id="mapLocate" aria-label="Show my location">
               <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle pathLength="100" cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path pathLength="100" d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             </button>
             <div class="map__zoom" role="group" aria-label="Zoom">
-              <button type="button" id="zoomIn" aria-label="Zoom in"><svg viewBox="0 0 13 13" aria-hidden="true"><path pathLength="100" d="M6.5 1V12M1 6.5H12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
+              <button type="button" id="zoomIn" aria-label="Zoom in"><svg viewBox="0 0 13 13" aria-hidden="true"><path pathLength="100" d="M6.5 1V12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path pathLength="100" d="M1 6.5H12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
               <button type="button" id="zoomOut" aria-label="Zoom out"><svg viewBox="0 0 13 2" aria-hidden="true"><path pathLength="100" d="M1 1H12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
             </div>
           </div>
@@ -944,13 +897,13 @@
           <p class="inquiry__price" id="inqPrice"></p>
           <div class="inquiry__specs" id="inqSpecs"></div>
         </div>
-        <div class="agent">
+        <a class="agent" id="agentLink" href="agents.html">
           <img class="agent__photo" id="agentPhoto" alt="" width="48" height="48" decoding="async">
           <div>
             <p class="agent__name" id="agentName"></p>
             <p class="agent__role" id="agentRole"></p>
           </div>
-        </div>
+        </a>
         <form class="form" id="inquiryForm" novalidate>
           <div class="field">
             <label for="fName">Full name</label>
@@ -1001,7 +954,7 @@
     <button class="lb__nav lb__nav--next" type="button" id="lbNext" aria-label="Next photo"><svg width="16" height="12" viewBox="0 0 17 12" fill="none" aria-hidden="true"><path d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
 
-  <section class="similar" aria-label="Similar properties">
+  <section class="similar" aria-label="Similar properties" data-reveal>
     <h2 class="similar__title">Similar properties</h2>
     <div class="similar__grid" id="similarGrid"></div>
   </section>
@@ -1138,9 +1091,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="assets/listings-store.js"></script>
-  <script src="assets/vendor/leaflet/leaflet.js"></script>
-  <script src="assets/sf-base.js"></script>
-  <script src="assets/poi-data.js"></script>
   <script src="assets/geo.js"></script>
   <script src="listing-card.js"></script>
   <script src="wishlist.js"></script>
@@ -1159,7 +1109,7 @@
           return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
         });
       };
-      var VB = {"i-tree": "0 0 13 16", "i-key": "0 0 14 14", "i-shower": "0 0 14 14", "i-window": "0 0 13 14", "i-car": "0 0 14 13", "i-home": "0 0 13 14", "i-bolt": "0 0 13 15", "i-bed": "0 0 18 14", "i-bath": "0 0 16 16", "i-area": "0 0 18 18", "i-expand": "0 0 13 13", "i-plus": "0 0 13 13", "i-minus": "0 0 13 2", "p-main": "0 0 15 21", "p-0": "0 0 10 10", "p-1": "0 0 12 10", "p-2": "0 0 12 11", "p-3": "0 0 8 11"};
+      var VB = {"i-tree": "0 0 13 16", "i-key": "0 0 14 14", "i-shower": "0 0 14 14", "i-window": "0 0 13 14", "i-car": "0 0 14 13", "i-home": "0 0 13 14", "i-bolt": "0 0 13 15", "i-bed": "0 0 18 14", "i-bath": "0 0 16 16", "i-area": "0 0 18 18", "i-expand": "0 0 13 13", "i-plus": "0 0 13 13", "i-minus": "0 0 13 2", "p-main": "0 0 15 21"};
 
       /* ---------- toast ---------- */
       function toast(message) { HLToast(message); }
@@ -1194,7 +1144,7 @@
 
       var THUMBS = ["gallery-1", "gallery-2", "gallery-3", "gallery-4"];
       $("gallery").innerHTML =
-        '<button class="gallery__main" id="galleryMain" type="button" aria-label="Open photo gallery">' +
+        '<button class="gallery__main" id="galleryMain" type="button" data-parallax aria-label="Open photo gallery">' +
           '<img src="assets/detail/main.webp" alt="Exterior view of ' + esc(item.place) + '" width="896" height="500" decoding="async" fetchpriority="high">' +
         "</button>" +
         '<div class="gallery__row">' +
@@ -1272,6 +1222,7 @@
       $("inqSpecs").innerHTML = spec("i-bed", item.beds + " bed") + spec("i-bath", item.baths + " bath") + spec("i-area", item.sqft + " sqft");
       $("agentPhoto").src = agent.photo;
       $("agentName").textContent = agent.name;
+      $("agentLink").href = "agent.html?id=" + agent.name.toLowerCase().replace(/\s+/g, "-");
       $("agentRole").textContent = agent.role + " (" + agent.years + "+ Years experience)";
       $("inquiryForm").addEventListener("submit", function (e) {
         e.preventDefault();
@@ -1371,88 +1322,62 @@
       HLWishlist.sync();
 
       /* ---------- map ---------- */
-      /* Real map: Leaflet + OpenStreetMap data (CARTO light tiles), places from Overpass */
-      var geo = HLGeo.center(item);
+      /* OpenFreeMap "Bright" style, drawn by MapLibre GL. The library loads when the map nears the screen. */
+      var STYLE_URL = "https://tiles.openfreemap.org/styles/bright";
+      var geo = HLGeo.center(item);            // [lat, lng]
+      var lngLat = [geo[1], geo[0]];
       var canvas = $("mapCanvas");
-      var lmap = L.map(canvas, { center: geo, zoom: 15, minZoom: 12, maxZoom: 18, zoomControl: false });
-      lmap.attributionControl.setPrefix(false);
-      HLGeo.base(lmap, HLGeo.poly(item.place));
-      /* Free tile sources that need no API key, in order (CARTO now serves an "API key required" watermark). If one keeps failing (blocked, offline,
-         rate-limited) the next takes over; with none left the offline SF base
-         map drawn above stays visible. */
-      var TILES = [
-        { url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png", at: "&copy; OpenStreetMap contributors" },
-        { url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", at: "Tiles &copy; Esri" }
-      ];
-      var tileIdx = -1, tileLayer = null, tileErrs = 0, tileOk = 0;
-      function nextTiles() {
-        tileIdx++;
-        if (tileLayer) lmap.removeLayer(tileLayer);
-        if (tileIdx >= TILES.length) {
-          if (window.console) console.warn("[Havenlist map] no tile server reachable — showing the offline map");
-          lmap.attributionControl.addAttribution("Offline map &middot; live tiles unavailable");
-          return;
-        }
-        var src = TILES[tileIdx];
-        tileErrs = 0; tileOk = 0;
-        var layer = tileLayer = L.tileLayer(src.url, { maxZoom: 19, attribution: src.at }).addTo(lmap);
-        layer.on("tileload", function () { if (layer === tileLayer) tileOk++; });
-        layer.on("tileerror", function () {
-          /* late errors from a source we already dropped must not count against the next one */
-          if (layer !== tileLayer) return;
-          if (++tileErrs >= 4 && !tileOk) {
-            if (window.console) console.warn("[Havenlist map] tiles failed from " + src.url + " — trying the next source");
-            nextTiles();
-          }
-        });
+      var lmap = null, mapLoading = false, wantInteractive = false;
+      var HANDLERS = ["dragPan", "scrollZoom", "doubleClickZoom", "touchZoomRotate", "boxZoom", "keyboard"];
+      function setInteractive(on) {
+        wantInteractive = on;
+        if (lmap) HANDLERS.forEach(function (h) { lmap[h][on ? "enable" : "disable"](); });
       }
-      nextTiles();
-      var HANDLERS = ["dragging", "scrollWheelZoom", "doubleClickZoom", "touchZoom", "boxZoom", "keyboard"];
-      function setInteractive(on) { HANDLERS.forEach(function (h) { lmap[h][on ? "enable" : "disable"](); }); }
-      setInteractive(false);
-      var rz = 0;
-      new ResizeObserver(function () {
-        cancelAnimationFrame(rz);
-        rz = requestAnimationFrame(function () { lmap.invalidateSize({ animate: false }); });
-      }).observe(canvas);
+      function frameAll() { if (lmap) lmap.jumpTo({ center: lngLat, zoom: 15 }); }
 
-      function pinIcon(icon, color, main, n) {
-        var html = '<span class="pin' + (main ? " pin--main" : "") + '" style="--i:' + n + '">' +
-          '<svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg>' +
-          '<span class="pin__dot"' + (main ? "" : ' style="background-color:' + color + '"') + ">" +
-            '<svg class="pin__icon" viewBox="' + VB[icon] + '" aria-hidden="true"><use href="#' + icon + '"/></svg>' +
-          "</span></span>";
-        return L.divIcon({ className: "hl-mk", html: html, iconSize: main ? [48, 64] : [30, 40], iconAnchor: main ? [24, 64] : [15, 40] });
-      }
-      var group = L.featureGroup();
-      L.marker(geo, { icon: pinIcon("p-main", "", true, 0), zIndexOffset: 1000, keyboard: false }).addTo(group)
-        .bindTooltip("<strong>" + esc(item.place) + "</strong><small>" + esc(item.addr) + "</small>", { direction: "top", offset: [0, -60], className: "hl-tip" })
-        ;
-      group.addTo(lmap);
-
-      /* Frame the property and the places around it (small map and after closing the full-screen one) */
-      function frameAll() {
-        if (group.getLayers().length > 1) lmap.fitBounds(group.getBounds(), { padding: [48, 48], maxZoom: 16, animate: false });
-        else lmap.setView(geo, 15, { animate: false });
+      function pinHTML() {
+        return '<span class="pin pin--main"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg>' +
+          '<span class="pin__dot"><svg class="pin__icon" viewBox="' + VB["p-main"] + '" aria-hidden="true"><use href="#p-main"/></svg></span></span>';
       }
 
-      HLGeo.pois(geo, item.id, function (places) {
-        var used = {};
-        places.sort(function (a, b) { return a.d - b.d; }).forEach(function (p, n) {
-          var cat = HLGeo.CATS.filter(function (c) { return c.key === p.cat; })[0];
-          used[cat.key] = cat;
-          L.marker([p.lat, p.lng], { icon: pinIcon(cat.icon, cat.color, false, n), keyboard: false })
-            .bindTooltip("<strong>" + esc(p.name) + "</strong><small>" + esc(cat.label) + "</small>", { direction: "top", offset: [0, -36], className: "hl-tip" })
-            .addTo(group);
-        });
-        $("mapLegend").innerHTML = HLGeo.CATS.filter(function (c) { return used[c.key]; })
-          .map(function (c) {
-            return '<span><span class="pin pin--legend"><svg class="pin__shape" viewBox="0 0 48.55 64" aria-hidden="true"><use href="#pin-shape"/></svg>' +
-              '<span class="pin__dot" style="background-color:' + c.color + '"><svg class="pin__icon" viewBox="' + VB[c.icon] + '" aria-hidden="true"><use href="#' + c.icon + '"/></svg></span></span>' + esc(c.label) + "</span>";
-          }).join("");
-        frameAll();
+      function initMap() {
+        lmap = new maplibregl.Map({ container: canvas, style: STYLE_URL, center: lngLat, zoom: 15, minZoom: 12, maxZoom: 18, attributionControl: false });
+        lmap.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
+        setInteractive(wantInteractive);
+        var el = document.createElement("div");
+        el.className = "hl-mk";
+        el.innerHTML = pinHTML();
+        var tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: [0, -60], className: "hl-tip" })
+          .setLngLat(lngLat).setHTML("<strong>" + esc(item.place) + "</strong><small>" + esc(item.addr) + "</small>");
+        el.addEventListener("mouseenter", function () { tip.addTo(lmap); });
+        el.addEventListener("mouseleave", function () { tip.remove(); });
+        new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat(lngLat).addTo(lmap);
         $("map").classList.add("is-pins");
-      });
+        lmap.on("zoomend", syncZoomButtons);
+        syncZoomButtons();
+        var rz = 0;
+        new ResizeObserver(function () {
+          cancelAnimationFrame(rz);
+          rz = requestAnimationFrame(function () { lmap.resize(); });
+        }).observe(canvas);
+      }
+
+      function loadMap() {
+        if (mapLoading) return;
+        mapLoading = true;
+        var css = document.createElement("link");
+        css.rel = "stylesheet";
+        css.href = "assets/vendor/maplibre/maplibre-gl.css";
+        document.head.appendChild(css);
+        var js = document.createElement("script");
+        js.src = "assets/vendor/maplibre/maplibre-gl.js";
+        js.onload = initMap;
+        js.onerror = function () { if (window.console) console.warn("[Havenlist map] MapLibre could not be loaded"); };
+        document.head.appendChild(js);
+      }
+      new IntersectionObserver(function (entries, io) {
+        if (entries[0].isIntersecting) { io.disconnect(); loadMap(); }
+      }, { rootMargin: "600px 0px" }).observe($("mapSlot"));
 
       var map = $("map");
       var slot = $("mapSlot");
@@ -1480,7 +1405,7 @@
       }
 
       /* Open: 1 page content dissolves (navbar goes back to its default),
-                2 the map grows to the full-screen box, 3 legend pins pop in one by one. */
+                2 the map grows to the full-screen box, 3 the map unlocks for dragging and zooming. */
       function openMap() {
         if (mapOpen || mapBusy) return;
         mapBusy = true;
@@ -1505,11 +1430,9 @@
           map.classList.add("is-expanded");
           fullBox();
           mapTimer = setTimeout(function () {
-            lmap.invalidateSize({ animate: false });
+            loadMap();
+            if (lmap) lmap.resize();
             setInteractive(true);
-            /* frame the property and the places around it */
-            if (group.getLayers().length > 1) lmap.fitBounds(group.getBounds(), { padding: [96, 96], maxZoom: 16, animate: true });
-            map.classList.add("is-pins");
             mapBusy = false;
           }, GROW);
         }, DISSOLVE);
@@ -1553,39 +1476,60 @@
       window.addEventListener("resize", function () { if (mapOpen && !mapBusy) fullBox(); });
 
       function syncZoomButtons() {
+        if (!lmap) return;
         $("zoomIn").disabled = lmap.getZoom() >= lmap.getMaxZoom();
         $("zoomOut").disabled = lmap.getZoom() <= lmap.getMinZoom();
       }
-      $("zoomIn").addEventListener("click", function () { lmap.zoomIn(); });
-      $("zoomOut").addEventListener("click", function () { lmap.zoomOut(); });
-      lmap.on("zoomend", syncZoomButtons);
-      syncZoomButtons();
+      $("zoomIn").addEventListener("click", function () { if (lmap) lmap.zoomIn(); });
+      $("zoomOut").addEventListener("click", function () { if (lmap) lmap.zoomOut(); });
 
       /* ---------- "My location": the browser's geolocation, shown with the distance to the property ---------- */
-      var meLayer = null;
+      var meMarker = null;
       function km(a, b) {
         var R = 6371, r = Math.PI / 180, dLat = (b[0] - a[0]) * r, dLng = (b[1] - a[1]) * r;
         var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
         return 2 * R * Math.asin(Math.sqrt(x));
       }
+      /* accuracy circle as a GeoJSON polygon */
+      function circleGeo(c, meters) {
+        var pts = [], dLat = meters / 111320, dLng = meters / (111320 * Math.cos(c[0] * Math.PI / 180));
+        for (var i = 0; i <= 48; i++) { var t = i / 48 * 2 * Math.PI; pts.push([c[1] + dLng * Math.cos(t), c[0] + dLat * Math.sin(t)]); }
+        return { type: "Feature", geometry: { type: "Polygon", coordinates: [pts] } };
+      }
+      function showMe(me, accuracy, d) {
+        if (meMarker) meMarker.remove();
+        var dot = document.createElement("span");
+        dot.className = "hl-me";
+        dot.style.cssText = "display:block;width:16px;height:16px";
+        var tip = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: [0, -10], className: "hl-tip" })
+          .setHTML("<strong>You are here</strong><small>" + (d < 10 ? d.toFixed(1) : Math.round(d)) + " km from this property</small>");
+        dot.addEventListener("mouseenter", function () { tip.setLngLat([me[1], me[0]]).addTo(lmap); });
+        dot.addEventListener("mouseleave", function () { tip.remove(); });
+        meMarker = new maplibregl.Marker({ element: dot }).setLngLat([me[1], me[0]]).addTo(lmap);
+        var data = circleGeo(me, Math.min(accuracy || 50, 500));
+        function draw() {
+          if (lmap.getSource("hl-me-acc")) { lmap.getSource("hl-me-acc").setData(data); return; }
+          lmap.addSource("hl-me-acc", { type: "geojson", data: data });
+          lmap.addLayer({ id: "hl-me-acc", type: "fill", source: "hl-me-acc", paint: { "fill-color": "#1a73e8", "fill-opacity": 0.1 } });
+          lmap.addLayer({ id: "hl-me-acc-line", type: "line", source: "hl-me-acc", paint: { "line-color": "#1a73e8", "line-width": 1 } });
+        }
+        if (lmap.isStyleLoaded()) draw(); else lmap.once("load", draw);
+      }
       $("mapLocate").addEventListener("click", function () {
         var btn = this;
         if (!navigator.geolocation || !window.isSecureContext) { toast("Location needs a secure (https) page and a browser that supports it"); return; }
+        if (!lmap) { loadMap(); toast("The map is still loading — try again in a moment"); return; }
         btn.classList.add("is-busy");
         navigator.geolocation.getCurrentPosition(function (pos) {
           btn.classList.remove("is-busy");
           var me = [pos.coords.latitude, pos.coords.longitude];
           var d = km(me, geo);
-          if (meLayer) lmap.removeLayer(meLayer);
-          meLayer = L.layerGroup([
-            L.circle(me, { radius: Math.min(pos.coords.accuracy || 50, 500), color: "#1a73e8", weight: 1, fillOpacity: 0.1, interactive: false }),
-            L.marker(me, { icon: L.divIcon({ className: "", html: '<span class="hl-me" style="display:block;width:16px;height:16px"></span>', iconSize: [16, 16], iconAnchor: [8, 8] }), keyboard: false })
-              .bindTooltip("<strong>You are here</strong><small>" + (d < 10 ? d.toFixed(1) : Math.round(d)) + " km from this property</small>", { direction: "top", offset: [0, -10], className: "hl-tip" })
-          ]).addTo(lmap);
+          showMe(me, pos.coords.accuracy, d);
           btn.classList.add("is-on");
           if (d > 40) { toast("You're " + Math.round(d).toLocaleString() + " km from this property"); return; }
           if (!mapOpen) openMap();
-          lmap.fitBounds(L.latLngBounds([me, geo]).pad(0.35), { maxZoom: 16, animate: true });
+          var bounds = new maplibregl.LngLatBounds([me[1], me[0]], [me[1], me[0]]).extend(lngLat);
+          lmap.fitBounds(bounds, { padding: 96, maxZoom: 16, animate: true });
         }, function (err) {
           btn.classList.remove("is-busy");
           toast(err && err.code === 1 ? "Location permission was denied" : "Couldn't get your location");
@@ -1669,6 +1613,7 @@
     })();
 
   </script>
+  <script src="fx.js"></script>
   <script src="nav-links.js"></script>
   <script src="rise.js"></script>
   <script src="feedback.js" defer></script>
