@@ -1068,7 +1068,9 @@ html, html body { overflow-x: clip; }
 
 /* Shared element (vt.js): a card's picture grows into the detail page's main picture, and shrinks back into its card */
 ::view-transition-group(hl-hero) { animation-duration: var(--vt-hero-dur); animation-timing-function: var(--vt-hero-ease); overflow: clip; border-radius: var(--radius-lg); }
-::view-transition-old(hl-hero), ::view-transition-new(hl-hero) { width: 100%; height: 100%; object-fit: cover; }
+/* One picture, not two: the destination's picture grows (or shrinks) from the card's box, so nothing dissolves between different images */
+::view-transition-old(hl-hero) { display: none; }
+::view-transition-new(hl-hero) { width: 100%; height: 100%; object-fit: cover; animation: none; mix-blend-mode: normal; }
 @media (hover: none) { ::view-transition-group(hl-hero) { animation-duration: calc(var(--vt-hero-dur) * 0.8); } }
 
 @keyframes hl-wipe-in-up { from { clip-path: inset(100% 0 0 0); transform: translate3d(0, var(--vt-wipe-in-shift), 0); opacity: var(--vt-wipe-in-opacity); } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }

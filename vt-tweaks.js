@@ -91,7 +91,7 @@
     '<div class="vtw__sec">Test</div><p class="vtw__desc">Buka halaman berikutnya atau sebelumnya di urutan menu supaya transisi wipe langsung terlihat. Panel ini tetap terbuka.</p><div class="vtw__btns vtw__tests"></div>' +
     '<div class="vtw__sec">Wipe</div><p class="vtw__desc">Transisi antar halaman biasa (link navbar, menu): halaman baru naik atau turun menutupi halaman lama.</p><div class="vtw__wipe"></div>' +
     '<div class="vtw__sec">Card picture &harr; detail picture</div><p class="vtw__desc">Dari kartu (listing, agent, neighborhood, insight) ke halaman detail: foto kartu membesar jadi foto utama, lalu mengecil lagi saat kembali.</p><div class="vtw__hero"></div>' +
-    '<div class="vtw__sec">Actions</div><p class="vtw__desc">Reset: kembali ke nilai awal. Copy values: salin blok CSS untuk dikirim ke Claude. Hide panel: sembunyikan panel (tombol Tweak muncul lagi).</p><div class="vtw__btns vtw__acts"></div></div>' +
+    '<div class="vtw__sec">Actions</div><p class="vtw__desc">Reset: kembali ke nilai awal. Copy values: salin blok CSS untuk dikirim ke Claude. Hide panel: sembunyikan panel (muncul lagi dengan ?tweak=1).</p><div class="vtw__btns vtw__acts"></div></div>' +
     '<button class="vtw__btn" type="button" aria-expanded="false">Page transition</button>';
   document.body.appendChild(wrap);
   var toggle = wrap.querySelector(".vtw__btn"), OPEN = "hl.tweak.vt.open";
@@ -182,9 +182,8 @@
   var hide = document.createElement("button");
   hide.type = "button"; hide.textContent = "Hide panel";
   hide.addEventListener("click", function () {
-    try { localStorage.removeItem("hl.tweak.vt"); localStorage.removeItem(OPEN); } catch (e) {}
+    try { localStorage.removeItem(OPEN); } catch (e) {}
     wrap.remove(); css.remove();
-    if (window.hlVtLauncher) window.hlVtLauncher();
   });
   acts.appendChild(reset); acts.appendChild(copy); acts.appendChild(hide);
 })();
