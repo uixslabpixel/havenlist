@@ -225,6 +225,11 @@
     /* typography */
     .sg-type { padding: 24px 0 20px; border-bottom: 1px solid var(--ink-10); }
     .sg-type:last-child { border-bottom: 0; padding-bottom: 0; }
+    .sg-type__group { margin: 32px 0 0; padding-bottom: 8px; border-bottom: 1px solid var(--ink-20); font: 500 var(--fs-caption)/1 var(--font-mono, ui-monospace, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-70); }
+    .sg-type__group:first-child { margin-top: 8px; }
+    .sg-type__role { display: flex; align-items: baseline; gap: 10px; margin: 0 0 10px; font: 400 var(--fs-small)/1.3 var(--font-ui); color: var(--ink); }
+    .sg-type__role b { font-weight: 500; }
+    .sg-type__role code { font: 400 var(--fs-caption)/1 var(--font-mono, ui-monospace, monospace); color: var(--ink-40); }
     .sg-type__sample { margin: 0 0 14px; color: var(--ink); overflow-wrap: anywhere; }
     .sg-type__meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 24px; font: 400 var(--fs-small)/1.3 var(--font-ui); color: var(--ink-70); }
     /* colour */
@@ -620,20 +625,23 @@
 
       /* ---------- Typography: every row reads its numbers from the rendered sample ---------- */
       var TYPE = [
-        ["Display", "var(--fs-display)", 500, "var(--font-display)", "var(--tracking-tight)", "1.05", "Find your livings"],
-        ["Section / page title", "var(--fs-section)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Featured listings"],
-        ["Heading", "var(--fs-heading)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Neighborhood guide"],
-        ["Title", "var(--fs-title)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Panel title"],
-        ["Title small", "var(--fs-title-sm)", 500, "var(--font-display)", "var(--tracking-tight)", "1.25", "Pacific Heights"],
-        ["Body", "var(--fs-body)", 400, "var(--font-ui)", "var(--tracking-ui)", "1.4", "Light-filled homes across the Bay Area, curated by local agents."],
-        ["Small", "var(--fs-small)", 400, "var(--font-ui)", "var(--tracking-ui)", "1.4", "2250 Vallejo St, San Francisco"],
-        ["Caption", "var(--fs-caption)", 400, "var(--font-ui)", "0", "1.4", "Updated 2 days ago"],
-        ["Label", "var(--fs-small)", 500, "var(--font-ui)", "0.04em", "1.2", "FEATURED"]
+        ["Heading", "Display", "--fs-display", "var(--fs-display)", 500, "var(--font-display)", "var(--tracking-tight)", "1.05", "Find your livings"],
+        ["Heading", "Section title", "--fs-section", "var(--fs-section)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Featured listings"],
+        ["Heading", "Heading", "--fs-heading", "var(--fs-heading)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Neighborhood guide"],
+        ["Heading", "Title", "--fs-title", "var(--fs-title)", 500, "var(--font-display)", "var(--tracking-tight)", "1.2", "Panel title"],
+        ["Heading", "Title small", "--fs-title-sm", "var(--fs-title-sm)", 500, "var(--font-display)", "var(--tracking-tight)", "1.25", "Pacific Heights"],
+        ["Body", "Body", "--fs-body", "var(--fs-body)", 400, "var(--font-ui)", "var(--tracking-ui)", "1.4", "Light-filled homes across the Bay Area, curated by local agents."],
+        ["Body", "Small", "--fs-small", "var(--fs-small)", 400, "var(--font-ui)", "var(--tracking-ui)", "1.4", "2250 Vallejo St, San Francisco"],
+        ["Body", "Caption", "--fs-caption", "var(--fs-caption)", 400, "var(--font-ui)", "0", "1.4", "Updated 2 days ago"],
+        ["Label", "Label", "--fs-small", "var(--fs-small)", 500, "var(--font-ui)", "0.04em", "1.2", "Featured"]
       ];
       var WEIGHT = { 400: "Regular", 500: "Medium", 600: "Semibold" };
-      var typeEl = $("sgType");
+      var typeEl = $("sgType"), lastGroup = "";
       typeEl.innerHTML = TYPE.map(function (t, i) {
-        return '<div class="sg-type"><p class="sg-type__sample" id="sgT' + i + '" style="font-family:' + t[3] + ";font-size:" + t[1] + ";font-weight:" + t[2] + ";letter-spacing:" + t[4] + ";line-height:" + t[5] + (t[0] === "Label" ? ";text-transform:uppercase" : "") + '">' + t[6] + "</p>" +
+        var head = t[0] !== lastGroup ? '<h3 class="sg-type__group">' + t[0] + "</h3>" : "";
+        lastGroup = t[0];
+        return head + '<div class="sg-type"><p class="sg-type__role"><b>' + t[1] + "</b><code>" + t[2] + "</code></p>" +
+          '<p class="sg-type__sample" id="sgT' + i + '" style="font-family:' + t[5] + ";font-size:" + t[3] + ";font-weight:" + t[4] + ";letter-spacing:" + t[6] + ";line-height:" + t[7] + (t[0] === "Label" ? ";text-transform:uppercase" : "") + '">' + t[8] + "</p>" +
           '<div class="sg-type__meta"><span data-k="name"></span><span data-k="size"></span><span data-k="weight"></span><span data-k="ls"></span></div></div>';
       }).join("");
       function paintType() {
@@ -641,7 +649,7 @@
           var s = getComputedStyle($("sgT" + i)), meta = $("sgT" + i).nextElementSibling;
           var fam = s.fontFamily.split(",")[0].replace(/["']/g, "").trim();
           var px = parseFloat(s.fontSize), ls = s.letterSpacing === "normal" ? 0 : parseFloat(s.letterSpacing) / px * 100;
-          meta.querySelector('[data-k="name"]').textContent = "Name: " + fam;
+          meta.querySelector('[data-k="name"]').textContent = "Font: " + fam;
           meta.querySelector('[data-k="size"]').textContent = "Size: " + Math.round(px * 10) / 10 + "px";
           meta.querySelector('[data-k="weight"]').textContent = "Weight: " + (WEIGHT[s.fontWeight] || s.fontWeight);
           meta.querySelector('[data-k="ls"]').textContent = "Letter spacing: " + Math.round(ls * 10) / 10 + "%";
