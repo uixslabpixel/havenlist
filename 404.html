@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found — Havenlist</title>
+  <meta name="robots" content="noindex">
+  <!-- Served for any missing URL (e.g. /foo/bar), so every relative path below resolves from the site root -->
+  <base href="/">
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="design-system.css">
+  <style>
+    body { line-height: 1.4; }
+
+
+    @media (hover: hover) {
+.icon-btn:hover{
+      border-color: rgba(30, 30, 30, 0.18);
+    }
+}
+
+    /* Share: arrow then tray draw themselves on hover — same line language
+       as the heart */
+
+    /* ========== HL BUTTON (Figma decoration) ========== */
+
+    /* Arrow swap, in step with the label's rise (same duration + easing):
+       the current arrow leaves right, a fresh one slides in from the left */
+
+    .btn-sell.hl-btn--black {
+      height: 40px;
+      padding: 0;
+      background: transparent;
+      border-radius: 80px;
+    }
+
+    .btn-sell.hl-btn--black .hl-btn__inner {
+      padding: 0 16px;
+      font-size: var(--fs-small);
+    }
+
+    /* ========== SHARED ICON BUTTON + ARROW ========== */
+
+
+    /* ========== DETAIL PAGE ========== */
+
+
+    .detail__top {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+
+
+
+
+
+    /* Gallery */
+    .gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .gallery__main,
+    .gallery__thumb {
+      position: relative;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      background: #dddddd;
+      cursor: pointer;
+    }
+
+    .gallery__main { height: 500px; }
+
+
+
+    .gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+
+
+
+
+    /* Features */
+
+
+
+
+    /* Location + map */
+
+
+
+    /* The map is one element: in the page it fills its slot; opening lifts it to
+       a fixed box at the same spot and the box grows to the viewport (below the
+       navbar). container-type lets the artwork keep "cover" sizing at any size. */
+
+
+
+
+
+    .pin {
+      position: absolute;
+      display: block;
+      width: 3.386%;
+      aspect-ratio: 48.55 / 64;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    body.is-map-open { overflow: hidden; }
+
+    /* Sticky inquiry card */
+
+
+
+
+
+
+
+
+
+
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+
+        /* Tabs: each one rises into place beside the logo when its section has been
+       scrolled through (no fade — it moves in from below its own clip). */
+
+
+
+
+
+
+    /* Pill: the inquiry card's essentials, in the navbar. Unfolds from the
+       centre as the primary links rise out of the way (same moves as the
+       search page's filter bar). */
+
+    .nav-links a { transition: transform 0.4s var(--ease-morph) 0.12s; }
+
+    /* Links drop back in one after another as the pill folds away */
+    .nav-links a:nth-child(2) { transition-delay: 0.2s; }
+    .nav-links a:nth-child(3) { transition-delay: 0.28s; }
+
+    @media (min-width: 1280px) {
+
+      /* Closing (default): content lets go first, then the frame folds shut */
+
+      body.is-pill .nav-links {
+        visibility: hidden;
+        pointer-events: none;
+        transition: visibility 0s linear 0.45s;
+      }
+
+      /* Opening: links rise out in a short cascade, the frame unfolds
+         from the centre while they go, then the content settles in */
+      body.is-pill .nav-links a {
+        transform: translateY(-110%);
+        transition: transform 0.4s var(--ease-morph);
+      }
+
+      body.is-pill .nav-links a:nth-child(2) { transition-delay: 0.05s; }
+      body.is-pill .nav-links a:nth-child(3) { transition-delay: 0.1s; }
+
+    }
+
+    /* Similar properties */
+
+
+
+    /* Whole card is the link (the title's anchor stretches over it) */
+
+
+    @media (max-width: 760px) {
+      
+      .nav-links { display: none; }
+      .gallery__main { height: 280px; }
+    }
+
+  </style>
+  <style>
+    /* ---- 404 (Figma "404 Page"): big fading 404, title, line of text, two pill buttons ---- */
+    .nf { min-height: max(520px, calc(100vh - var(--nav-h) - 96px)); padding: calc(var(--nav-h) + 40px) var(--page-pad) 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px; text-align: center; }
+    .nf__code {
+      margin: 0; font: 400 clamp(150px, 29vw, 400px)/0.8 var(--font-display); letter-spacing: -0.02em; color: var(--ink);
+      background: linear-gradient(180deg, var(--ink) 14%, rgba(30, 30, 30, 0) 96%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      user-select: none; padding-bottom: 0.06em;
+    }
+    .nf__copy { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .nf__title { margin: 0; font: 400 clamp(32px, 4.4vw, 48px)/1.2 var(--font-display); letter-spacing: -0.02em; color: var(--ink); }
+    .nf__text { margin: 0; max-width: 640px; font: 400 clamp(16px, 1.5vw, 20px)/1.4 var(--font-ui); letter-spacing: -0.02em; color: var(--ink-70); }
+    .nf__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    .nf__btn { height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 20px; border-radius: 80px; font: 500 var(--fs-body)/1 var(--font-display); letter-spacing: -0.01em; text-decoration: none; white-space: nowrap; }
+    .nf__btn--light { padding: 0 24px; background: var(--white); border: 1px solid var(--ink-07); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07); color: var(--ink); font-family: var(--font-ui); font-weight: 400; transition: background 0.2s var(--ease); }
+    @media (hover: hover) { .nf__btn--light:hover { background: var(--paper); } }
+    @media (max-width: 760px) {
+      .nf { gap: 24px; padding-top: calc(var(--nav-h) + 24px); }
+      .nf__actions { flex-wrap: nowrap; gap: 8px; }
+      .nf__btn--dark.hl-btn { padding: 0; }
+      .nf__btn--dark .hl-btn__inner { padding: 0 16px; }
+      .nf__btn--light { padding: 0 16px; }
+    }
+  </style>
+  <script src="vt.js"></script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-car" viewBox="0 0 14 13"><path d="M3.22656 2.21484L2.51562 4.375H11.4844L10.7734 2.21484C10.582 1.66797 10.0898 1.3125 9.51562 1.3125H4.48438C3.91016 1.3125 3.41797 1.66797 3.22656 2.21484ZM1.09375 4.51172L1.99609 1.80469C2.35156 0.710938 3.36328 0 4.48438 0H9.51562C10.6367 0 11.6484 0.710938 12.0039 1.80469L12.9062 4.51172C13.5625 4.75781 14 5.38672 14 6.125V11.5938C14 11.9492 13.6992 12.25 13.3438 12.25C12.9883 12.25 12.6875 11.9492 12.6875 11.5938V10.5H1.3125V11.5938C1.3125 11.9492 1.01172 12.25 0.65625 12.25C0.300781 12.25 0 11.9492 0 11.5938V6.125C0 5.38672 0.4375 4.75781 1.09375 4.51172ZM1.75 5.6875C1.50391 5.6875 1.3125 5.87891 1.3125 6.125V9.1875H12.6875V6.125C12.6875 5.87891 12.4961 5.6875 12.25 5.6875H1.75ZM3.0625 6.5625C3.55469 6.5625 3.9375 6.94531 3.9375 7.4375C3.9375 7.92969 3.55469 8.3125 3.0625 8.3125C2.57031 8.3125 2.1875 7.92969 2.1875 7.4375C2.1875 6.94531 2.57031 6.5625 3.0625 6.5625ZM10.0625 7.4375C10.0625 6.94531 10.4453 6.5625 10.9375 6.5625C11.4297 6.5625 11.8125 6.94531 11.8125 7.4375C11.8125 7.92969 11.4297 8.3125 10.9375 8.3125C10.4453 8.3125 10.0625 7.92969 10.0625 7.4375Z" fill="#1E1E1E" fill-opacity="0.9"/></symbol>
+<linearGradient id="hlArrowGradient" x1="14.5065" y1="0" x2="6.00647" y2="11.5" gradientUnits="userSpaceOnUse"><stop stop-color="#1E1E1E" stop-opacity="0.7"/><stop offset="1" stop-color="#1E1E1E"/></linearGradient>
+</defs></svg>
+
+  <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="megaMenu">
+    <span class="menu-btn__burger" aria-hidden="true">
+      <span class="menu-btn__line menu-btn__line--top"></span>
+      <span class="menu-btn__line menu-btn__line--bot"></span>
+    </span>
+    <svg class="menu-btn__x" viewBox="0 0 24 24" aria-hidden="true">
+      <!-- Both strokes start at the bottom and draw upward into the X -->
+      <line class="menu-btn__x-line menu-btn__x-line--a" pathLength="100" x1="5" y1="19" x2="19" y2="5"/>
+      <line class="menu-btn__x-line menu-btn__x-line--b" pathLength="100" x1="19" y1="19" x2="5" y2="5"/>
+    </svg>
+  </button>
+
+  <header class="navbar is-solid" id="navbar">
+    <a class="logo" href="index.html">Hvnlst.</a>
+
+    <nav class="nav-links" aria-label="Primary">
+      <a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a>
+      <a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a>
+      <a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a>
+      <a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a>
+    </nav>
+
+    <!-- Takes the middle once the inquiry card has scrolled away -->
+
+    <div class="nav-actions">
+      <button class="icon-btn icon-btn--fav" type="button" id="favBtn" aria-label="Saved homes" aria-pressed="false">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="btn-sell hl-btn hl-btn--black" type="button" id="sellBtn">
+        <span class="hl-btn__inner">Sell with us</span>
+      </button>
+      <span class="menu-btn-spacer" aria-hidden="true"></span>
+    </div>
+  </header>
+
+  <main class="nf">
+    <p class="nf__code" aria-hidden="true">404</p>
+    <div class="nf__copy">
+      <h1 class="nf__title">Page not found</h1>
+      <p class="nf__text">Sorry, the page you're looking for doesn't exist or has been moved.</p>
+    </div>
+    <div class="nf__actions">
+      <a class="nf__btn nf__btn--dark hl-btn hl-btn--black" href="index.html"><span class="hl-btn__inner">Back to home</span></a>
+      <a class="nf__btn nf__btn--light" href="search.html?q="><span class="nf__btn-label">Explore listings</span></a>
+    </div>
+  </main>
+
+
+  <footer class="site-footer">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" loading="lazy" decoding="async">
+
+    <div class="site-footer__cta">
+      <h2>Ready to sell your property?</h2>
+      <p>Get a free market valuation and a tailored selling strategy from our top agents.</p>
+      <div class="site-footer__actions">
+        <button class="site-footer__btn hl-btn hl-btn--white" type="button">
+          <span class="hl-btn__inner">
+            Get started
+            <span class="hl-btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 16 16" fill="none"><path pathLength="100" d="M3 8H13L9 4L13 8L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </span>
+        </button>
+        <button class="site-footer__contact" type="button">Contact us</button>
+      </div>
+    </div>
+
+    <div class="site-footer__panel">
+      <div class="site-footer__row">
+        <div class="site-footer__brand">
+          <div>
+            <a class="logo" href="index.html">Hvnlst.</a>
+            <p class="site-footer__addr">123 Harbor Avenue, Suite 400<br>San Francisco, CA 94111</p>
+          </div>
+          <div class="site-footer__legal">
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of services</a>
+          </div>
+        </div>
+
+        <div class="site-footer__cols">
+          <div class="site-footer__col">
+            <h3>Discover</h3>
+            <a href="search.html?q=">Listings</a>
+            <a href="agents.html">Agents</a>
+            <a href="neighborhoods.html">Neighborhoods</a>
+            <a href="#">About</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Listings Type</h3>
+            <a href="#">Buy</a>
+            <a href="#">Rent</a>
+            <a href="#">Commercial</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Resources</h3>
+            <a href="insights.html">Insights</a>
+            <a href="#">Sell with Us</a>
+          </div>
+          <div class="site-footer__col">
+            <h3>Follow us</h3>
+            <a class="is-link" href="#">Instagram</a>
+            <a class="is-link" href="#">Pinterest</a>
+            <a class="is-link" href="#">Youtube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="site-footer__bottom">
+        <a class="site-footer__email" href="mailto:hello@havenlist.com">
+          hello@havenlist.com
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <span class="site-footer__copy">©2026 Havenlist</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="mega-menu mega-menu--m" id="megaMenu" hidden>
+    <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
+      <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
+      <div class="mega-menu__media">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
+      </div>
+
+      <div class="mega-menu__body">
+        <div class="mega-menu__grid">
+          <div>
+            <p class="mega-menu__group-label">Our pages</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="index.html"><span class="link-rise" data-text="Home">Home</span></a></li>
+              <li><a href="search.html?q="><span class="link-rise" data-text="Listings">Listings</span></a></li>
+              <li><a href="agents.html"><span class="link-rise" data-text="Agents">Agents</span></a></li>
+              <li><a href="neighborhoods.html"><span class="link-rise" data-text="Neighborhoods">Neighborhoods</span></a></li>
+              <li><a href="#about"><span class="link-rise" data-text="About us">About us</span></a></li>
+              <li><a href="insights.html"><span class="link-rise" data-text="Insights">Insights</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Listings Type</p>
+            <ul class="mega-menu__links mega-menu__links--lg">
+              <li><a href="#buy"><span class="link-rise" data-text="Buy">Buy</span></a></li>
+              <li><a href="#rent"><span class="link-rise" data-text="Rent">Rent</span></a></li>
+              <li><a href="#commercial"><span class="link-rise" data-text="Commercial">Commercial</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Follow us</p>
+            <ul class="mega-menu__links mega-menu__links--md mega-menu__links--social">
+              <li><a href="#instagram"><span class="link-rise" data-text="Instagram">Instagram</span></a></li>
+              <li><a href="#youtube"><span class="link-rise" data-text="Youtube">Youtube</span></a></li>
+              <li><a href="#pinterest"><span class="link-rise" data-text="Pinterest">Pinterest</span></a></li>
+            </ul>
+          </div>
+
+          <div>
+            <p class="mega-menu__group-label">Resources</p>
+            <ul class="mega-menu__links mega-menu__links--md">
+              <li><a href="#wishlist"><span class="link-rise" data-text="Wishlist">Wishlist</span></a></li>
+              <li><a href="#sell"><span class="link-rise" data-text="Sell with us">Sell with us</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mega-menu__contact">
+          <p class="mega-menu__group-label">Contact</p>
+          <a href="mailto:hello@havenlist.com"><span class="link-rise" data-text="hello@havenlist.com">hello@havenlist.com</span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12l8-8M7 4h5v5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/listings-store.js"></script>
+  <script src="wishlist.js"></script>
+  <script src="smooth-scroll.js"></script>
+  <script src="circle-menu.js"></script>
+  <script src="toast.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      HLCircleMenu({ toast: function (m) { HLToast(m, 2600); } });
+    })();
+  </script>
+  <script src="nav-links.js"></script>
+  <script src="rise.js"></script>
+  <script src="feedback.js" defer></script>
+</body>
+</html>
