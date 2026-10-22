@@ -4,7 +4,7 @@
      card's picture grows into the detail page's main picture, and on the way back it shrinks into the card
      you came from. Browsers without support just navigate.
    Loaded synchronously in <head>: pagereveal fires before the first paint.
-   The motion numbers are CSS variables (--vt-*); open any page with ?tweak=1 for the panel that tunes them. */
+   The motion numbers are CSS variables (--vt-*); open any page with ?tweak=1 once for the panel that tunes them (it then follows you across pages; ?tweak=0 hides it). */
 (function () {
   "use strict";
   var NAME = "hl-hero", STORE = "hl.vt", BACK = "hl.vt.back", TWEAKS = "havenlist.vtTweaks.v1";
@@ -18,7 +18,14 @@
     var saved = JSON.parse(localStorage.getItem(TWEAKS) || "{}");
     Object.keys(saved).forEach(function (k) { if (/^--vt-[\w-]+$/.test(k)) root.style.setProperty(k, saved[k]); });
   } catch (x) {}
-  if (/[?&]tweak(=1|=true)?(&|$)/.test(location.search)) {
+  /* The "Page transition" panel (vt-tweaks.js) stays on across pages once switched on: ?tweak=1 once, ?tweak=0 to hide it */
+  var PANEL = "hl.tweak.vt", panelOn = false;
+  try {
+    if (/[?&]tweak(=1|=true)?(&|$)/.test(location.search)) localStorage.setItem(PANEL, "1");
+    else if (/[?&]tweak=0(&|$)/.test(location.search)) localStorage.removeItem(PANEL);
+    panelOn = localStorage.getItem(PANEL) === "1";
+  } catch (x) {}
+  if (panelOn) {
     document.addEventListener("DOMContentLoaded", function () {
       var s = document.createElement("script");
       s.src = "vt-tweaks.js";
