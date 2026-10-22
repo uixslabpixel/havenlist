@@ -181,8 +181,10 @@ window.HLFilterUI = function (cfg) {
      The navbar itself stays put on these pages (only the homepage hides it);
      once the in-page form scrolls away, the filters move up into it. */
   const NAV_H = 64;
-  const COMPACT_ON = NAV_H + 16;   // form top crosses this → compact
-  const COMPACT_OFF = NAV_H + 28;  // hysteresis so trackpad jitter can't flicker it
+  /* The navbar filters take over only once the in-page filters are completely gone (their bottom edge is
+     behind the navbar), and give way as soon as those start coming back: the two sets are never on screen together. */
+  const COMPACT_ON = NAV_H - 16;   // form bottom above this → compact
+  const COMPACT_OFF = NAV_H - 8;   // form bottom back below this → in-page filters again (8px band so jitter can't flicker it)
 
   function setCompact(next) {
     if (next === compact) return;
@@ -196,9 +198,9 @@ window.HLFilterUI = function (cfg) {
       setCompact(false);
       return;
     }
-    const top = filterForm.getBoundingClientRect().top;
-    if (!compact && top < COMPACT_ON) setCompact(true);
-    else if (compact && top > COMPACT_OFF) setCompact(false);
+    const bottom = filterForm.getBoundingClientRect().bottom;
+    if (!compact && bottom <= COMPACT_ON) setCompact(true);
+    else if (compact && bottom > COMPACT_OFF) setCompact(false);
   }
 
   let scrollTicking = false;

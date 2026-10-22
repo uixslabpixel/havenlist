@@ -1631,18 +1631,7 @@ body.is-compact .compact-bar > * {
   transform: none;
   transition: opacity 0.35s var(--ease) 0.16s, transform 0.5s var(--ease-morph) 0.16s;
 }
-body.is-compact .compact-bar > *:nth-child(2) {
-  transition-delay: 0.21s;
-}
-body.is-compact .compact-bar > *:nth-child(3) {
-  transition-delay: 0.26s;
-}
-body.is-compact .compact-bar > *:nth-child(4) {
-  transition-delay: 0.31s;
-}
-body.is-compact .compact-bar > *:nth-child(5) {
-  transition-delay: 0.36s;
-}
+/* every filter in the bar comes in at the same moment (no per-item stagger) */
 .compact-selects {
   display: flex;
   align-items: center;

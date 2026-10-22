@@ -720,9 +720,10 @@
     $("sheetReset").addEventListener("click", function () { sheetQ.value = ""; $("insQuery").value = ""; q = ""; pickType(""); setSdd(false); });
     function setCompact(next) { if (next === compact) return; compact = next; body.classList.toggle("is-compact", next); compactBar.setAttribute("aria-hidden", String(!next)); }
     function evalCompact() {
-      var top = $("insForm").getBoundingClientRect().top;
+      var bottom = $("insForm").getBoundingClientRect().bottom;
       if (window.innerWidth <= 1100) { setCompact(false); return; }
-      if (!compact && top < 80) setCompact(true); else if (compact && top > 92) setCompact(false);
+      /* Navbar filters only once the in-page ones are fully behind the navbar (see filter-ui.js) */
+      if (!compact && bottom <= 48) setCompact(true); else if (compact && bottom > 56) setCompact(false);
     }
     var tick = false;
     window.addEventListener("scroll", function () { if (tick) return; tick = true; requestAnimationFrame(function () { tick = false; evalCompact(); }); }, { passive: true });
