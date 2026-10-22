@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Havenlist — Find your livings</title>
+  <meta name="description" content="Havenlist is a boutique real estate agency in the San Francisco Bay Area. Search homes for sale and rent, browse neighborhoods, meet our agents and read market insights.">
     <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preload" href="assets/hero-back.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="preload" href="assets/hero-front.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" as="image" type="image/webp" fetchpriority="high" href="assets/hero-back.webp" imagesrcset="assets/hero-back-640.webp 640w, assets/hero-back-960.webp 960w, assets/hero-back.webp 1566w" imagesizes="100vw">
+  <link rel="preload" as="image" type="image/webp" fetchpriority="high" href="assets/hero-front.webp" imagesrcset="assets/hero-front-640.webp 640w, assets/hero-front-960.webp 960w, assets/hero-front.webp 1566w" imagesizes="100vw">
   <link rel="preload" href="assets/InterDisplay-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/Geist-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="design-system.css">
   <style>
     img { max-width: none; }
@@ -2147,6 +2148,8 @@
         <img
           class="hero-photo hero-photo--back"
           src="assets/hero-back.webp"
+          srcset="assets/hero-back-640.webp 640w, assets/hero-back-960.webp 960w, assets/hero-back.webp 1566w"
+          sizes="100vw"
           alt=""
           width="1566"
           height="1149"
@@ -2157,6 +2160,8 @@
         <img
           class="hero-photo hero-photo--front"
           src="assets/hero-front.webp"
+          srcset="assets/hero-front-640.webp 640w, assets/hero-front-960.webp 960w, assets/hero-front.webp 1566w"
+          sizes="100vw"
           alt=""
           width="1566"
           height="1149"
@@ -2560,7 +2565,7 @@ said about us</h2>
   </div>
 
   <footer class="site-footer">
-    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" loading="lazy" decoding="async">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" srcset="assets/footer-bg-800.webp 800w, assets/footer-bg-1200.webp 1200w, assets/footer-bg.webp 1800w" sizes="100vw" alt="" width="1800" height="830" loading="lazy" decoding="async">
 
     <div class="site-footer__cta">
       <h2>Ready to sell your property?</h2>
@@ -2636,7 +2641,7 @@ said about us</h2>
     <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
       <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
       <div class="mega-menu__media">
-        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" loading="lazy" decoding="async" fetchpriority="low" width="609" height="914">
       </div>
 
       <div class="mega-menu__body">
@@ -3399,10 +3404,7 @@ said about us</h2>
         const statsEl = document.getElementById("featuredStats");
         if (!track || !viewport || !root) return;
 
-        /* Warm only the first visible listing — rest load as cards enter */
-        const warm = new Image();
-        warm.decoding = "async";
-        warm.src = LISTINGS[0].image;
+        /* The first card is created eager (see buildCard); the rest load as cards come near the screen */
 
         let logical = 0;
         let visual = midCopy * N;
@@ -3498,7 +3500,6 @@ said about us</h2>
           const card = document.createElement("article");
           card.className = "featured-card";
           card.dataset.logical = String(logicalIndex);
-          card.setAttribute("role", "group");
           card.setAttribute("aria-label", item.name);
 
           const frame = document.createElement("div");
@@ -3509,11 +3510,13 @@ said about us</h2>
 
           const img = document.createElement("img");
           img.src = item.image;
+          const ss = window.HavenlistStore && HavenlistStore.srcset ? HavenlistStore.srcset(item.image) : null;
+          if (ss) { img.srcset = ss; img.sizes = "(max-width: 760px) 84vw, 720px"; }
           img.alt = item.alt;
           img.draggable = false;
           img.decoding = "async";
-          /* Eager only mid-copy (initially visible band); clones lazy */
-          img.loading = copyIndex === midCopy ? "eager" : "lazy";
+          /* Only the card that starts in the middle is eager; the rest load as they come near the screen */
+          img.loading = copyIndex === midCopy && logicalIndex === 0 ? "eager" : "lazy";
           img.width = 720;
           img.height = 480;
           media.appendChild(img);

@@ -1,6 +1,11 @@
 /* Havenlist agents — shared by agents.html, agent.html and the listing page.
    Placeholder roster: the four portraits come from the design file and are reused. */
 (function () {
+  /* Smaller copies for the card photos (HavenlistStore.srcset, when that script is on the page) */
+  function agentSrcset(src) {
+    var ss = window.HavenlistStore && HavenlistStore.srcset ? HavenlistStore.srcset(src) : null;
+    return ss ? ' srcset="' + ss + '" sizes="(max-width: 760px) 50vw, 25vw"' : "";
+  }
   function a(id, name, role, photo, location, expertise, rating, years, phone, listings, bio) {
     return { id: id, name: name, role: role, photo: typeof photo === "number" ? "assets/agents/agent-" + photo + ".webp" : photo, location: location, expertise: expertise,
       rating: rating, years: years, phone: phone, email: id + "@havenlist.com", listings: listings, bio: bio };
@@ -38,7 +43,7 @@
 
   function cardHTML(g) {
     return '<article class="agent-card">' +
-      '<div class="agent-card__media"><img src="' + esc(g.photo) + '" alt="' + esc(g.name) + '" loading="lazy" width="600" height="480"><span class="agent-card__fade" aria-hidden="true"></span></div>' +
+      '<div class="agent-card__media"><img src="' + esc(g.photo) + '"' + agentSrcset(g.photo) + ' alt="' + esc(g.name) + '" loading="lazy" decoding="async" width="600" height="480"><span class="agent-card__fade" aria-hidden="true"></span></div>' +
       '<div class="agent-card__body">' +
         '<div class="agent-card__top"><div class="agent-card__id">' +
           '<h3 class="agent-card__name"><a class="agent-card__link" href="agent.html?id=' + encodeURIComponent(g.id) + '">' + esc(g.name) + "</a></h3>" +

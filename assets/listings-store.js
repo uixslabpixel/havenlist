@@ -38,8 +38,29 @@
     return clone(DEFAULTS);
   }
 
+  /* srcset for the images that have smaller copies (scripts/make-image-variants.py); null for anything else */
+  function srcset(path) {
+    var m;
+    if ((m = /^assets\/featured-([a-z])\.webp$/.exec(path || ""))) {
+      var b = "assets/featured-" + m[1];
+      return b + "-640.webp 640w, " + b + "-960.webp 960w, " + path + " 1200w";
+    }
+    if ((m = /^assets\/listings\/listing-(\d+)\.webp$/.exec(path || ""))) {
+      return "assets/listings/listing-" + m[1] + "-480.webp 480w, " + path + " 800w";
+    }
+    if ((m = /^assets\/neighborhoods\/hero-pacific-heights\.webp$/.exec(path || ""))) {
+      var h = "assets/neighborhoods/hero-pacific-heights";
+      return h + "-640.webp 640w, " + h + "-960.webp 960w, " + path + " 1600w";
+    }
+    if ((m = /^assets\/agents\/agent-(\d)\.webp$/.exec(path || ""))) {
+      return "assets/agents/agent-" + m[1] + "-320.webp 320w, " + path + " 600w";
+    }
+    return null;
+  }
+
   window.HavenlistStore = {
     KEY: KEY,
+    srcset: srcset,
     defaults: function () { return clone(DEFAULTS); },
     all: all,
     /* Cards for one collection ("search" | "featured"). */
