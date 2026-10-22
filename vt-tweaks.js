@@ -51,7 +51,9 @@
 
   var css = document.createElement("style");
   css.textContent =
-    ".vtw{position:fixed;right:16px;bottom:16px;z-index:400;font:12px/1.3 var(--font-ui);color:var(--ink)}" +
+    ".vtw{position:fixed;right:16px;bottom:16px;z-index:400;font:12px/1.3 var(--font-ui);color:var(--ink);view-transition-name:hl-vtw}" +
+    /* the panel stays put while the page wipes; the old copy waits until the new page's panel is there */
+    "::view-transition-group(hl-vtw){animation:none}::view-transition-old(hl-vtw){animation:none}" +
     ".vtw__btn{display:block;margin-left:auto;height:36px;padding:0 14px;border-radius:36px;background:var(--ink);color:#fff;font-weight:500;font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.18)}" +
     ".vtw__card{position:absolute;right:0;bottom:44px;width:304px;max-height:calc(100vh - 80px);overflow:auto;padding:14px;background:#fff;border:1px solid var(--ink-10);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.16);display:none}" +
     ".vtw.is-open .vtw__card{display:block}" +
@@ -76,11 +78,15 @@
     '<div class="vtw__sec">&nbsp;</div><div class="vtw__btns vtw__acts"></div></div>' +
     '<button class="vtw__btn" type="button" aria-expanded="false">Page transition</button>';
   document.body.appendChild(wrap);
-  var toggle = wrap.querySelector(".vtw__btn");
-  toggle.addEventListener("click", function () {
-    var open = wrap.classList.toggle("is-open");
+  var toggle = wrap.querySelector(".vtw__btn"), OPEN = "hl.tweak.vt.open";
+  /* open or closed, the panel stays as you left it when a test (or any link) loads the next page */
+  function setOpen(open) {
+    wrap.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", String(open));
-  });
+    try { if (open) localStorage.setItem(OPEN, "1"); else localStorage.removeItem(OPEN); } catch (e) {}
+  }
+  toggle.addEventListener("click", function () { setOpen(!wrap.classList.contains("is-open")); });
+  try { if (localStorage.getItem(OPEN) === "1") setOpen(true); } catch (e) {}
 
   var paints = {};
   function row(label) {
@@ -153,7 +159,7 @@
   var hide = document.createElement("button");
   hide.type = "button"; hide.textContent = "Hide panel";
   hide.addEventListener("click", function () {
-    try { localStorage.removeItem("hl.tweak.vt"); } catch (e) {}
+    try { localStorage.removeItem("hl.tweak.vt"); localStorage.removeItem(OPEN); } catch (e) {}
     wrap.remove(); css.remove();
     if (window.hlVtLauncher) window.hlVtLauncher();
   });
