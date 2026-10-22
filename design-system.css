@@ -1019,6 +1019,13 @@ a:hover .tx__c,
 button:hover .tx__c {
   animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
 }
+/* Insight cards are one big link, but the "Read more" label only reacts to the pointer on its own frame */
+a.mi-card:hover .tx__c,
+a.mi-feature:hover .tx__c { animation: none; }
+a.mi-card:hover .mi-card__more:hover .tx__c,
+a.mi-feature:hover .ins-read:hover .tx__c {
+  animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
 }
 @media (prefers-reduced-motion: reduce) { .tx__c { animation: none !important; } }
 
