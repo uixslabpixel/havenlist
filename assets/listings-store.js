@@ -38,7 +38,15 @@
   function all() {
     try {
       var raw = localStorage.getItem(KEY);
-      if (raw) { var a = JSON.parse(raw); if (Array.isArray(a)) return a; }
+      if (raw) {
+        var a = JSON.parse(raw);
+        if (Array.isArray(a)) {
+          /* Defaults shipped after this browser's last CMS save are added; ones it deleted stay deleted */
+          var known = JSON.parse(localStorage.getItem(KEY + ".known") || "null");
+          var have = a.map(function (l) { return l.id; });
+          return a.concat(clone(DEFAULTS).filter(function (d) { return have.indexOf(d.id) === -1 && !(known && known.indexOf(d.id) !== -1); }));
+        }
+      }
     } catch (e) {}
     return clone(DEFAULTS);
   }
@@ -73,7 +81,10 @@
       return all().filter(function (l) { return l.collection === collection; });
     },
     /* Throws if the browser refuses the write (storage quota). */
-    save: function (list) { localStorage.setItem(KEY, JSON.stringify(list)); },
-    reset: function () { try { localStorage.removeItem(KEY); } catch (e) {} },
+    save: function (list) {
+      localStorage.setItem(KEY, JSON.stringify(list));
+      try { localStorage.setItem(KEY + ".known", JSON.stringify(DEFAULTS.map(function (d) { return d.id; }))); } catch (e) {}
+    },
+    reset: function () { try { localStorage.removeItem(KEY); localStorage.removeItem(KEY + ".known"); } catch (e) {} },
   };
 })();

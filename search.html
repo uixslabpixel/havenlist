@@ -417,7 +417,7 @@
           <button class="loc-chip" type="button" data-loc="Nob Hill">Nob Hill</button>
         </div>
         <div class="loc-list" id="locList">
-          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (12)</button>
+          <button class="loc-item is-active" type="button" data-loc="">All neighborhoods (17)</button>
           <button class="loc-item" type="button" data-loc="Pacific Heights">Pacific Heights (1)</button>
           <button class="loc-item" type="button" data-loc="Russian Hill">Russian Hill (1)</button>
           <button class="loc-item" type="button" data-loc="Presidio Heights">Presidio Heights (1)</button>
@@ -430,6 +430,11 @@
           <button class="loc-item" type="button" data-loc="Marina District">Marina District (1)</button>
           <button class="loc-item" type="button" data-loc="Inner Sunset">Inner Sunset (1)</button>
           <button class="loc-item" type="button" data-loc="Bernal Heights">Bernal Heights (1)</button>
+          <button class="loc-item" type="button" data-loc="Potrero Hill">Potrero Hill (1)</button>
+          <button class="loc-item" type="button" data-loc="Lake Street">Lake Street (1)</button>
+          <button class="loc-item" type="button" data-loc="Diamond Heights">Diamond Heights (1)</button>
+          <button class="loc-item" type="button" data-loc="Twin Peaks">Twin Peaks (1)</button>
+          <button class="loc-item" type="button" data-loc="Ocean Beach">Ocean Beach (1)</button>
         </div>
       </div>
     </div>
@@ -720,7 +725,9 @@
   <script src="toast.js"></script>
   <script src="rise-wrap.js"></script>
   <script>
-    const LISTINGS = HavenlistStore.get("search");
+    /* The newest listings (13–17) lead the grid; the rest keep their order */
+    const NEWEST = ["s13", "s14", "s15", "s16", "s17"];
+    const LISTINGS = HavenlistStore.get("search").sort((a, b) => (NEWEST.includes(b.id) ? 1 : 0) - (NEWEST.includes(a.id) ? 1 : 0));
 
     /* Wrap a button/link's text label for the hover rise (see .rise CSS) */
     HLWrapLabels();
