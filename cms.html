@@ -161,8 +161,10 @@
         <div class="f f--2"><label for="fBeds">Kamar tidur</label><input id="fBeds" name="beds" type="number" min="0" max="99" required></div>
         <div class="f f--2"><label for="fBaths">Kamar mandi</label><input id="fBaths" name="baths" type="number" min="0" max="99" required></div>
         <div class="f f--2"><label for="fSqft">Luas (ft²)</label><input id="fSqft" name="sqft" required placeholder="2,400" inputmode="numeric"></div>
-        <div class="f f--3"><label for="fPrice">Harga</label><input id="fPrice" name="price" required placeholder="$1,250,000"></div>
-        <div class="f f--3" id="badgeField"><label for="fBadge">Badge</label><input id="fBadge" name="badge" maxlength="24" placeholder="For sale"></div>
+        <div class="f f--2"><label for="fPrice">Harga</label><input id="fPrice" name="price" required placeholder="$1,250,000"></div>
+        <div class="f f--2" id="badgeField"><label for="fBadge">Badge</label><input id="fBadge" name="badge" maxlength="24" placeholder="For sale"></div>
+        <div class="f f--2"><label for="fType">Tipe</label>
+          <select id="fType" name="type"><option value="Rent">Rent</option><option value="Buy">Buy</option><option value="Commercial">Commercial</option></select></div>
         <div class="f"><label for="fFile">Gambar</label>
           <div class="imgrow"><img id="imgPrev" alt="Pratinjau gambar"><input id="fFile" type="file" accept="image/*"></div>
           <small>Upload otomatis dikecilkan (maks 1200px) dan disimpan di browser. Atau isi path gambar di bawah.</small>
@@ -277,11 +279,11 @@
 
     function openForm(id) {
       editingId = id || null;
-      const l = id ? list.find((x) => x.id === id) : { collection: tab, badge: "", place: "", addr: "", beds: "", baths: "", sqft: "", price: "", image: "", alt: "" };
+      const l = id ? list.find((x) => x.id === id) : { collection: tab, type: "Buy", badge: "", place: "", addr: "", beds: "", baths: "", sqft: "", price: "", image: "", alt: "" };
       $("dlgTitle").textContent = id ? "Edit listing" : "Tambah listing";
       $("fPlace").value = l.place; $("fCollection").value = l.collection; $("fAddr").value = l.addr;
       $("fBeds").value = l.beds; $("fBaths").value = l.baths; $("fSqft").value = l.sqft; $("fPrice").value = l.price;
-      $("fBadge").value = l.badge; $("fImage").value = l.image.startsWith("data:") ? "(gambar upload)" : l.image; $("fAlt").value = l.alt;
+      $("fBadge").value = l.badge; $("fType").value = l.type || "Buy"; $("fImage").value = l.image.startsWith("data:") ? "(gambar upload)" : l.image; $("fAlt").value = l.alt;
       $("fFile").value = ""; pendingImage = l.image.startsWith("data:") ? l.image : null;
       $("imgPrev").src = l.image || ""; $("imgPrev").hidden = !l.image;
       showErr(""); syncBadge();
@@ -330,7 +332,7 @@
       const collection = v("fCollection");
       const rec = {
         id: editingId || "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
-        collection, badge: collection === "search" ? v("fBadge") : "",
+        collection, type: v("fType"), badge: collection === "search" ? v("fBadge") : "",
         place: v("fPlace"), addr: v("fAddr"), beds: Number(v("fBeds")), baths: Number(v("fBaths")),
         sqft: v("fSqft"), price: v("fPrice"), image, alt: v("fAlt") || v("fPlace"),
       };

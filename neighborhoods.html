@@ -834,7 +834,11 @@
       else if (state.sort === "name") list.sort((a, b) => a.name.localeCompare(b.name));
       return list;
     }
-    const PAGE_SIZE = 8; let page = 1, listKey = "";
+    /* Full rows per page: the size follows the grid's columns; a resize keeps the first card shown in view */
+    let page = 1, listKey = "";
+    let PAGE_SIZE = HLPager.fit(document.getElementById("nbGrid"), (n, old) => {
+      page = Math.floor(((page - 1) * old) / n) + 1; PAGE_SIZE = n; render();
+    });
     function render() {
       const list = visible();
       const full = list.map((g) => g.id).join();

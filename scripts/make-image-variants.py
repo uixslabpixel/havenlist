@@ -17,7 +17,7 @@ JOBS = [
     ("assets/sell/how-1.webp", [640]),
     ("assets/about/hero.webp", [640, 1100]),
     ("assets/neighborhoods/hero-pacific-heights.webp", [640, 960]),
-    ("assets/agents/agent-?.webp", [320]),
+    ("assets/agents/agent-*.webp", [320]),
 ]
 
 def done(src, dst):

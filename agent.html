@@ -790,6 +790,7 @@
     function renderListings() {
       const q = state.query.toLowerCase();
       const list = LISTINGS.filter((l) =>
+        (l.type || "Buy") === state.type &&
         (!q || (l.place + " " + l.addr + " " + l.badge).toLowerCase().includes(q)) &&
         (state.beds <= 0 || (state.beds >= 5 ? l.beds >= 5 : l.beds === state.beds)) &&
         (state.baths <= 0 || (state.baths >= 5 ? l.baths >= 5 : l.baths === state.baths)));
@@ -815,6 +816,15 @@
       document.querySelectorAll("#typeList .loc-item").forEach((x) => x.classList.toggle("is-active", x === el));
       closePop();
     }));
+
+    /* Without a ?type, open on the first tab this agent has listings under */
+    if (!new URLSearchParams(location.search).get("type")) {
+      const first = tabs.findIndex((t) => LISTINGS.some((l) => (l.type || "Buy") === t.dataset.type));
+      if (first > 0) {
+        setTab(first);
+        document.querySelectorAll("#typeList .loc-item").forEach((x) => x.classList.toggle("is-active", x.dataset.typ === tabs[first].dataset.type));
+      }
+    }
 
     F.start();
 </script>

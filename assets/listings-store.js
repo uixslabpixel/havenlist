@@ -3,30 +3,31 @@
 (function () {
   var KEY = "havenlist.listings.v1";
   var IMG = "assets/listings/listing-";
-  function s(n, badge, place, addr, beds, baths, sqft, price) {
-    return { id: "s" + n, collection: "search", badge: badge, place: place, addr: addr, beds: beds, baths: baths, sqft: sqft, price: price, image: IMG + n + ".webp", alt: place + " property" };
+  /* type: the Rent / Buy / Commercial tab a listing shows under */
+  function s(n, type, badge, place, addr, beds, baths, sqft, price) {
+    return { id: "s" + n, collection: "search", type: type, badge: badge, place: place, addr: addr, beds: beds, baths: baths, sqft: sqft, price: price, image: IMG + n + ".webp", alt: place + " property" };
   }
   function f(k, place, addr, beds, baths, sqft, price, alt) {
-    return { id: "f" + k, collection: "featured", badge: "", place: place, addr: addr, beds: beds, baths: baths, sqft: sqft, price: price, image: "assets/featured-" + k + ".webp", alt: alt };
+    return { id: "f" + k, collection: "featured", type: "Buy", badge: "", place: place, addr: addr, beds: beds, baths: baths, sqft: sqft, price: price, image: "assets/featured-" + k + ".webp", alt: alt };
   }
   var DEFAULTS = [
-    s(1, "For sale", "Pacific Heights", "2250 Vallejo St, San Francisco", 4, 3, "3,180", "$4,950,000"),
-    s(2, "Open house", "Russian Hill", "1111 Jones St, San Francisco", 3, 2, "1,850", "$2,195,000"),
-    s(3, "New listing", "Presidio Heights", "3712 Sacramento St, San Francisco", 5, 4, "3,420", "$5,750,000"),
-    s(4, "Just listed", "Cole Valley", "1245 Stanyan St, San Francisco", 2, 2, "1,240", "$1,495,000"),
-    s(5, "Price cut", "Noe Valley", "1420 Dolores St, San Francisco", 3, 2, "2,080", "$2,450,000"),
-    s(6, "Featured", "Nob Hill", "1177 California St #806, San Francisco", 2, 2, "1,100", "$1,725,000"),
-    s(7, "Available", "South Beach", "88 Townsend St #311, San Francisco", 2, 2, "1,185", "$1,350,000"),
-    s(8, "Exclusive", "Rincon Hill", "301 Mission St #37E, San Francisco", 2, 2, "1,860", "$2,850,000"),
-    s(9, "Coming soon", "Sea Cliff", "740 El Camino del Mar, San Francisco", 4, 4, "3,560", "$6,250,000"),
-    s(10, "Turnkey", "Marina District", "2140 Beach St, San Francisco", 3, 2, "1,940", "$3,195,000"),
-    s(11, "Updated", "Inner Sunset", "1326 8th Ave, San Francisco", 3, 2, "1,675", "$1,895,000"),
-    s(12, "View home", "Bernal Heights", "86 Anderson St, San Francisco", 3, 2, "1,520", "$1,685,000"),
-    s(13, "New listing", "Potrero Hill", "1832 Carolina St, San Francisco", 4, 3, "3,050", "$3,450,000"),
-    s(14, "Open house", "Lake Street", "415 Lake St, San Francisco", 5, 4, "3,780", "$4,295,000"),
-    s(15, "Just listed", "Diamond Heights", "230 Diamond Heights Blvd, San Francisco", 3, 2, "2,240", "$2,175,000"),
-    s(16, "Exclusive", "Twin Peaks", "75 Palo Alto Ave, San Francisco", 4, 4, "3,320", "$4,780,000"),
-    s(17, "Price cut", "Ocean Beach", "3340 Great Hwy, San Francisco", 3, 3, "2,610", "$3,895,000"),
+    s(1, "Buy", "For sale", "Pacific Heights", "2250 Vallejo St, San Francisco", 4, 3, "3,180", "$4,950,000"),
+    s(2, "Rent", "Open house", "Russian Hill", "1111 Jones St, San Francisco", 3, 2, "1,850", "$7,800/mo"),
+    s(3, "Buy", "New listing", "Presidio Heights", "3712 Sacramento St, San Francisco", 5, 4, "3,420", "$5,750,000"),
+    s(4, "Rent", "For rent", "Cole Valley", "1245 Stanyan St, San Francisco", 2, 2, "1,240", "$5,200/mo"),
+    s(5, "Buy", "Price cut", "Noe Valley", "1420 Dolores St, San Francisco", 3, 2, "2,080", "$2,450,000"),
+    s(6, "Commercial", "Office space", "Nob Hill", "1177 California St #806, San Francisco", 2, 2, "1,100", "$1,725,000"),
+    s(7, "Rent", "Available", "South Beach", "88 Townsend St #311, San Francisco", 2, 2, "1,185", "$5,900/mo"),
+    s(8, "Commercial", "Exclusive", "Rincon Hill", "301 Mission St #37E, San Francisco", 2, 2, "1,860", "$2,850,000"),
+    s(9, "Buy", "Coming soon", "Sea Cliff", "740 El Camino del Mar, San Francisco", 4, 4, "3,560", "$6,250,000"),
+    s(10, "Buy", "Turnkey", "Marina District", "2140 Beach St, San Francisco", 3, 2, "1,940", "$3,195,000"),
+    s(11, "Rent", "Updated", "Inner Sunset", "1326 8th Ave, San Francisco", 3, 2, "1,675", "$6,100/mo"),
+    s(12, "Rent", "View home", "Bernal Heights", "86 Anderson St, San Francisco", 3, 2, "1,520", "$5,600/mo"),
+    s(13, "Rent", "New listing", "Potrero Hill", "1832 Carolina St, San Francisco", 4, 3, "3,050", "$9,400/mo"),
+    s(14, "Commercial", "Retail", "Lake Street", "415 Lake St, San Francisco", 5, 4, "3,780", "$4,295,000"),
+    s(15, "Buy", "Just listed", "Diamond Heights", "230 Diamond Heights Blvd, San Francisco", 3, 2, "2,240", "$2,175,000"),
+    s(16, "Commercial", "Mixed-use", "Twin Peaks", "75 Palo Alto Ave, San Francisco", 4, 4, "3,320", "$4,780,000"),
+    s(17, "Buy", "Price cut", "Ocean Beach", "3340 Great Hwy, San Francisco", 3, 3, "2,610", "$3,895,000"),
     f("a", "Pacific Heights", "2847 Pacific Heights Blvd, San Francisco", 4, 3, "2,400", "$1,250,000", "Modern white residence with lawn and palm trees"),
     f("b", "Marina Vista", "412 Bay Street, San Francisco", 3, 2, "1,850", "$980,000", "Cliffside villa with infinity pool at dusk"),
     f("c", "Noe Valley Loft", "1298 Church Street, San Francisco", 2, 2, "1,420", "$875,000", "Cantilevered glass residence overlooking the ocean"),
@@ -44,6 +45,8 @@
           /* Defaults shipped after this browser's last CMS save are added; ones it deleted stay deleted */
           var known = JSON.parse(localStorage.getItem(KEY + ".known") || "null");
           var have = a.map(function (l) { return l.id; });
+          /* Saves from before listings had a type take the shipped one (or Buy) */
+          a.forEach(function (l) { if (!l.type) { var d = DEFAULTS.filter(function (x) { return x.id === l.id; })[0]; l.type = d ? d.type : "Buy"; } });
           return a.concat(clone(DEFAULTS).filter(function (d) { return have.indexOf(d.id) === -1 && !(known && known.indexOf(d.id) !== -1); }));
         }
       }
@@ -65,7 +68,7 @@
       var h = "assets/neighborhoods/hero-pacific-heights";
       return h + "-640.webp 640w, " + h + "-960.webp 960w, " + path + " 1600w";
     }
-    if ((m = /^assets\/agents\/agent-(\d)\.webp$/.exec(path || ""))) {
+    if ((m = /^assets\/agents\/agent-(\d+)\.webp$/.exec(path || ""))) {
       return "assets/agents/agent-" + m[1] + "-320.webp 320w, " + path + " 600w";
     }
     return null;

@@ -1,6 +1,9 @@
 /* Havenlist pagination — shared by search.html, agents.html and neighborhoods.html.
    HLPager.mount(navEl, { total, pageSize, page, onChange }) draws prev / numbers / next
-   and hides itself when everything fits on one page. */
+   and hides itself when everything fits on one page.
+   HLPager.fit(gridEl, onResize) returns the page size for that grid: its column count × 2 rows
+   (× 4 rows at two columns or fewer), so every page but the last is made of full rows.
+   onResize(newSize, oldSize) runs when a resize changes the column count. */
 window.HLPager = (function () {
   var ARROW = '<span class="ui-arrow" aria-hidden="true"><svg viewBox="0 0 17 12" fill="none"><path pathLength="100" d="M0.75 6H15.1L10.1 0.9L15.1 6L10.1 11.1"/></svg></span>';
 
@@ -37,5 +40,17 @@ window.HLPager = (function () {
     if (hadFocus) { var now = nav.querySelector('[aria-current="page"]'); if (now) now.focus({ preventScroll: true }); }
     return cur;
   }
-  return { mount: mount };
+  function fit(grid, onResize) {
+    function size() {
+      var cols = getComputedStyle(grid).gridTemplateColumns.split(" ").filter(Boolean).length || 1;
+      return cols * (cols <= 2 ? 4 : 2);
+    }
+    var cur = size();
+    window.addEventListener("resize", function () {
+      var n = size();
+      if (n !== cur) { var old = cur; cur = n; onResize(n, old); }
+    });
+    return cur;
+  }
+  return { mount: mount, fit: fit };
 })();

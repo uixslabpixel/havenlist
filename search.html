@@ -733,7 +733,10 @@
     HLWrapLabels();
 
     /* ----- Search + filters + pagination ----- */
-    const PAGE_SIZE = 8;
+    /* Full rows per page: the size follows the grid's columns; a resize keeps the first card shown in view */
+    let PAGE_SIZE = HLPager.fit(document.getElementById("listingsGrid"), (n, old) => {
+      state.page = Math.floor(((state.page - 1) * old) / n) + 1; PAGE_SIZE = n; renderListings();
+    });
     const norm = (v) => String(v ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const digits = (v) => Number(String(v ?? "").replace(/[^0-9]/g, "")) || 0;
     const HAYSTACK = new Map(LISTINGS.map((l) => [l.id, norm([l.place, l.addr, l.badge, l.price, l.beds + " bed bedroom", l.baths + " bath bathroom", l.sqft + " sqft"].join(" "))]));
@@ -751,6 +754,7 @@
       if (!tokens.every((tk) => hay.includes(tk))) return false;
       const price = digits(l.price);
       if (price < state.priceMin || (state.priceMax < PRICE_MAX && price > state.priceMax)) return false;
+      if ((l.type || "Buy") !== state.type) return false;
       if (state.featured && !/^(featured|exclusive)$/i.test(l.badge || "")) return false;
       if (state.location && !norm(l.place + " " + l.addr).includes(norm(state.location))) return false;
       if (state.beds > 0 && (state.beds >= 5 ? l.beds < 5 : l.beds !== state.beds)) return false;
@@ -760,7 +764,7 @@
 
     function renderListings() {
       const list = LISTINGS.filter(matchesFilters);
-      const key = [state.query, state.priceMin, state.priceMax, state.location, state.beds, state.baths, state.featured].join("|");
+      const key = [state.type, state.query, state.priceMin, state.priceMax, state.location, state.beds, state.baths, state.featured].join("|");
       if (key !== filterKey) { filterKey = key; state.page = 1; }
       const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
       state.page = Math.min(state.page, pages);

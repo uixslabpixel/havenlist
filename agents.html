@@ -281,6 +281,8 @@
           <button class="loc-item" type="button" data-loc="Sea Cliff">Sea Cliff</button>
           <button class="loc-item" type="button" data-loc="Inner Sunset">Inner Sunset</button>
           <button class="loc-item" type="button" data-loc="Nob Hill">Nob Hill</button>
+          <button class="loc-item" type="button" data-loc="Mission District">Mission District</button>
+          <button class="loc-item" type="button" data-loc="Twin Peaks">Twin Peaks</button>
         </div>
       </div>
     </div>
@@ -302,6 +304,7 @@
           <button class="loc-item" type="button" data-exp="First-time buyers">First-time buyers</button>
           <button class="loc-item" type="button" data-exp="Rentals">Rentals</button>
           <button class="loc-item" type="button" data-exp="Estates">Estates</button>
+          <button class="loc-item" type="button" data-exp="Commercial">Commercial</button>
         </div>
       </div>
     </div>
@@ -550,7 +553,11 @@
       else list.sort((a, b) => b.rating - a.rating);
       return list;
     }
-    const PAGE_SIZE = 8; let page = 1, listKey = "";
+    /* Full rows per page: the size follows the grid's columns; a resize keeps the first card shown in view */
+    let page = 1, listKey = "";
+    let PAGE_SIZE = HLPager.fit(document.getElementById("agentsGrid"), (n, old) => {
+      page = Math.floor(((page - 1) * old) / n) + 1; PAGE_SIZE = n; render();
+    });
     function render() {
       const list = visible();
       const full = list.map((g) => g.id).join();
