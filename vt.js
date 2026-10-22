@@ -25,13 +25,31 @@
     else if (/[?&]tweak=0(&|$)/.test(location.search)) localStorage.removeItem(PANEL);
     panelOn = localStorage.getItem(PANEL) === "1";
   } catch (x) {}
-  if (panelOn) {
-    document.addEventListener("DOMContentLoaded", function () {
-      var s = document.createElement("script");
-      s.src = "vt-tweaks.js";
-      document.body.appendChild(s);
-    });
+  function loadPanel(openIt) {
+    var s = document.createElement("script");
+    s.src = "vt-tweaks.js";
+    if (openIt) s.onload = function () { var b = document.querySelector(".vtw__btn"); if (b) b.click(); };
+    document.body.appendChild(s);
   }
+  /* A small "Tweak" button on every page brings the panel up (and the panel's Hide button puts it away again) */
+  function launcher() {
+    if (document.getElementById("vtLauncher")) return;
+    var st = document.getElementById("vtLauncherCss");
+    if (!st) {
+      st = document.createElement("style"); st.id = "vtLauncherCss";
+      st.textContent = "#vtLauncher{position:fixed;right:16px;bottom:16px;z-index:399;height:32px;padding:0 12px;border:1px solid rgba(30,30,30,.1);border-radius:32px;background:#fff;color:#1e1e1e;font:500 12px/1 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.1);cursor:pointer}@media(max-width:760px){#vtLauncher{bottom:64px}}";
+      document.head.appendChild(st);
+    }
+    var b = document.createElement("button");
+    b.id = "vtLauncher"; b.type = "button"; b.textContent = "Tweak"; b.setAttribute("aria-label", "Show the page transition panel");
+    b.addEventListener("click", function () {
+      try { localStorage.setItem(PANEL, "1"); } catch (x) {}
+      b.remove(); loadPanel(true);
+    });
+    document.body.appendChild(b);
+  }
+  window.hlVtLauncher = launcher;
+  document.addEventListener("DOMContentLoaded", function () { if (panelOn) loadPanel(false); else launcher(); });
 
   function kindOf(path) {
     var m = /^\/(listing|agent|neighborhood|insight)(?:\.html)?\/?$/.exec(path);

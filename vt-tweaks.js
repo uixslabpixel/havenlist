@@ -150,5 +150,12 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { window.prompt("Copy:", text); });
     else window.prompt("Copy:", text);
   });
-  acts.appendChild(reset); acts.appendChild(copy);
+  var hide = document.createElement("button");
+  hide.type = "button"; hide.textContent = "Hide panel";
+  hide.addEventListener("click", function () {
+    try { localStorage.removeItem("hl.tweak.vt"); } catch (e) {}
+    wrap.remove(); css.remove();
+    if (window.hlVtLauncher) window.hlVtLauncher();
+  });
+  acts.appendChild(reset); acts.appendChild(copy); acts.appendChild(hide);
 })();
