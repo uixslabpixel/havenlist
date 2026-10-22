@@ -9,16 +9,16 @@
   var F = "assets/featured-";
   var POLY = {"pacific-heights": ["Pacific Heights"], "noe-valley": ["Noe Valley"], "marina-district": ["Marina"], "sausalito": [], "russian-hill": ["Russian Hill"], "presidio-heights": ["Presidio Heights"], "cole-valley": ["Haight Ashbury"], "nob-hill": ["Nob Hill"], "south-beach": ["South of Market"], "sea-cliff": ["Seacliff"], "inner-sunset": ["Inner Sunset"], "bernal-heights": ["Bernal Heights"]};
   var LIST = [
-    n("pacific-heights", "Pacific Heights", "Northern SF", 2.1, 32, NB + "n-pacific-heights.webp", NB + "hero-pacific-heights.webp", [37.7925, -122.4372], 24, 94, 82, ["s1", "s15", "fa"],
+    n("pacific-heights", "Pacific Heights", "Northern SF", 2.1, 32, NB + "n-pacific-heights.webp", NB + "hero-pacific-heights.webp", [37.7925, -122.4372], 24, 94, 82, ["s1", "fa"],
       "Grand Victorians and Edwardians along Broadway and Pacific Avenue, with sweeping views of the Bay and the Golden Gate. Quiet, leafy and walkable, it is one of the city's most established addresses.",
       ["Alta Plaza and Lafayette parks", "Fillmore Street shops and cafés", "Views across the Bay to Marin", "Top-rated private and public schools"]),
-    n("noe-valley", "Noe Valley", "Central SF", 1.6, 18, NB + "n-noe-valley.webp", F + "c.webp", [37.7502, -122.4337], 21, 90, 74, ["s5", "s14", "fc"],
+    n("noe-valley", "Noe Valley", "Central SF", 1.6, 18, NB + "n-noe-valley.webp", F + "c.webp", [37.7502, -122.4337], 21, 90, 74, ["s5", "fc"],
       "A sunny, family-friendly village on 24th Street, known for its strollers, bakeries and independent shops. Streets are calm and the J Church line is a short ride to downtown.",
       ["24th Street dining and shopping", "Noe Valley Farmers Market", "Sunniest weather in the city", "Playgrounds and Billy Goat Hill"]),
     n("marina-district", "Marina District", "Waterfront", 1.4, 14, NB + "n-marina-district.webp", F + "b.webp", [37.8021, -122.4368], 27, 92, 70, ["s10", "fb"],
       "Pastel Mediterranean-style homes a block from the water, with Crissy Field, the Palace of Fine Arts and the Presidio at the door. Chestnut and Union streets keep it lively.",
       ["Crissy Field and the Presidio", "Waterfront running and cycling paths", "Chestnut Street restaurants", "Easy ferry and bus access"]),
-    n("sausalito", "Sausalito", "Marin County", 1.8, 10, NB + "n-sausalito.webp", F + "d.webp", [37.8591, -122.4853], 38, 78, 48, ["s16"],
+    n("sausalito", "Sausalito", "Marin County", 1.8, 10, NB + "n-sausalito.webp", F + "d.webp", [37.8591, -122.4853], 38, 78, 48, [],
       "A waterfront village across the Golden Gate Bridge, with houseboats, galleries and a ferry that reaches San Francisco in about 30 minutes. Hillside homes look back at the skyline.",
       ["Ferry to San Francisco", "Bridgeway galleries and restaurants", "Houseboat community", "Trails into the Marin Headlands"]),
     n("russian-hill", "Russian Hill", "Northern SF", 2.2, 21, LST + "2.webp", F + "d.webp", [37.8011, -122.4194], 26, 96, 84, ["s2", "fd"],
@@ -33,7 +33,7 @@
     n("south-beach", "South Beach", "Waterfront", 1.3, 15, LST + "7.webp", F + "b.webp", [37.7810, -122.3893], 33, 93, 88, ["s7", "s8"],
       "Modern condos along the Embarcadero beside Oracle Park, with bayside walks, the ferry and Caltrain close by.",
       ["Oracle Park", "Embarcadero waterfront", "Caltrain at 4th & King", "New-build condos with amenities"]),
-    n("sea-cliff", "Sea Cliff", "Western SF", 5.2, 6, LST + "9.webp", F + "d.webp", [37.7871, -122.4929], 45, 70, 52, ["s9", "s13"],
+    n("sea-cliff", "Sea Cliff", "Western SF", 5.2, 6, LST + "9.webp", F + "d.webp", [37.7871, -122.4929], 45, 70, 52, ["s9"],
       "Elegant coastal estates facing the Golden Gate, with direct access to China Beach and the Lands End trails.",
       ["China Beach", "Lands End trails", "Golden Gate views", "Private, quiet enclave"]),
     n("inner-sunset", "Inner Sunset", "Western SF", 1.9, 13, LST + "11.webp", F + "c.webp", [37.7632, -122.4668], 28, 89, 76, ["s11"],
@@ -42,7 +42,7 @@
     n("bernal-heights", "Bernal Heights", "Central SF", 1.7, 16, LST + "12.webp", F + "e.webp", [37.7388, -122.4151], 25, 85, 66, ["s12"],
       "A hilltop community with a village feel, Cortland Avenue's shops and the open slope of Bernal Hill for sunsets and dog walks.",
       ["Bernal Hill park", "Cortland Avenue shops", "Community gardens", "Sunny microclimate"]),
-    n("san-antonio", "San Antonio", "Texas", 1.2, 21, "assets/neighborhood-san-antonio.webp", F + "a.webp", [29.4241, -98.4936], 41, 62, 30, ["s17"],
+    n("san-antonio", "San Antonio", "Texas", 1.2, 21, "assets/neighborhood-san-antonio.webp", F + "a.webp", [29.4241, -98.4936], 41, 62, 30, [],
       "A warm, historic Texas city of river walks, old missions and neighborhoods with generous lots, with homes that cost far less than the coast.",
       ["The River Walk and the Alamo", "Five UNESCO-listed missions", "Quiet suburbs with large lots", "Lower cost of living"])
   ];

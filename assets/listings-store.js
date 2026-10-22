@@ -22,11 +22,11 @@
     s(10, "Turnkey", "Marina District", "2140 Beach St, San Francisco", 3, 2, "1,940", "$3,195,000"),
     s(11, "Updated", "Inner Sunset", "1326 8th Ave, San Francisco", 3, 2, "1,675", "$1,895,000"),
     s(12, "View home", "Bernal Heights", "86 Anderson St, San Francisco", 3, 2, "1,520", "$1,685,000"),
-    s(13, "New listing", "Sea Cliff", "780 Sea Cliff Ave, San Francisco", 3, 3, "2,640", "$5,480,000"),
-    s(14, "Open house", "Noe Valley", "440 Diamond St, San Francisco", 3, 3, "2,210", "$2,890,000"),
-    s(15, "Exclusive", "Pacific Heights", "2675 Broadway, San Francisco", 4, 4, "3,350", "$6,950,000"),
-    s(16, "View home", "Sausalito", "118 Spencer Ave, Sausalito, CA", 4, 3, "2,980", "$3,750,000"),
-    s(17, "Price cut", "San Antonio", "2314 Oak Hill Rd, San Antonio, TX", 4, 3, "3,050", "$1,195,000"),
+    s(13, "New listing", "Potrero Hill", "1832 Carolina St, San Francisco", 4, 3, "3,050", "$3,450,000"),
+    s(14, "Open house", "Lake Street", "415 Lake St, San Francisco", 5, 4, "3,780", "$4,295,000"),
+    s(15, "Just listed", "Diamond Heights", "230 Diamond Heights Blvd, San Francisco", 3, 2, "2,240", "$2,175,000"),
+    s(16, "Exclusive", "Twin Peaks", "75 Palo Alto Ave, San Francisco", 4, 4, "3,320", "$4,780,000"),
+    s(17, "Price cut", "Ocean Beach", "3340 Great Hwy, San Francisco", 3, 3, "2,610", "$3,895,000"),
     f("a", "Pacific Heights", "2847 Pacific Heights Blvd, San Francisco", 4, 3, "2,400", "$1,250,000", "Modern white residence with lawn and palm trees"),
     f("b", "Marina Vista", "412 Bay Street, San Francisco", 3, 2, "1,850", "$980,000", "Cliffside villa with infinity pool at dusk"),
     f("c", "Noe Valley Loft", "1298 Church Street, San Francisco", 2, 2, "1,420", "$875,000", "Cantilevered glass residence overlooking the ocean"),
@@ -43,8 +43,29 @@
     return clone(DEFAULTS);
   }
 
+  /* srcset for the images that have smaller copies (scripts/make-image-variants.py); null for anything else */
+  function srcset(path) {
+    var m;
+    if ((m = /^assets\/featured-([a-z])\.webp$/.exec(path || ""))) {
+      var b = "assets/featured-" + m[1];
+      return b + "-640.webp 640w, " + b + "-960.webp 960w, " + path + " 1200w";
+    }
+    if ((m = /^assets\/listings\/listing-(\d+)\.webp$/.exec(path || ""))) {
+      return "assets/listings/listing-" + m[1] + "-480.webp 480w, " + path + " 800w";
+    }
+    if ((m = /^assets\/neighborhoods\/hero-pacific-heights\.webp$/.exec(path || ""))) {
+      var h = "assets/neighborhoods/hero-pacific-heights";
+      return h + "-640.webp 640w, " + h + "-960.webp 960w, " + path + " 1600w";
+    }
+    if ((m = /^assets\/agents\/agent-(\d)\.webp$/.exec(path || ""))) {
+      return "assets/agents/agent-" + m[1] + "-320.webp 320w, " + path + " 600w";
+    }
+    return null;
+  }
+
   window.HavenlistStore = {
     KEY: KEY,
+    srcset: srcset,
     defaults: function () { return clone(DEFAULTS); },
     all: all,
     /* Cards for one collection ("search" | "featured"). */

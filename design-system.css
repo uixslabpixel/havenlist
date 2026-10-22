@@ -38,6 +38,7 @@
   --font-ui: "Geist", system-ui, sans-serif;
   --fs-caption: 12px;
   --fs-small: 14px;          /* labels, meta, nav links, chips */
+  --fs-body-lg: 18px;        /* lead / large body */
   --fs-body: 16px;           /* body, buttons, fields */
   --fs-title-sm: 20px;       /* card titles */
   --fs-title: 24px;          /* panel titles, logo */
@@ -102,19 +103,19 @@
   --pop-r-to: 20px;
   --pop-gap: 10px;
   --pop-shadow: 0.12;
-  /* Page transitions (tuned from the ?tweak=1 panel, see vt-tweaks.js) */
-  --vt-wipe-dur: 0.85s;
-  --vt-wipe-ease: cubic-bezier(0.65, 0, 0.2, 1);
-  --vt-wipe-in-shift: 7vh;
-  --vt-wipe-away-shift: 9vh;
+  /* Page transitions (final values, tuned with the dev panel) */
+  --vt-wipe-dur: 1000ms;
+  --vt-wipe-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --vt-wipe-in-shift: 10vh;
+  --vt-wipe-away-shift: 10vh;
   --vt-wipe-dim: 0.9;
-  --vt-wipe-in-opacity: 0.4;
-  --vt-wipe-away-opacity: 0.5;
-  --vt-hero-dur: 0.8s;
-  --vt-hero-ease: cubic-bezier(0.5, 0, 0.1, 1);
-  --vt-fade-out: 0.3s;
-  --vt-fade-in: 0.6s;
-  --vt-fade-delay: 0.12s;
+  --vt-wipe-in-opacity: 1;
+  --vt-wipe-away-opacity: 1;
+  --vt-hero-dur: 1000ms;
+  --vt-hero-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --vt-fade-out: 400ms;
+  --vt-fade-in: 800ms;
+  --vt-fade-delay: 300ms;
   /* Button hover wash (see the hover block below) */
   --hover-veil: rgba(30, 30, 30, 0.01);
   --hover-dur: 0.6s;
@@ -142,8 +143,8 @@
 /* ==================== 2. FONTS ==================== */
 @font-face { font-family: "Inter Display"; src: url("assets/InterDisplay-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
 @font-face { font-family: "Inter Display"; src: url("assets/InterDisplay-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: "Geist"; src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: "Geist"; src: url("https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/Geist-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("assets/Geist-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Geist"; src: url("assets/Geist-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
 
 /* ==================== 3. BASE ==================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1019,6 +1020,13 @@ a:hover .tx__c,
 button:hover .tx__c {
   animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
 }
+/* Insight cards are one big link, but the "Read more" label only reacts to the pointer on its own frame */
+a.mi-card:hover .tx__c,
+a.mi-feature:hover .tx__c { animation: none; }
+a.mi-card:hover .mi-card__more:hover .tx__c,
+a.mi-feature:hover .ins-read:hover .tx__c {
+  animation: txIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
 }
 @media (prefers-reduced-motion: reduce) { .tx__c { animation: none !important; } }
 
@@ -1061,7 +1069,9 @@ html, html body { overflow-x: clip; }
 
 /* Shared element (vt.js): a card's picture grows into the detail page's main picture, and shrinks back into its card */
 ::view-transition-group(hl-hero) { animation-duration: var(--vt-hero-dur); animation-timing-function: var(--vt-hero-ease); overflow: clip; border-radius: var(--radius-lg); }
-::view-transition-old(hl-hero), ::view-transition-new(hl-hero) { width: 100%; height: 100%; object-fit: cover; }
+/* One picture, not two: the destination's picture grows (or shrinks) from the card's box, so nothing dissolves between different images */
+::view-transition-old(hl-hero) { display: none; }
+::view-transition-new(hl-hero) { width: 100%; height: 100%; object-fit: cover; animation: none; mix-blend-mode: normal; }
 @media (hover: none) { ::view-transition-group(hl-hero) { animation-duration: calc(var(--vt-hero-dur) * 0.8); } }
 
 @keyframes hl-wipe-in-up { from { clip-path: inset(100% 0 0 0); transform: translate3d(0, var(--vt-wipe-in-shift), 0); opacity: var(--vt-wipe-in-opacity); } to { clip-path: inset(0 0 0 0); transform: none; opacity: 1; } }
@@ -1624,18 +1634,7 @@ body.is-compact .compact-bar > * {
   transform: none;
   transition: opacity 0.35s var(--ease) 0.16s, transform 0.5s var(--ease-morph) 0.16s;
 }
-body.is-compact .compact-bar > *:nth-child(2) {
-  transition-delay: 0.21s;
-}
-body.is-compact .compact-bar > *:nth-child(3) {
-  transition-delay: 0.26s;
-}
-body.is-compact .compact-bar > *:nth-child(4) {
-  transition-delay: 0.31s;
-}
-body.is-compact .compact-bar > *:nth-child(5) {
-  transition-delay: 0.36s;
-}
+/* every filter in the bar comes in at the same moment (no per-item stagger) */
 .compact-selects {
   display: flex;
   align-items: center;
@@ -2932,3 +2931,23 @@ body.is-menu-open {
 @media (min-width: 2560px) {
   html :is(.listings__grid, .similar__grid, .wl__grid, .nbs__grid, .ins-grid, .agents__grid) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
+
+/* ----- Type scale (.t-*): opt-in classes, mapped to the sizes the site already uses.
+   Headings = Inter Display, everything else = Geist. Use on any element, e.g. <h2 class="t-h2">. ----- */
+.t-h1, .t-h2, .t-h3, .t-h4, .t-h5, .t-h6 { font-family: var(--font-display); font-weight: 500; letter-spacing: var(--tracking-tight); color: var(--ink); margin: 0; }
+.t-h1 { font-size: var(--fs-display); line-height: 1.05; }
+.t-h2 { font-size: var(--fs-section); line-height: 1.2; }
+.t-h3 { font-size: var(--fs-heading); line-height: 1.2; }
+.t-h4 { font-size: var(--fs-title); line-height: 1.2; }
+.t-h5 { font-size: var(--fs-title-sm); line-height: 1.25; }
+.t-h6 { font-size: var(--fs-body); line-height: 1.3; }
+.t-body-lg, .t-body-md, .t-body-sm, .t-caption, .t-paragraph, .t-label, .t-eyebrow, .t-link { font-family: var(--font-ui); margin: 0; }
+.t-body-lg { font-size: var(--fs-body-lg); line-height: 1.4; letter-spacing: var(--tracking-ui); font-weight: 400; }
+.t-body-md { font-size: var(--fs-body); line-height: 1.4; letter-spacing: var(--tracking-ui); font-weight: 400; }
+.t-body-sm { font-size: var(--fs-small); line-height: 1.4; letter-spacing: var(--tracking-ui); font-weight: 400; }
+.t-caption { font-size: var(--fs-caption); line-height: 1.4; letter-spacing: 0; font-weight: 400; color: var(--ink-70); }
+.t-paragraph { font-size: var(--fs-body); line-height: 1.6; letter-spacing: var(--tracking-ui); font-weight: 400; color: var(--ink-80); max-width: 62ch; }
+.t-label { font-size: var(--fs-small); line-height: 1.2; letter-spacing: var(--tracking-ui); font-weight: 500; color: var(--ink); }
+.t-eyebrow { font-size: var(--fs-caption); line-height: 1.2; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; color: var(--ink-70); }
+.t-link { font-size: var(--fs-body); line-height: 1.4; letter-spacing: var(--tracking-ui); font-weight: 400; color: var(--ink); text-decoration: underline; text-decoration-color: var(--ink-20); text-underline-offset: 3px; transition: text-decoration-color .3s var(--ease); }
+@media (hover: hover) { .t-link:hover { text-decoration-color: var(--ink); } }

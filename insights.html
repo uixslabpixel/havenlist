@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Market insights — Havenlist</title>
+  <meta name="description" content="Market insights from Havenlist: expert analysis, buyer guides and neighborhood spotlights for the San Francisco Bay Area housing market.">
     <link rel="expect" href="#vtReady" blocking="render">
   <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preload" href="assets/InterDisplay-Medium.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="design-system.css">
   <style>
@@ -412,7 +412,7 @@
   </main>
 
   <footer class="site-footer">
-    <img class="site-footer__bg" src="assets/footer-bg.webp" alt="" width="1800" height="830" loading="lazy" decoding="async">
+    <img class="site-footer__bg" src="assets/footer-bg.webp" srcset="assets/footer-bg-800.webp 800w, assets/footer-bg-1200.webp 1200w, assets/footer-bg.webp 1800w" sizes="100vw" alt="" width="1800" height="830" loading="lazy" decoding="async">
 
     <div class="site-footer__cta">
       <h2>Ready to sell your property?</h2>
@@ -488,7 +488,7 @@
     <div class="mega-menu__panel" role="dialog" aria-modal="true" aria-label="Site menu">
       <div class="mega-menu__bar" aria-hidden="true">Havenlist.</div>
       <div class="mega-menu__media">
-        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" decoding="async" fetchpriority="low" width="609" height="914">
+        <img src="assets/menu-house.webp" alt="Modern Havenlist residence" loading="lazy" decoding="async" fetchpriority="low" width="609" height="914">
       </div>
 
       <div class="mega-menu__body">
@@ -579,7 +579,9 @@
       ["Report", "Bay Area housing trends Q1 2026"], ["Guide", "5 things to know before buying in Noe Valley"],
       ["Spotlight", "Pacific Heights: A neighborhood guide"], ["Tips", "How to prepare your home for a spring listing"]
     ];
-    var ALL = []; for (var r = 0; r < 3; r++) CARDS.forEach(function (c) { ALL.push({ type: c[0], title: c[1], date: DATE, img: IMG[c[0]] }); });
+    /* a card shows the same picture as its article's page (one image through the card-to-article transition) */
+    function articleImg(t) { var D = window.HL_INSIGHTS || []; for (var i = 0; i < D.length; i++) if (D[i].title === t) return D[i].img; return ""; }
+    var ALL = []; for (var r = 0; r < 3; r++) CARDS.forEach(function (c) { ALL.push({ type: c[0], title: c[1], date: DATE, img: articleImg(c[1]) || IMG[c[0]] }); });
     var SLIDES = [
       { tag: "Market Report", title: "Bay Area housing trends Q1 2026", desc: "Inventory has increased by 8% compared to last year, while median prices remain stable in key neighborhoods.", img: "assets/insights/insight-featured.webp" },
       { tag: "Buyer Guide", title: "5 things to know before buying in Noe Valley", desc: "Parking, schools, microclimates and more: what local agents tell every buyer who tours Noe Valley.", img: IMG.Guide },
@@ -720,9 +722,10 @@
     $("sheetReset").addEventListener("click", function () { sheetQ.value = ""; $("insQuery").value = ""; q = ""; pickType(""); setSdd(false); });
     function setCompact(next) { if (next === compact) return; compact = next; body.classList.toggle("is-compact", next); compactBar.setAttribute("aria-hidden", String(!next)); }
     function evalCompact() {
-      var top = $("insForm").getBoundingClientRect().top;
+      var bottom = $("insForm").getBoundingClientRect().bottom;
       if (window.innerWidth <= 1100) { setCompact(false); return; }
-      if (!compact && top < 80) setCompact(true); else if (compact && top > 92) setCompact(false);
+      /* Navbar filters only once the in-page ones are fully behind the navbar (see filter-ui.js) */
+      if (!compact && bottom <= 48) setCompact(true); else if (compact && bottom > 56) setCompact(false);
     }
     var tick = false;
     window.addEventListener("scroll", function () { if (tick) return; tick = true; requestAnimationFrame(function () { tick = false; evalCompact(); }); }, { passive: true });

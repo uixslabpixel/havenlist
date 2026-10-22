@@ -7,10 +7,16 @@
   var HEART = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path class="heart-outline" pathLength="100" d="M8 5.85C8 5.85 8 3.4 10.45 3.4C12.65 3.4 13.75 5.05 13.75 6.7C13.75 9.95 8 13.55 8 13.55C8 13.55 2.25 9.95 2.25 6.7C2.25 5.05 3.35 3.4 5.55 3.4C8 3.4 8 5.85 8 5.85Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
+  /* Smaller copies for small cards: 2-up on phones, 3-up on tablets, 4-up and more on desktop */
+  function cardSrcset(src) {
+    var ss = window.HavenlistStore && HavenlistStore.srcset ? HavenlistStore.srcset(src) : null;
+    return ss ? ' srcset="' + ss + '" sizes="(max-width: 760px) 50vw, (max-width: 1100px) 33vw, 25vw"' : "";
+  }
+
   function html(l) {
     return '<article class="card" data-id="' + esc(l.id) + '">' +
       '<div class="card__media">' +
-        '<img src="' + esc(l.image) + '" alt="' + esc(l.alt || l.place) + '" loading="lazy" width="800" height="809">' +
+        '<img src="' + esc(l.image) + '"' + cardSrcset(l.image) + ' alt="' + esc(l.alt || l.place) + '" loading="lazy" decoding="async" width="800" height="809">' +
         '<span class="card__badge">' + esc(l.badge || "For sale") + "</span>" +
         '<button class="card__fav" type="button" data-wl-id="' + esc(l.id) + '" aria-label="Save ' + esc(l.place) + '">' + HEART + "</button>" +
       "</div>" +
